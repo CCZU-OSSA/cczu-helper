@@ -13,27 +13,33 @@ class CheckData {
     required this.nowcount,
     required this.stdcount,
   });
-  static Future<CheckData> fetch(String stuid, String termid) async {
+  static Future<CheckData?> fetch(String stuid, String termid) async {
     var data = [];
-
-    while (data.length < 16) {
+    var len = 0;
+    var ct = 0;
+    while (len <= 16) {
       await Dio().get(
           "http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid");
-      var doc = parse((await Dio().get(
+      var text = (await Dio().get(
               "http://202.195.100.156:808/result.aspx?sno=$stuid&tid=$termid"))
-          .data);
-      var data = doc
+          .data;
+      var doc = parse(text);
+      data = doc
           .getElementsByTagName("td")
           .map((e) => e.text.toString().trim())
           .toList();
+      len = data.length;
       debugPrint(data.toString());
       debugPrint(data.length.toString());
+      if (ct++ == 10) {
+        return null;
+      }
     }
 
     return CheckData(
       name: data[8],
-      nowcount: "0",
-      stdcount: data[9],
+      nowcount: data[10],
+      stdcount: data[12],
       status: data[13],
     );
   }

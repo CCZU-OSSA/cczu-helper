@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="cczu_helper"
+        android:label="常大助手"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -29,7 +29,8 @@ class _StateQueryCheckPage extends State<QueryCheckPage> {
               ),
               Padding(
                 padding: EdgeInsets.all(12),
-                child: Text("查询前请先前往个人设置学号/学期❤\n由于吊大的打卡查询过于垃圾，查询时间非常久，失败率也极高😅"),
+                child: Text(
+                    "查询前请先前往个人设置学号/学期❤\n由于吊大的打卡查询过于垃圾，查询时间非常久，失败率也极高😅\n如果你能查到，说明你的运气不错......查不到过会试试吧😋"),
               )
             ]),
           ),
@@ -43,6 +44,9 @@ class _StateQueryCheckPage extends State<QueryCheckPage> {
               "打卡次数",
               style: TextStyle(fontSize: 24),
             ),
+          ),
+          Center(
+            child: Text(bus.config.getOrDefault("lasttime", "无")),
           ),
           const SizedBox(
             height: 24,
@@ -59,11 +63,18 @@ class _StateQueryCheckPage extends State<QueryCheckPage> {
                         CheckData.fetch(bus.config.get("stuid"),
                                 bus.config.get("termid"))
                             .then((value) {
-                          bus.config.write("nowcount", value.nowcount);
-                          bus.config.write("stdcount", value.stdcount);
-
-                          underloading = false;
-                          setState(() {});
+                          if (mounted) {
+                            setState(() {
+                              if (value != null) {
+                                bus.config.write("nowcount", value.nowcount);
+                                bus.config.write("stdcount", value.stdcount);
+                                var time = DateTime.now();
+                                bus.config.write("lasttime",
+                                    "${time.year}-${time.month}-${time.day} ${time.hour}:${time.minute}:${time.second}");
+                              }
+                              underloading = false;
+                            });
+                          }
                         });
                       } else {
                         showDialog(

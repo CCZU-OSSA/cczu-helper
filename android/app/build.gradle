@@ -23,7 +23,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.example.cczu_helper"
+    namespace "io.github.cczuossa.cczu_helper"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
