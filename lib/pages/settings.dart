@@ -1,5 +1,6 @@
 import 'package:cczu_helper/controller/bus.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -89,10 +90,12 @@ class _StateSettingsPage extends State<SettingsPage> {
             },
           ),
           const Divider(),
-          const ListTile(
-            leading: Icon(Icons.link),
-            title: Text("开源地址"),
-            subtitle: Text("Open Source"),
+          ListTile(
+            leading: const Icon(Icons.link),
+            title: const Text("开源地址"),
+            subtitle: const Text("Open Source"),
+            onTap: () =>
+                launchUrlString("https://github.com/CCZU-OSSA/cczu-helper"),
           ),
           ListTile(
             leading: const Icon(Icons.label),
