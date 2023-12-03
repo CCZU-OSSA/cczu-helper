@@ -13,50 +13,55 @@ void main() async {
   ));
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<StatefulWidget> createState() => StateMyApp();
-}
-
 final _defaultLightColorScheme =
     ColorScheme.fromSwatch(primarySwatch: Colors.blue);
 
 final _defaultDarkColorScheme = ColorScheme.fromSwatch(
     primarySwatch: Colors.blue, brightness: Brightness.dark);
 
-class StateMyApp extends State<MyApp> {
-  int? _idx;
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    _idx ??= 0;
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) => MaterialApp(
-        title: 'CCZU Helper',
-        darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
-          colorScheme: darkDynamic ?? _defaultDarkColorScheme,
-        ),
-        theme: ThemeData.light(
-          useMaterial3: true,
-        ).copyWith(
-          colorScheme: lightDynamic ?? _defaultLightColorScheme,
-        ),
-        home: Scaffold(
-          body: [const QueryCheckPage(), const SettingsPage()][_idx!],
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _idx!,
-            onTap: (value) => setState(() {
-              _idx = value;
-            }),
-            items: const [
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.home_filled), label: "主页"),
-              BottomNavigationBarItem(icon: Icon(Icons.settings), label: "设置")
-            ],
+          title: 'CCZU Helper',
+          darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
+            colorScheme: darkDynamic ?? _defaultDarkColorScheme,
           ),
-        ),
+          theme: ThemeData.light(
+            useMaterial3: true,
+          ).copyWith(
+            colorScheme: lightDynamic ?? _defaultLightColorScheme,
+          ),
+          home: const HomePage()),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _StateHomePage();
+}
+
+class _StateHomePage extends State<HomePage> {
+  int _idx = 0;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: [const QueryCheckPage(), const SettingsPage()][_idx],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _idx,
+        onTap: (value) => setState(() {
+          _idx = value;
+        }),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "主页"),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "设置")
+        ],
       ),
     );
   }

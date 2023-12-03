@@ -30,7 +30,7 @@ class _StateQueryCheckPage extends State<QueryCheckPage> {
               Padding(
                 padding: EdgeInsets.all(12),
                 child: Text(
-                    "查询前请先前往个人设置学号/学期❤\n由于吊大的打卡查询过于垃圾，查询时间非常久，失败率也极高😅\n如果你能查到，说明你的运气不错......查不到过会试试吧😋"),
+                    "查询前请先前往个人设置学号/学期❤\n由于吊大的打卡查询过于垃圾，查询时间非常久，失败率也极高😅\n如果你能查到，说明你的运气不错......查不到过会试试吧😋\n实在不行自己先访问 202.195.100.156:808 输入学号点击查询，再回APP试试🥰"),
               )
             ]),
           ),
@@ -63,23 +63,25 @@ class _StateQueryCheckPage extends State<QueryCheckPage> {
                         CheckData.fetch(bus.config.get("stuid"),
                                 bus.config.get("termid"))
                             .then((value) {
+                          String toast;
+                          if (value != null) {
+                            bus.config.write("nowcount", value.nowcount);
+                            bus.config.write("stdcount", value.stdcount);
+                            var time = DateTime.now();
+                            bus.config.write("lasttime",
+                                "${time.year}-${time.month}-${time.day} ${time.hour}:${time.minute}:${time.second}");
+                            toast = "查询成功😋";
+                          } else {
+                            toast = "查询失败😡";
+                          }
                           if (mounted) {
-                            setState(() {
-                              String toast;
-                              if (value != null) {
-                                bus.config.write("nowcount", value.nowcount);
-                                bus.config.write("stdcount", value.stdcount);
-                                var time = DateTime.now();
-                                bus.config.write("lasttime",
-                                    "${time.year}-${time.month}-${time.day} ${time.hour}:${time.minute}:${time.second}");
-                                toast = "查询成功😋";
-                              } else {
-                                toast = "查询失败😡";
-                              }
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(content: Text(toast)));
-                              underloading = false;
-                            });
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(SnackBar(content: Text(toast)));
+                          }
+                          underloading = false;
+
+                          if (mounted) {
+                            setState(() {});
                           }
                         });
                       } else {
@@ -90,7 +92,7 @@ class _StateQueryCheckPage extends State<QueryCheckPage> {
                             children: [
                               Padding(
                                   padding: EdgeInsets.all(12),
-                                  child: Text("点击 我的")),
+                                  child: Text("点击 设置")),
                               Padding(
                                   padding: EdgeInsets.all(12),
                                   child: Text("点击 学号/学期 的相关设置进行编辑"))

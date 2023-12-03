@@ -1,6 +1,7 @@
 import 'package:cczu_helper/controller/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
+import 'package:wakelock/wakelock.dart';
 
 class CheckData {
   String status;
@@ -15,10 +16,13 @@ class CheckData {
   });
 
   static Future<CheckData?> fetch(String stuid, String termid) async {
+    Wakelock.enable();
+
     loggerCell.log(
         "访问 http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid");
-    await Dio().get(
-        "http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid");
+    loggerCell.log((await Dio().get(
+            "http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid"))
+        .data);
     loggerCell.log(
         "访问 http://202.195.100.156:808/result.aspx?sno=$stuid&tid=$termid");
     var text = (await Dio().get(
@@ -30,6 +34,8 @@ class CheckData {
         .map((e) => e.text.toString().trim())
         .toList();
     loggerCell.log(data);
+    Wakelock.disable();
+
     if (data.length <= 16) {
       return null;
     }
