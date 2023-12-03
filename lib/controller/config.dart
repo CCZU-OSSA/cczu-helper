@@ -71,7 +71,7 @@ Future<Config> getPlatConfig({required String path}) async {
 }
 
 class ApplicationConfig extends Config {
-  String _path;
+  final String _path;
   late File configfile;
   void checkInit() {
     loggerCell.log(_path);

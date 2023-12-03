@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   var logger = ApplicationLogger();
   var config = await getPlatConfig(path: "app.config.json");
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(Provider.value(
     value: ApplicationBus(config: config, logger: logger),
     child: const MyApp(),
