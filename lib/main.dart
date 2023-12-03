@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 
 void main() async {
   var logger = ApplicationLogger();
-  var config = getPlatConfig(path: "app.config.json");
+  var config = await getPlatConfig(path: "app.config.json");
   WidgetsFlutterBinding.ensureInitialized();
   runApp(Provider.value(
     value: ApplicationBus(config: config, logger: logger),

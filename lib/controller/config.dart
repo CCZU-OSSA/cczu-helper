@@ -62,18 +62,18 @@ class WebConfig extends Config {
   }
 }
 
-Config getPlatConfig({required String path}) {
+Future<Config> getPlatConfig({required String path}) async {
   if (kIsWeb) {
     return WebConfig();
   } else {
-    return ApplicationConfig(path);
+    return await ApplicationConfig.init(path);
   }
 }
 
 class ApplicationConfig extends Config {
   String _path;
   late File configfile;
-  void _checkInit() {
+  void checkInit() {
     loggerCell.log(_path);
     configfile = File(_path);
     if (!configfile.existsSync()) {
@@ -81,20 +81,27 @@ class ApplicationConfig extends Config {
     }
   }
 
-  ApplicationConfig(this._path) {
+  static Future<ApplicationConfig> init(String path) async {
+    ApplicationConfig conf;
     if (Platform.isAndroid) {
-      getAndroidPath().then((value) {
-        _path = "$value/$_path";
-        _checkInit();
-      });
+      conf = ApplicationConfig("${await getAndroidPath()}/$path");
     } else {
-      _checkInit();
+      conf = ApplicationConfig(path);
     }
+
+    conf.checkInit();
+    return conf;
   }
+
+  ApplicationConfig(this._path);
 
   @override
   Map read() {
-    return jsonDecode(configfile.readAsStringSync());
+    try {
+      return jsonDecode(configfile.readAsStringSync());
+    } catch (_) {
+      return {};
+    }
   }
 
   @override
