@@ -1,4 +1,5 @@
 import 'package:cczu_helper/controller/bus.dart';
+import 'package:cczu_helper/pages/logrecord.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -14,13 +15,12 @@ class _StateSettingsPage extends State<SettingsPage> {
   final TextEditingController _termidcontroller = TextEditingController();
   String stuid = "1145141919810";
   String termid = "0d00";
+
   @override
   Widget build(BuildContext context) {
     var bus = ApplicationBus.instance(context);
     stuid = bus.config.getOrDefault("stuid", "1145141919810");
     termid = bus.config.getOrDefault("termid", "0d00");
-    _stuidcontroller.text = stuid;
-    _termidcontroller.text = termid;
     return Scaffold(
       appBar: AppBar(
         title: const Text("设置"),
@@ -36,6 +36,7 @@ class _StateSettingsPage extends State<SettingsPage> {
               showDialog(
                 context: context,
                 builder: (context) {
+                  _stuidcontroller.text = stuid;
                   return SimpleDialog(
                     title: const Text("输入学号"),
                     children: [
@@ -67,6 +68,7 @@ class _StateSettingsPage extends State<SettingsPage> {
               showDialog(
                 context: context,
                 builder: (context) {
+                  _termidcontroller.text = termid;
                   return SimpleDialog(
                     title: const Text("输入学期(不知道填什么问问别人)"),
                     children: [
@@ -107,6 +109,16 @@ class _StateSettingsPage extends State<SettingsPage> {
                 children: [],
               ),
             ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.book),
+            title: const Text("日志"),
+            subtitle: const Text("Log"),
+            onTap: () => showDialog(
+                context: context,
+                builder: (context) => const Dialog.fullscreen(
+                      child: LogViewPage(),
+                    )),
           )
         ],
       ),

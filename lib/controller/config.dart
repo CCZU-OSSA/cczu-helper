@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cczu_helper/controller/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 class ApplicationConfig {
   String _path;
   late File configfile;
   void _checkInit() {
+    loggerCell.log(_path);
     configfile = File(_path);
     if (!configfile.existsSync()) {
       configfile.writeAsString("{}");
@@ -15,11 +17,9 @@ class ApplicationConfig {
 
   ApplicationConfig(this._path) {
     if (Platform.isAndroid) {
-      getExternalStorageDirectory().then((value) {
-        if (value != null) {
-          _path = "${value.absolute.path}/$_path";
-          _checkInit();
-        }
+      getApplicationSupportDirectory().then((value) {
+        _path = "${value.absolute.path}/$_path";
+        _checkInit();
       });
     } else {
       _checkInit();

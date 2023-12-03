@@ -27,10 +27,11 @@ final _defaultDarkColorScheme = ColorScheme.fromSwatch(
     primarySwatch: Colors.blue, brightness: Brightness.dark);
 
 class StateMyApp extends State<MyApp> {
-  int _idx = 0;
+  int? _idx;
 
   @override
   Widget build(BuildContext context) {
+    _idx ??= 0;
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) => MaterialApp(
         title: 'CCZU Helper',
@@ -43,16 +44,16 @@ class StateMyApp extends State<MyApp> {
           colorScheme: lightDynamic ?? _defaultLightColorScheme,
         ),
         home: Scaffold(
-          body: [const QueryCheckPage(), const SettingsPage()][_idx],
+          body: [const QueryCheckPage(), const SettingsPage()][_idx!],
           bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _idx,
+            currentIndex: _idx!,
             onTap: (value) => setState(() {
               _idx = value;
             }),
             items: const [
               BottomNavigationBarItem(
                   icon: Icon(Icons.home_filled), label: "主页"),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: "我的")
+              BottomNavigationBarItem(icon: Icon(Icons.settings), label: "设置")
             ],
           ),
         ),
