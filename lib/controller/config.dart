@@ -17,8 +17,8 @@ class ApplicationConfig {
 
   ApplicationConfig(this._path) {
     if (Platform.isAndroid) {
-      getApplicationSupportDirectory().then((value) {
-        _path = "${value.absolute.path}/$_path";
+      getAndroidPath().then((value) {
+        _path = "$value/$_path";
         _checkInit();
       });
     } else {
@@ -61,5 +61,19 @@ class ApplicationConfig {
     } else {
       return fallback;
     }
+  }
+}
+
+Future<String> getAndroidPath() async {
+  return (await tryGetExternalStorageDirectory() ??
+          await getApplicationCacheDirectory())
+      .path;
+}
+
+Future<Directory?> tryGetExternalStorageDirectory() async {
+  try {
+    return await getExternalStorageDirectory();
+  } catch (e) {
+    return null;
   }
 }
