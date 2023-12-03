@@ -17,6 +17,7 @@ class _StateLogViewPage extends State<LogViewPage> {
           leading: IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.exit_to_app)),
+          title: const Text("日志"),
         ),
         body: ListView(
           children: List.generate(

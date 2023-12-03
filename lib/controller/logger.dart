@@ -16,7 +16,7 @@ class ApplicationLogger {
   ApplicationLogger log(dynamic msg) {
     var smsg = "${DateTime.now()} $msg";
     debugPrint(smsg);
-    logs.add(smsg);
+    logs.insert(0, smsg);
     return this;
   }
 }

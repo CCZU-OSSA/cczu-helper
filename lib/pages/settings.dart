@@ -100,13 +100,22 @@ class _StateSettingsPage extends State<SettingsPage> {
                 launchUrlString("https://github.com/CCZU-OSSA/cczu-helper"),
           ),
           ListTile(
-            leading: const Icon(Icons.label),
+            leading: const Icon(Icons.chat),
+            title: const Text("QQ群"),
+            subtitle: const Text("947560153"),
+            onTap: () => launchUrlString(
+                "http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=6wgGLJ_NmKQl7f9Ws6JAprbTwmG9Ouei&authKey=g7bXX%2Bn2dHlbecf%2B8QfGJ15IFVOmEdGTJuoLYfviLg7TZIsZCu45sngzZfL3KktN&noverify=0&group_code=947560153"),
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
             title: const Text("关于"),
             subtitle: const Text("About"),
             onTap: () => showDialog(
               context: context,
               builder: (context) => const AboutDialog(
-                children: [],
+                applicationVersion: "1.0.0",
+                applicationName: "吊大助手",
+                applicationLegalese: "copyright © 2023 常州大学开源软件协会",
               ),
             ),
           ),
