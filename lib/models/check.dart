@@ -18,15 +18,15 @@ class CheckData {
     var len = 0;
     var ct = 0;
     while (len <= 16) {
+      loggerCell.log(
+          "访问 http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid");
       await Dio().get(
           "http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid");
       loggerCell.log(
-          "访问 http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid");
+          "访问 http://202.195.100.156:808/result.aspx?sno=$stuid&tid=$termid");
       var text = (await Dio().get(
               "http://202.195.100.156:808/result.aspx?sno=$stuid&tid=$termid"))
           .data;
-      loggerCell.log(
-          "访问 http://202.195.100.156:808/result.aspx?sno=$stuid&tid=$termid");
       var doc = parse(text);
       data = doc
           .getElementsByTagName("td")
