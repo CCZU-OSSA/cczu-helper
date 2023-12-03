@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cczu_helper/controller/bus.dart';
 import 'package:cczu_helper/controller/logger.dart';
 import 'package:dio/dio.dart';
@@ -19,14 +21,15 @@ class CheckData {
   static Future<CheckData?> fetch(String stuid, String termid) async {
     Wakelock.enable();
     try {
-      loggerCell
-          .log("访问 ${busCell.baseurl}/check.ashx?stuNo=$stuid&termID=$termid");
-      loggerCell.log((await Dio()
-              .get("${busCell.baseurl}/check.ashx?stuNo=$stuid&termID=$termid"))
+      var client = Dio();
+
+      loggerCell.log("访问 ${busCell.baseurl}/check.ashx");
+      loggerCell.log((await client.post("${busCell.baseurl}/check.ashx",
+              data: FormData.fromMap({"stuNo": stuid, "termID": termid})))
           .data);
       loggerCell
           .log("访问 ${busCell.baseurl}/result.aspx?sno=$stuid&tid=$termid");
-      var text = (await Dio()
+      var text = (await client
               .get("${busCell.baseurl}/result.aspx?sno=$stuid&tid=$termid"))
           .data;
       var doc = parse(text);
