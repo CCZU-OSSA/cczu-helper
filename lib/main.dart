@@ -1,4 +1,6 @@
 import 'package:cczu_helper/controller/bus.dart';
+import 'package:cczu_helper/controller/config.dart';
+import 'package:cczu_helper/controller/logger.dart';
 import 'package:cczu_helper/pages/settings.dart';
 import 'package:cczu_helper/pages/query_check.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -6,9 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
+  var logger = ApplicationLogger();
+  var config = getPlatConfig(path: "app.config.json");
   WidgetsFlutterBinding.ensureInitialized();
   runApp(Provider.value(
-    value: ApplicationBus(),
+    value: ApplicationBus(config: config, logger: logger),
     child: const MyApp(),
   ));
 }
@@ -47,12 +51,14 @@ class HomePage extends StatefulWidget {
   State<StatefulWidget> createState() => _StateHomePage();
 }
 
+final _pages = [const QueryCheckPage(), const SettingsPage()];
+
 class _StateHomePage extends State<HomePage> {
   int _idx = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: [const QueryCheckPage(), const SettingsPage()][_idx],
+      body: _pages[_idx],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _idx,
         onTap: (value) => setState(() {

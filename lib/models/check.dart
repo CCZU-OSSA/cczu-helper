@@ -1,3 +1,4 @@
+import 'package:cczu_helper/controller/bus.dart';
 import 'package:cczu_helper/controller/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
@@ -17,34 +18,41 @@ class CheckData {
 
   static Future<CheckData?> fetch(String stuid, String termid) async {
     Wakelock.enable();
+    try {
+      loggerCell
+          .log("访问 ${busCell.baseurl}/check.ashx?stuNo=$stuid&termID=$termid");
+      loggerCell.log((await Dio()
+              .get("${busCell.baseurl}/check.ashx?stuNo=$stuid&termID=$termid"))
+          .data);
+      loggerCell
+          .log("访问 ${busCell.baseurl}/result.aspx?sno=$stuid&tid=$termid");
+      var text = (await Dio()
+              .get("${busCell.baseurl}/result.aspx?sno=$stuid&tid=$termid"))
+          .data;
+      var doc = parse(text);
+      var data = doc
+          .getElementsByTagName("td")
+          .map((e) => e.text.toString().trim())
+          .toList();
+      loggerCell.log(data);
+      Wakelock.disable();
 
-    loggerCell.log(
-        "访问 http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid");
-    loggerCell.log((await Dio().get(
-            "http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid"))
-        .data);
-    loggerCell.log(
-        "访问 http://202.195.100.156:808/result.aspx?sno=$stuid&tid=$termid");
-    var text = (await Dio().get(
-            "http://202.195.100.156:808/result.aspx?sno=$stuid&tid=$termid"))
-        .data;
-    var doc = parse(text);
-    var data = doc
-        .getElementsByTagName("td")
-        .map((e) => e.text.toString().trim())
-        .toList();
-    loggerCell.log(data);
-    Wakelock.disable();
+      if (data.length <= 16) {
+        return null;
+      }
 
-    if (data.length <= 16) {
+      return CheckData(
+        name: data[8],
+        nowcount: data[10],
+        stdcount: data[12],
+        status: data[13],
+      );
+    } catch (e, s) {
+      loggerCell.log(s);
+      loggerCell.log(e);
+
+      Wakelock.disable();
       return null;
     }
-
-    return CheckData(
-      name: data[8],
-      nowcount: data[10],
-      stdcount: data[12],
-      status: data[13],
-    );
   }
 }
