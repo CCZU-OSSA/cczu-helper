@@ -13,30 +13,25 @@ class CheckData {
     required this.nowcount,
     required this.stdcount,
   });
+
   static Future<CheckData?> fetch(String stuid, String termid) async {
-    var data = [];
-    var len = 0;
-    var ct = 0;
-    while (len <= 16) {
-      loggerCell.log(
-          "访问 http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid");
-      await Dio().get(
-          "http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid");
-      loggerCell.log(
-          "访问 http://202.195.100.156:808/result.aspx?sno=$stuid&tid=$termid");
-      var text = (await Dio().get(
-              "http://202.195.100.156:808/result.aspx?sno=$stuid&tid=$termid"))
-          .data;
-      var doc = parse(text);
-      data = doc
-          .getElementsByTagName("td")
-          .map((e) => e.text.toString().trim())
-          .toList();
-      len = data.length;
-      loggerCell.log(data);
-      if (ct++ == 10) {
-        return null;
-      }
+    loggerCell.log(
+        "访问 http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid");
+    await Dio().get(
+        "http://202.195.100.156:808/check.ashx?stuNo=$stuid&termID=$termid");
+    loggerCell.log(
+        "访问 http://202.195.100.156:808/result.aspx?sno=$stuid&tid=$termid");
+    var text = (await Dio().get(
+            "http://202.195.100.156:808/result.aspx?sno=$stuid&tid=$termid"))
+        .data;
+    var doc = parse(text);
+    var data = doc
+        .getElementsByTagName("td")
+        .map((e) => e.text.toString().trim())
+        .toList();
+    loggerCell.log(data);
+    if (data.length <= 16) {
+      return null;
     }
 
     return CheckData(

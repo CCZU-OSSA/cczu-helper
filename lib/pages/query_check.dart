@@ -65,13 +65,19 @@ class _StateQueryCheckPage extends State<QueryCheckPage> {
                             .then((value) {
                           if (mounted) {
                             setState(() {
+                              String toast;
                               if (value != null) {
                                 bus.config.write("nowcount", value.nowcount);
                                 bus.config.write("stdcount", value.stdcount);
                                 var time = DateTime.now();
                                 bus.config.write("lasttime",
                                     "${time.year}-${time.month}-${time.day} ${time.hour}:${time.minute}:${time.second}");
+                                toast = "查询成功😋";
+                              } else {
+                                toast = "查询失败😡";
                               }
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(content: Text(toast)));
                               underloading = false;
                             });
                           }
