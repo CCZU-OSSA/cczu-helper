@@ -95,7 +95,7 @@ class _StateSettingsPage extends State<SettingsPage> {
           ListTile(
             leading: const Icon(Icons.link),
             title: const Text("开源地址"),
-            subtitle: const Text("Open Source"),
+            subtitle: const Text("https://github.com/CCZU-OSSA/cczu-helper"),
             onTap: () =>
                 launchUrlString("https://github.com/CCZU-OSSA/cczu-helper"),
           ),
@@ -113,7 +113,7 @@ class _StateSettingsPage extends State<SettingsPage> {
             onTap: () => showDialog(
               context: context,
               builder: (context) => const AboutDialog(
-                applicationVersion: "1.0.0",
+                applicationVersion: "1.0.1",
                 applicationName: "吊大助手",
                 applicationLegalese: "copyright © 2023 常州大学开源软件协会",
               ),

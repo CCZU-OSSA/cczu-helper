@@ -10,11 +10,10 @@ class QueryCheckPage extends StatefulWidget {
 }
 
 class _StateQueryCheckPage extends State<QueryCheckPage> {
-  bool underloading = false;
-
   @override
   Widget build(BuildContext context) {
     var bus = ApplicationBus.instance(context);
+    bus.callback = setState;
     return Scaffold(
       appBar: AppBar(
         title: const Text("打卡查询"),
@@ -51,7 +50,7 @@ class _StateQueryCheckPage extends State<QueryCheckPage> {
           const SizedBox(
             height: 24,
           ),
-          underloading
+          bus.underloading
               ? const Center(child: CircularProgressIndicator())
               : Padding(
                   padding: const EdgeInsets.all(12),
@@ -59,7 +58,7 @@ class _StateQueryCheckPage extends State<QueryCheckPage> {
                     child: const Text("刷新"),
                     onPressed: () => setState(() {
                       if (bus.config.has("stuid") && bus.config.has("termid")) {
-                        underloading = true;
+                        bus.underloading = true;
                         CheckData.fetch(bus.config.get("stuid"),
                                 bus.config.get("termid"))
                             .then((value) {
@@ -78,11 +77,15 @@ class _StateQueryCheckPage extends State<QueryCheckPage> {
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(SnackBar(content: Text(toast)));
                           }
-                          underloading = false;
+                          bus.underloading = false;
 
                           if (mounted) {
                             setState(() {});
                           }
+
+                          try {
+                            bus.callback(() {});
+                          } catch (_) {}
                         });
                       } else {
                         showDialog(

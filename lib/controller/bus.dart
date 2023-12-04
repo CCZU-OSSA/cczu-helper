@@ -8,6 +8,10 @@ late ApplicationBus busCell;
 class ApplicationBus {
   final ApplicationLogger logger;
   final Config config;
+  
+  bool underloading = false;
+  late void Function(VoidCallback) callback;
+
   String baseurl = "http://202.195.100.156:808";
   ApplicationBus({required this.config, required this.logger}) {
     busCell = this;
