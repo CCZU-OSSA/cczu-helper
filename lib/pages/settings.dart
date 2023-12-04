@@ -1,5 +1,6 @@
 import 'package:cczu_helper/controller/bus.dart';
 import 'package:cczu_helper/pages/logrecord.dart';
+import 'package:cczu_helper/pages/termview.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -90,6 +91,18 @@ class _StateSettingsPage extends State<SettingsPage> {
                 },
               );
             },
+          ),
+          ListTile(
+            leading: const Icon(Icons.list),
+            title: const Text("查看学期"),
+            subtitle: const Text("View Terms"),
+            trailing: const Icon(Icons.public),
+            onTap: () => showDialog(
+              context: context,
+              builder: (context) => const Dialog.fullscreen(
+                child: TermView(),
+              ),
+            ),
           ),
           const Divider(),
           ListTile(
