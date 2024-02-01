@@ -1,5 +1,5 @@
-import 'package:cczu_helper/controller/bus.dart';
-import 'package:cczu_helper/pages/logrecord.dart';
+import 'package:arche/arche.dart';
+import 'package:cczu_helper/controller/config.dart';
 import 'package:cczu_helper/pages/termview.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -14,14 +14,12 @@ class SettingsPage extends StatefulWidget {
 class _StateSettingsPage extends State<SettingsPage> {
   final TextEditingController _stuidcontroller = TextEditingController();
   final TextEditingController _termidcontroller = TextEditingController();
-  String stuid = "1145141919810";
-  String termid = "0d00";
 
   @override
   Widget build(BuildContext context) {
-    var bus = ApplicationBus.instance(context);
-    stuid = bus.config.getOrDefault("stuid", "1145141919810");
-    termid = bus.config.getOrDefault("termid", "0d00");
+    ApplicationConfigs configs = ArcheBus.bus.of();
+    var username = configs.username.getOr("1145141919810");
+    var termid = configs.termid.getOr("0d00");
     return Scaffold(
       appBar: AppBar(
         title: const Text("设置"),
@@ -32,12 +30,12 @@ class _StateSettingsPage extends State<SettingsPage> {
             leading: const Icon(Icons.perm_identity),
             title: const Text("学号"),
             subtitle: const Text("Student ID"),
-            trailing: Text(stuid),
+            trailing: Text(username),
             onTap: () {
               showDialog(
                 context: context,
                 builder: (context) {
-                  _stuidcontroller.text = stuid;
+                  _stuidcontroller.text = username;
                   return SimpleDialog(
                     title: const Text("输入学号"),
                     children: [
@@ -47,7 +45,7 @@ class _StateSettingsPage extends State<SettingsPage> {
                           controller: _stuidcontroller,
                           onChanged: (v) {
                             setState(() {
-                              bus.config.write("stuid", v);
+                              configs.username.write(v);
                             });
                           },
                           decoration: const InputDecoration(
@@ -79,7 +77,7 @@ class _StateSettingsPage extends State<SettingsPage> {
                           controller: _termidcontroller,
                           onChanged: (v) {
                             setState(() {
-                              bus.config.write("termid", v);
+                              configs.termid.write(v);
                             });
                           },
                           decoration: const InputDecoration(
@@ -138,9 +136,7 @@ class _StateSettingsPage extends State<SettingsPage> {
             subtitle: const Text("Log"),
             onTap: () => showDialog(
                 context: context,
-                builder: (context) => const Dialog.fullscreen(
-                      child: LogViewPage(),
-                    )),
+                builder: (context) => const Dialog.fullscreen()),
           )
         ],
       ),

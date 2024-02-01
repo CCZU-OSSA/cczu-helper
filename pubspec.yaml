@@ -36,12 +36,13 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   dynamic_color: ^1.6.8
-  provider: ^6.1.1
   path_provider: ^2.1.1
   dio: ^5.4.0
   html: ^0.15.4
   url_launcher: ^6.2.1
   wakelock: ^0.6.2
+  arche: 
+    git: https://github.com/H2Sxxa/Arche.git
 
 dev_dependencies:
   flutter_test:

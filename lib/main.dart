@@ -1,20 +1,18 @@
-import 'package:cczu_helper/controller/bus.dart';
+import 'package:arche/arche.dart';
 import 'package:cczu_helper/controller/config.dart';
-import 'package:cczu_helper/controller/logger.dart';
+import 'package:cczu_helper/pages/query.dart';
 import 'package:cczu_helper/pages/settings.dart';
-import 'package:cczu_helper/pages/query_check.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  var logger = ApplicationLogger();
+
   var config = await getPlatConfig(path: "app.config.json");
-  runApp(Provider.value(
-    value: ApplicationBus(config: config, logger: logger),
-    child: const MyApp(),
-  ));
+  ArcheBus()
+      .provide(config)
+      .provide(ApplicationConfigs(ConfigEntry.withConfig(config)));
+  runApp(const MyApp());
 }
 
 final _defaultLightColorScheme =
@@ -44,31 +42,16 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _StateHomePage();
-}
-
-final _pages = [const QueryCheckPage(), const SettingsPage()];
-
-class _StateHomePage extends State<HomePage> {
-  int _idx = 0;
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_idx],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _idx,
-        onTap: (value) => setState(() {
-          _idx = value;
-        }),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "主页"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "设置")
-        ],
-      ),
-    );
+    return const Scaffold(
+        body: NavigationView.pageView(direction: Axis.vertical, items: [
+      NavigationItem(icon: Icon(Icons.home), page: QueryPage(), label: "主页"),
+      NavigationItem(
+          icon: Icon(Icons.settings), page: SettingsPage(), label: "设置"),
+    ]));
   }
 }

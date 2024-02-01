@@ -1,5 +1,5 @@
-import 'package:cczu_helper/controller/bus.dart';
-import 'package:cczu_helper/controller/logger.dart';
+import 'package:arche/arche.dart';
+import 'package:cczu_helper/models/fields.dart';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
 import 'package:wakelock/wakelock.dart';
@@ -18,24 +18,25 @@ class CheckData {
 
   static Future<CheckData?> fetch(String stuid, String termid) async {
     Wakelock.enable();
+
+    var logger = ArcheBus().of<ArcheLogger>();
     try {
       var client = Dio();
 
-      loggerCell.log("访问 ${busCell.baseurl}/check.ashx");
-      loggerCell.log((await client.post("${busCell.baseurl}/check.ashx",
+      logger.info("访问 $checkInBaseUrl/check.ashx");
+      logger.info((await client.post("$checkInBaseUrl/check.ashx",
               data: FormData.fromMap({"stuNo": stuid, "termID": termid})))
           .data);
-      loggerCell
-          .log("访问 ${busCell.baseurl}/result.aspx?sno=$stuid&tid=$termid");
+      logger.info("访问 $checkInBaseUrl/result.aspx?sno=$stuid&tid=$termid");
       var text = (await client
-              .get("${busCell.baseurl}/result.aspx?sno=$stuid&tid=$termid"))
+              .get("$checkInBaseUrl/result.aspx?sno=$stuid&tid=$termid"))
           .data;
       var doc = parse(text);
       var data = doc
           .getElementsByTagName("td")
           .map((e) => e.text.toString().trim())
           .toList();
-      loggerCell.log(data);
+      logger.info(data.toString());
       Wakelock.disable();
 
       if (data.length <= 16) {
@@ -49,8 +50,8 @@ class CheckData {
         status: data[13],
       );
     } catch (e, s) {
-      loggerCell.log(s);
-      loggerCell.log(e);
+      logger.error(s);
+      logger.error(e);
 
       Wakelock.disable();
       return null;
