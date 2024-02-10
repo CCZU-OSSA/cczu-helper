@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/controllers/config.dart';
+import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/feature.dart';
 import 'package:cczu_helper/views/pages/home.dart';
@@ -10,7 +13,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await initializeRust();
   var logger = ArcheLogger();
   var configPath = await getPlatPath(path: "app.config.json");
   var config = ArcheConfig.path(configPath);
@@ -42,6 +45,19 @@ class MainApplication extends StatefulWidget {
 
 class MainApplicationState extends State<MainApplication> {
   void refresh() => setState(() {});
+
+  final _appLifecycleListener = AppLifecycleListener(
+    onExitRequested: () async {
+      await finalizeRust();
+      return AppExitResponse.exit;
+    },
+  );
+
+  @override
+  void dispose() {
+    super.dispose();
+    _appLifecycleListener.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

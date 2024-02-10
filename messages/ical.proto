@@ -1,0 +1,16 @@
+syntax = "proto3";
+package ical;
+
+// [RINF:DART-SIGNAL]
+message UserDataSyncInput {
+    string username = 1;
+    string password = 2;
+    string firstweekdate = 3;
+    string reminder = 4;
+};
+
+// [RINF:RUST-SIGNAL]
+message ICalJsonCallback{
+    bool ok = 1;
+    string data = 2;
+}

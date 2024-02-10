@@ -1,5 +1,6 @@
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
+import 'package:cczu_helper/views/pages/features/ical.dart';
 import 'package:cczu_helper/views/pages/features/query.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class FeatureItem {
     );
   }
 
-  Function() onTap() => () => pushMaterialRoute(
+  void onTap() => pushMaterialRoute(
         builder: (context) => Scaffold(
           appBar: AppBar(
             title: Text(name),
@@ -58,7 +59,11 @@ class FeaturesPageState extends State<FeaturesPage>
   static final List<FeatureItem> features = [
     const FeatureItem(
       name: "打卡查询",
-      child: QueryPage(),
+      child: QueryFeature(),
+    ),
+    const FeatureItem(
+      name: "ICalender课程表生成",
+      child: ICalendarFeature(),
     )
   ];
 
@@ -68,9 +73,9 @@ class FeaturesPageState extends State<FeaturesPage>
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           if (useListView) {
-            controller.forward();
-          } else {
             controller.reverse();
+          } else {
+            controller.forward();
           }
           setState(() {
             useListView = !useListView;

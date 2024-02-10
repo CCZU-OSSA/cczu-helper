@@ -1,14 +1,14 @@
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 
-class QueryPage extends StatefulWidget {
-  const QueryPage({super.key});
+class QueryFeature extends StatefulWidget {
+  const QueryFeature({super.key});
 
   @override
-  State<StatefulWidget> createState() => _StateQueryPage();
+  State<StatefulWidget> createState() => QueryFeatureState();
 }
 
-class _StateQueryPage extends State<QueryPage> {
+class QueryFeatureState extends State<QueryFeature> {
   @override
   Widget build(BuildContext context) {
     return const PaddingScrollView(

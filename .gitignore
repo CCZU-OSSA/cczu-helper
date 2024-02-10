@@ -42,3 +42,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 app.config.json
+
+# Rust related
+.cargo/
+target/
+
+# Generated messages
+*/**/messages/
