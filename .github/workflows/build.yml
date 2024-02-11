@@ -25,7 +25,7 @@ jobs:
           channel: "stable"
       - name: Configure Complie
         run: |
-          apt-get install openssl-dev
+          sudo apt-get install openssl-dev
 
       - run: flutter build apk
       - name: Upload Artifact
