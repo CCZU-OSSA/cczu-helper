@@ -7,6 +7,7 @@ on:
     paths:
       - lib/**
       - .github/workflows/**
+      - native/**
   pull_request:
 
 jobs:
