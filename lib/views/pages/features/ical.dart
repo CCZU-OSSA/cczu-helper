@@ -26,8 +26,8 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
         ElevatedButton.icon(
           onPressed: () {
             UserDataSyncInput(
-                    username: "2300980232",
-                    password: "090510",
+                    username: "2300000002",
+                    password: "000000",
                     firstweekdate: "",
                     reminder: "15")
                 .sendSignalToRust(null);

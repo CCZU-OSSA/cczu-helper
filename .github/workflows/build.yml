@@ -1,38 +1,42 @@
 name: Build
 
-on: 
+on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'lib/**'
+      - "lib/**"
   pull_request:
-  
+
 jobs:
- build:
-   runs-on: ubuntu-latest
-   steps:
-     - uses: actions/checkout@v3
-     - uses: actions/checkout@v3.5.2
-     - name: Set up JDK 17
-       uses: actions/setup-java@v3.13.0
-       with:
-        distribution: 'zulu'
-        java-version: '17'
-     - uses: subosito/flutter-action@v2
-       with:
-         channel: 'stable'
-         
-     - run: flutter build apk
-     - name: Upload Artifact
-       uses: actions/upload-artifact@v3.1.2
-       with:
-         name: armAll
-         path: 'build/app/outputs/apk/release/*'
-         
-     - run: flutter build apk --split-per-abi
-     - name: Upload Artifact
-       uses: actions/upload-artifact@v3.1.2
-       with:
-         name: apks
-         path: 'build/app/outputs/apk/release/*'
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.5.2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3.13.0
+        with:
+          distribution: "zulu"
+          java-version: "17"
+          
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Configure Complie
+        run: |
+          apt-get install openssl-dev
+
+      - run: flutter build apk
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: armAll
+          path: "build/app/outputs/apk/release/*"
+
+      - run: flutter build apk --split-per-abi
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: apks
+          path: "build/app/outputs/apk/release/*"
