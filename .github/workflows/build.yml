@@ -5,7 +5,8 @@ on:
   push:
     branches: [main]
     paths:
-      - "lib/**"
+      - lib/**
+      - .github/workflows/**
   pull_request:
 
 jobs:
@@ -19,24 +20,25 @@ jobs:
         with:
           distribution: "zulu"
           java-version: "17"
-          
+
       - uses: subosito/flutter-action@v2
         with:
           channel: "stable"
       - name: Configure Complie
         run: |
-          sudo apt-get install openssl-dev
+          sudo apt update
+          sudo apt-get install openssl openssl-dev
 
       - run: flutter build apk
       - name: Upload Artifact
         uses: actions/upload-artifact@v3.1.2
         with:
           name: armAll
-          path: "build/app/outputs/apk/release/*"
+          path: build/app/outputs/apk/release/*
 
       - run: flutter build apk --split-per-abi
       - name: Upload Artifact
         uses: actions/upload-artifact@v3.1.2
         with:
           name: apks
-          path: "build/app/outputs/apk/release/*"
+          path: build/app/outputs/apk/release/*
