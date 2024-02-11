@@ -21,15 +21,16 @@ jobs:
         with:
           distribution: "zulu"
           java-version: "17"
+          
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
       - name: Install Rust & Generate Message
         run: |
           rustup update stable
           cargo install rinf
           rinf message
-
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
 
       - run: flutter build apk --release
       - name: Upload Artifact
