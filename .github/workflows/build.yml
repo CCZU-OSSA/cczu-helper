@@ -27,7 +27,7 @@ jobs:
       - name: Configure Complie
         run: |
           sudo apt update
-          sudo apt-get install openssl openssl-dev
+          sudo apt-get install openssl libssl-dev
 
       - run: flutter build apk
       - name: Upload Artifact
