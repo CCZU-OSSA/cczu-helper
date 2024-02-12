@@ -41,4 +41,5 @@ class ApplicationConfigs {
         forward: (value) => ThemeMode.values[value],
         reverse: (value) => ThemeMode.values.indexOf(value),
       );
+  ConfigEntry<bool> get material3 => generator("material3");
 }

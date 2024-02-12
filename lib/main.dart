@@ -44,7 +44,11 @@ class MainApplication extends StatefulWidget {
 }
 
 class MainApplicationState extends State<MainApplication> {
-  void refresh() => setState(() {});
+  void refresh() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   final _appLifecycleListener = AppLifecycleListener(
     onExitRequested: () async {
@@ -94,14 +98,14 @@ class MainApplicationState extends State<MainApplication> {
         darkTheme: ThemeData(
           brightness: Brightness.dark,
           fontFamily: useSystemFont ? null : "Default",
-          useMaterial3: true,
+          useMaterial3: configs.material3.getOr(true),
           colorScheme: darkDynamic ?? _defaultDarkColorScheme,
           typography: Typography.material2021(),
         ),
         theme: ThemeData(
           brightness: Brightness.light,
           fontFamily: useSystemFont ? null : "Default",
-          useMaterial3: true,
+          useMaterial3: configs.material3.getOr(true),
           colorScheme: lightDynamic ?? _defaultLightColorScheme,
           typography: Typography.material2021(),
         ),
@@ -148,8 +152,12 @@ class MainViewState extends State<MainView> {
   @override
   Widget build(BuildContext context) {
     ApplicationConfigs configs = ArcheBus().of();
-
+    var themeMode = configs.themeMode.getOr(ThemeMode.system);
+    bool isDark = themeMode == ThemeMode.system
+        ? MediaQuery.of(context).platformBrightness == Brightness.dark
+        : themeMode == ThemeMode.dark;
     return Scaffold(
+      key: ValueKey(configs.material3.getOr(true)),
       appBar: AppBar(
         title: Text(viewItems[currentIndex].label),
       ),
@@ -157,10 +165,32 @@ class MainViewState extends State<MainView> {
         selectedIndex: currentIndex,
         onDestinationSelected: navKey.currentState?.pushIndex,
         children: <Widget>[
-              const ListTile(
-                leading: Icon(Icons.account_circle),
-                title: Text("常大助手"),
-                subtitle: Text("CCZU HELPER"),
+              ListTile(
+                leading: const Icon(Icons.account_circle),
+                title: const Text("常大助手"),
+                subtitle: const Text("CCZU HELPER"),
+                trailing: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () => setState(() {
+                    configs.themeMode
+                        .write(isDark ? ThemeMode.light : ThemeMode.dark);
+                    rootKey.currentState?.refresh();
+                    settingKey.currentState?.refresh();
+                  }),
+                  onLongPress: () => setState(() {
+                    configs.themeMode.write(ThemeMode.system);
+                    rootKey.currentState?.refresh();
+                    settingKey.currentState?.refresh();
+                  }),
+                  child: AnimatedRotation(
+                    turns: isDark ? 0 : 1,
+                    duration: Durations.medium4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+                    ),
+                  ),
+                ),
               )
             ] +
             viewItems

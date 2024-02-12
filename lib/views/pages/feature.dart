@@ -62,7 +62,7 @@ class FeaturesPageState extends State<FeaturesPage>
       child: QueryFeature(),
     ),
     const FeatureItem(
-      name: "ICalender课程表生成",
+      name: "ICalendar课程表生成",
       child: ICalendarFeature(),
     )
   ];
@@ -93,8 +93,10 @@ class FeaturesPageState extends State<FeaturesPage>
                     .map(
                       (e) => CardButton(
                         onTap: e.onTap,
-                        child: ListTile(
-                          title: Text(e.name),
+                        child: IgnorePointer(
+                          child: ListTile(
+                            title: Text(e.name),
+                          ),
                         ),
                       ),
                     )
@@ -105,9 +107,9 @@ class FeaturesPageState extends State<FeaturesPage>
                 children: features
                     .map(
                       (e) => CardButton(
-                        size: const Size.square(127),
+                        size: const Size.square(180),
                         onTap: e.onTap,
-                        child: Text(e.name),
+                        child: FittedBox(child: Text(e.name)),
                       ),
                     )
                     .toList()),

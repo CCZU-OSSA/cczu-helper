@@ -22,7 +22,9 @@ class SettingsPageState extends State<SettingsPage> {
   final GlobalKey<PopupMenuButtonState> _themeModeMenuKey = GlobalKey();
 
   void refresh() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -85,28 +87,42 @@ class SettingsPageState extends State<SettingsPage> {
                     subtitle: const Text("Theme"),
                     onTap: () =>
                         _themeModeMenuKey.currentState?.showButtonMenu(),
-                    trailing: PopupMenuButton(
-                      key: _themeModeMenuKey,
-                      child: Text(thememodeTr
-                          .translation(
-                              configs.themeMode.getOr(ThemeMode.system))
-                          .toString()),
-                      itemBuilder: (context) => ThemeMode.values
-                          .map(
-                            (e) => PopupMenuItem(
-                              child:
-                                  Text(thememodeTr.translation(e).toString()),
-                              onTap: () {
-                                setState(() {
-                                  configs.themeMode.write(e);
-                                });
-                                rootKey.currentState?.refresh();
-                              },
-                            ),
-                          )
-                          .toList(),
+                    trailing: IgnorePointer(
+                      child: PopupMenuButton(
+                        key: _themeModeMenuKey,
+                        child: Text(thememodeTr
+                            .translation(
+                                configs.themeMode.getOr(ThemeMode.system))
+                            .toString()),
+                        itemBuilder: (context) => ThemeMode.values
+                            .map(
+                              (e) => PopupMenuItem(
+                                child:
+                                    Text(thememodeTr.translation(e).toString()),
+                                onTap: () {
+                                  setState(() {
+                                    configs.themeMode.write(e);
+                                  });
+                                  rootKey.currentState?.refresh();
+                                },
+                              ),
+                            )
+                            .toList(),
+                      ),
                     ),
                   ),
+                  SwitchListTile(
+                      title: const Text("使用 Material 3"),
+                      subtitle: const Text("Use Material You"),
+                      secondary: const Icon(Icons.widgets),
+                      value: configs.material3.getOr(true),
+                      onChanged: (value) {
+                        setState(() {
+                          configs.material3.write(value);
+                        });
+
+                        rootKey.currentState?.refresh();
+                      }),
                   SwitchListTile(
                       title: const Text("使用系统字体"),
                       subtitle: const Text("System Font"),

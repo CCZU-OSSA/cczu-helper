@@ -12,10 +12,21 @@ class ICalendarFeature extends StatefulWidget {
 }
 
 class ICalendarFeatureState extends State<ICalendarFeature> {
+  void generateICalendar() {
+    UserDataSyncInput(
+            username: "2300000002",
+            password: "000000",
+            firstweekdate: "",
+            reminder: "15")
+        .sendSignalToRust(null);
+    ICalJsonCallback.rustSignalStream.listen((event) {
+      ComplexDialog.instance
+          .text(context: context, content: Text(event.message.data));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    var cpxd = ComplexDialog(context: context);
-
     return PaddingScrollView(
         child: Column(
       children: [
@@ -25,14 +36,16 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
         ),
         ElevatedButton.icon(
           onPressed: () {
-            UserDataSyncInput(
-                    username: "2300000002",
-                    password: "000000",
-                    firstweekdate: "",
-                    reminder: "15")
-                .sendSignalToRust(null);
-            ICalJsonCallback.rustSignalStream.listen((event) {
-              cpxd.confirm(context: context, content: Text(event.message.data));
+            showDatePicker(
+              barrierDismissible: false,
+              helpText: "选择学期第一天",
+              context: context,
+              firstDate: DateTime.now().add(const Duration(days: -365)),
+              lastDate: DateTime.now().add(const Duration(days: 365)),
+            ).then((value) {
+              ComplexDialog.instance.input(
+                context: context,
+              );
             });
           },
           label: const Text("生成"),
