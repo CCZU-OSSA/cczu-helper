@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:arche/arche.dart';
+import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
@@ -15,7 +16,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeRust();
   var logger = ArcheLogger();
-  var configPath = await getPlatPath(path: "app.config.json");
+  var configPath =
+      (await platDirectory.getValue()).absolute.subPath("app.config.json");
   var config = ArcheConfig.path(configPath);
   logger.info("Application Config Stored in `$configPath`");
   logger.info("Load Configs");
@@ -25,9 +27,9 @@ void main() async {
       .provide(config)
       .provide(ApplicationConfigs(ConfigEntry.withConfig(config)));
   logger.info("Run Application in `main`...");
-  runApp(MainApplication(
-    key: rootKey,
-  ));
+  runApp(
+    MainApplication(key: rootKey),
+  );
 }
 
 final _defaultLightColorScheme =

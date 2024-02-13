@@ -4,26 +4,16 @@ import 'package:arche/arche.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
-Future<String> getPlatPath({required String path}) async {
-  if (Platform.isAndroid) {
-    return "${await getAndroidPath()}/$path";
-  } else {
-    return path;
-  }
-}
+FutureLazyDynamicCan<Directory> platDirectory =
+    FutureLazyDynamicCan(builder: getPlatDirectory);
 
-Future<String> getAndroidPath() async {
-  return (await tryGetExternalStorageDirectory() ??
-          await getApplicationCacheDirectory())
-      .path;
-}
-
-Future<Directory?> tryGetExternalStorageDirectory() async {
-  try {
-    return await getExternalStorageDirectory();
-  } catch (e) {
-    return null;
+Future<Directory> getPlatDirectory() async {
+  if (Platform.isWindows) {
+    return Directory("").absolute;
   }
+
+  return (await getExternalStorageDirectory() ??
+      await getApplicationCacheDirectory());
 }
 
 class ApplicationConfigs {
@@ -33,6 +23,7 @@ class ApplicationConfigs {
   ConfigEntry<String> get username => generator<String>("username");
   ConfigEntry<String> get password => generator("password");
   ConfigEntry<String> get termid => generator("termid");
+  ConfigEntry<String> get termname => generator("termname");
   ConfigEntry<bool> get useSystemFont => generator("usesystemfont");
   ConfigEntry<bool> get showBar => generator("showbar");
   ConfigEntry<bool> get sideBar => generator("sidebar");

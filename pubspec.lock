@@ -50,6 +50,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
+  cross_file:
+    dependency: transitive
+    description:
+      name: cross_file
+      sha256: fedaadfa3a6996f75211d835aaeb8fede285dae94262485698afd832371b9a5e
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.3+8"
+  crypto:
+    dependency: transitive
+    description:
+      name: crypto
+      sha256: ff625774173754681d66daaf4a448684fb04b78f902da9cb3d308c19cc5e8bab
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.3"
   csslib:
     dependency: transitive
     description:
@@ -106,6 +122,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.4"
+  file_picker:
+    dependency: "direct main"
+    description:
+      name: file_picker
+      sha256: b85eb92b175767fdaa0c543bf3b0d1f610fe966412ea72845fe5ba7801e763ff
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.2.10"
   fixnum:
     dependency: transitive
     description:
@@ -137,6 +161,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      sha256: b068ffc46f82a55844acfa4fdbb61fad72fa2aef0905548419d97f0f95c456da
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.17"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -229,6 +261,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
+  mime:
+    dependency: transitive
+    description:
+      name: mime
+      sha256: "2e123074287cc9fd6c09de8336dae606d1ddb88d9ac47358826db698c176a1f2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   package_config:
     dependency: transitive
     description:
@@ -333,6 +373,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.6.0"
+  share_plus:
+    dependency: "direct main"
+    description:
+      name: share_plus
+      sha256: b1f15232d41e9701ab2f04181f21610c36c83a12ae426b79b4bd011c567934b1
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.3.4"
+  share_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: share_plus_platform_interface
+      sha256: df08bc3a07d01f5ea47b45d03ffcba1fa9cd5370fb44b3f38c70e42cced0f956
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.1"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -346,6 +402,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
+  sprintf:
+    dependency: transitive
+    description:
+      name: sprintf
+      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -466,6 +530,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: cd210a09f7c18cbe5a02511718e0334de6559871052c90a90c0cca46a4aa81c8
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.3.3"
   vector_math:
     dependency: transitive
     description:

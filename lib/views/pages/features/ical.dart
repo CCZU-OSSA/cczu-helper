@@ -38,7 +38,7 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
           onPressed: () {
             showDatePicker(
               barrierDismissible: false,
-              helpText: "选择学期第一天",
+              helpText: "选择学期第一周星期一的日期",
               context: context,
               firstDate: DateTime.now().add(const Duration(days: -365)),
               lastDate: DateTime.now().add(const Duration(days: 365)),

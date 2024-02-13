@@ -49,3 +49,5 @@ target/
 
 # Generated messages
 */**/messages/
+
+*.jks

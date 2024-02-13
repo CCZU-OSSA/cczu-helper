@@ -14,7 +14,10 @@ class HomePage extends StatelessWidget {
             child: Card(
               child: SizedBox(
                 width: double.infinity,
-                height: 120,
+                child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text("这是什么?"),
+                ),
               ),
             ),
           )

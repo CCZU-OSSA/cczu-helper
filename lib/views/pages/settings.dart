@@ -9,6 +9,7 @@ import 'package:cczu_helper/views/pages/log.dart';
 import 'package:cczu_helper/views/pages/termview.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -173,7 +174,7 @@ class SettingsPageState extends State<SettingsPage> {
               child: Column(
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.link),
+                    leading: const Icon(FontAwesomeIcons.github),
                     title: const Text("开源地址"),
                     subtitle:
                         const Text("https://github.com/CCZU-OSSA/cczu-helper"),

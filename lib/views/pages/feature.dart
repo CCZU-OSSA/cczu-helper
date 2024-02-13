@@ -85,35 +85,37 @@ class FeaturesPageState extends State<FeaturesPage>
             AnimatedIcon(icon: AnimatedIcons.list_view, progress: controller),
       ),
       body: PaddingScrollView(
-          child: AnimatedSwitcher(
-        duration: Durations.medium4,
-        child: useListView
-            ? Column(
-                children: features
-                    .map(
-                      (e) => CardButton(
-                        onTap: e.onTap,
-                        child: IgnorePointer(
-                          child: ListTile(
-                            title: Text(e.name),
+        child: AnimatedSwitcher(
+          duration: Durations.medium4,
+          child: useListView
+              ? Column(
+                  children: features
+                      .map(
+                        (e) => CardButton(
+                          onTap: e.onTap,
+                          child: IgnorePointer(
+                            child: ListTile(
+                              title: Text(e.name),
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                    .toList(),
-              )
-            : Wrap(
-                alignment: WrapAlignment.center,
-                children: features
-                    .map(
-                      (e) => CardButton(
-                        size: const Size.square(180),
-                        onTap: e.onTap,
-                        child: FittedBox(child: Text(e.name)),
-                      ),
-                    )
-                    .toList()),
-      )),
+                      )
+                      .toList(),
+                )
+              : Wrap(
+                  alignment: WrapAlignment.center,
+                  children: features
+                      .map(
+                        (e) => CardButton(
+                          size: const Size.square(166),
+                          onTap: e.onTap,
+                          child: FittedBox(child: Text(e.name)),
+                        ),
+                      )
+                      .toList(),
+                ),
+        ),
+      ),
     );
   }
 }
