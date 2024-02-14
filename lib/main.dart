@@ -168,7 +168,9 @@ class MainViewState extends State<MainView> {
         onDestinationSelected: navKey.currentState?.pushIndex,
         children: <Widget>[
               ListTile(
-                leading: const Icon(Icons.account_circle),
+                leading: IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.arrow_back)),
                 title: const Text("常大助手"),
                 subtitle: const Text("CCZU HELPER"),
                 trailing: InkWell(

@@ -1,8 +1,7 @@
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:arche/arche.dart';
-import 'package:arche/extensions/functions.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:cczu_helper/controllers/io.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -46,19 +45,18 @@ class _LogPageState extends State<LogPage> with TickerProviderStateMixin {
             icon: const Icon(FontAwesomeIcons.github),
           ),
           IconButton(
-            onPressed: () => Share.share(logger.getLogs().join("\n")),
+            onPressed: () => Share.shareXFiles([
+              XFile.fromData(utf8.encode(logger.getLogs().join("\n")),
+                  name: "application.log")
+            ]),
             icon: const Icon(Icons.share),
           ),
           IconButton(
-            onPressed: () => FilePicker.platform
-                .saveFile(
-                  dialogTitle: "保存日志",
-                  fileName: "application.log",
-                )
-                .then((value) => whenNotNull(
-                    value,
-                    (value) => File(value)
-                        .writeAsStringSync(logger.getLogs().join("\n")))),
+            onPressed: () => saveFile(
+              logger.getLogs().join("\n"),
+              dialogTitle: "保存日志",
+              fileName: "application.log",
+            ),
             icon: const Icon(Icons.save),
           )
         ],
