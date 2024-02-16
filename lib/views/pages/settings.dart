@@ -23,13 +23,13 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
-  final GlobalKey<PopupMenuButtonState> _themeModeMenuKey = GlobalKey();
-
   void refresh() {
     if (mounted) {
       setState(() {});
     }
   }
+
+  final GlobalKey<PopupMenuButtonState> _themeModeMenuKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +172,6 @@ class SettingsPageState extends State<SettingsPage> {
                       viewKey.currentState?.refresh();
                     },
                   ),
-                  
                   SwitchListTile(
                     secondary: const Icon(Icons.view_carousel),
                     title: const Text("使用 PageView"),

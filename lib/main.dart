@@ -215,13 +215,13 @@ class MainViewState extends State<MainView> {
                 .toList(),
       ),
       body: NavigationView(
-        key: navKey,
         usePageView: configs.pageview.getOr(false),
-        showBar: configs.showBar.getOr(true),
         transitionBuilder: (child, animation) => FadeTransition(
+          key: ValueKey(child),
           opacity: animation,
           child: child,
         ),
+        showBar: configs.showBar.getOr(true),
         direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
         pageViewCurve: Curves.fastLinearToSlowEaseIn,
         onPageChanged: (value) => setState(() => currentIndex = value),

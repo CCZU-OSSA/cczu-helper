@@ -2,7 +2,6 @@ import 'package:arche/arche.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
-import 'package:wakelock/wakelock.dart';
 
 class CheckData {
   String status;
@@ -17,8 +16,6 @@ class CheckData {
   });
 
   static Future<CheckData?> fetch(String stuid, String termid) async {
-    Wakelock.enable();
-
     var logger = ArcheBus().of<ArcheLogger>();
     try {
       var client = Dio();
@@ -37,7 +34,6 @@ class CheckData {
           .map((e) => e.text.toString().trim())
           .toList();
       logger.info(data.toString());
-      Wakelock.disable();
 
       if (data.length <= 16) {
         return null;
@@ -53,7 +49,6 @@ class CheckData {
       logger.error(s);
       logger.error(e);
 
-      Wakelock.disable();
       return null;
     }
   }

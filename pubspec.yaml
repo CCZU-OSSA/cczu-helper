@@ -40,7 +40,6 @@ dependencies:
   dio: ^5.4.0
   html: ^0.15.4
   url_launcher: ^6.2.1
-  wakelock: ^0.6.2
   arche: 
     git: https://github.com/H2Sxxa/Arche.git
   font_awesome_flutter: ^10.7.0
@@ -49,8 +48,8 @@ dependencies:
   intl: any
   protobuf: ^3.1.0
   rinf: ^6.6.0
-  share_plus: ^6.3.4
-  file_picker: ^5.2.10
+  share_plus: ^7.2.2
+  file_picker: ^6.1.1
   permission_handler: ^11.3.0
 
 
@@ -63,7 +62,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
   integration_test:
     sdk: flutter
 
