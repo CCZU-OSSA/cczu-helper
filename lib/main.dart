@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
+import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/feature.dart';
@@ -10,6 +11,7 @@ import 'package:cczu_helper/views/pages/home.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
@@ -22,11 +24,15 @@ void main() async {
   logger.info("Application Config Stored in `$configPath`");
   logger.info("Load Configs");
   logger.info(config.read());
-  ArcheBus()
-      .provide(ArcheLogger())
-      .provide(config)
-      .provide(ApplicationConfigs(ConfigEntry.withConfig(config)));
+  var configs =
+      ApplicationConfigs(ConfigEntry.withConfig(config, generateMap: true));
+  ArcheBus().provide(ArcheLogger()).provide(config).provide(configs);
   logger.info("Run Application in `main`...");
+  if (configs.immersive.getOr(false)) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  } else {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
   runApp(
     MainApplication(key: rootKey),
   );
@@ -148,7 +154,9 @@ class MainViewState extends State<MainView> {
   ];
 
   void refresh() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -208,13 +216,13 @@ class MainViewState extends State<MainView> {
       ),
       body: NavigationView(
         key: navKey,
+        usePageView: configs.pageview.getOr(false),
         showBar: configs.showBar.getOr(true),
         transitionBuilder: (child, animation) => FadeTransition(
           opacity: animation,
           child: child,
         ),
-        direction:
-            configs.sideBar.getOr(false) ? Axis.horizontal : Axis.vertical,
+        direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
         pageViewCurve: Curves.fastLinearToSlowEaseIn,
         onPageChanged: (value) => setState(() => currentIndex = value),
         items: viewItems,

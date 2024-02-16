@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:arche/arche.dart';
-import 'package:cczu_helper/controllers/io.dart';
+import 'package:cczu_helper/controllers/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -45,10 +43,12 @@ class _LogPageState extends State<LogPage> with TickerProviderStateMixin {
             icon: const Icon(FontAwesomeIcons.github),
           ),
           IconButton(
-            onPressed: () => Share.shareXFiles([
-              XFile.fromData(utf8.encode(logger.getLogs().join("\n")),
-                  name: "application.log")
-            ]),
+            onPressed: () async {
+              var file = await writeStringToPlatDirectory(
+                  logger.getLogs().join("\n"),
+                  filename: "application.log");
+              await Share.shareXFiles([XFile(file.path)]);
+            },
             icon: const Icon(Icons.share),
           ),
           IconButton(

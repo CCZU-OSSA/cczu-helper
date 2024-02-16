@@ -1,4 +1,5 @@
 import 'package:arche/arche.dart';
+import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/views/pages/features/ical.dart';
 import 'package:cczu_helper/views/pages/features/query.dart';
@@ -48,6 +49,7 @@ class FeaturesPageState extends State<FeaturesPage>
   void initState() {
     super.initState();
     controller = AnimationController(vsync: this)..duration = Durations.medium4;
+    cardSize = ArcheBus.bus.of<ApplicationConfigs>().cardsize.getOr(166);
   }
 
   @override
@@ -62,27 +64,74 @@ class FeaturesPageState extends State<FeaturesPage>
       child: QueryFeature(),
     ),
     const FeatureItem(
-      name: "ICalendar课程表生成",
+      name: "课表生成",
       child: ICalendarFeature(),
     )
   ];
 
+  late double cardSize;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (useListView) {
-            controller.reverse();
-          } else {
-            controller.forward();
+      floatingActionButton: InkWell(
+        onLongPress: () {
+          if (!useListView) {
+            ComplexDialog.instance
+                .withChild(
+                  ValueStateBuilder(
+                    builder: (context, state) {
+                      return AlertDialog(
+                        title: Row(
+                          children: [
+                            const Text("卡片大小"),
+                            IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    cardSize = 166;
+                                  });
+                                  state.update(166);
+                                },
+                                icon: const Icon(Icons.restore))
+                          ],
+                        ),
+                        content: SizedBox(
+                          width: 300,
+                          height: 80,
+                          child: Slider(
+                            value: state.value,
+                            min: 100,
+                            max: 400,
+                            onChanged: (value) {
+                              setState(() {
+                                cardSize = value;
+                              });
+                              state.update(value);
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                    init: cardSize,
+                  ),
+                )
+                .prompt(context: context);
           }
-          setState(() {
-            useListView = !useListView;
-          });
         },
-        child:
-            AnimatedIcon(icon: AnimatedIcons.list_view, progress: controller),
+        child: FloatingActionButton(
+          onPressed: () {
+            if (useListView) {
+              controller.reverse();
+            } else {
+              controller.forward();
+            }
+            setState(() {
+              useListView = !useListView;
+            });
+          },
+          child:
+              AnimatedIcon(icon: AnimatedIcons.list_view, progress: controller),
+        ),
       ),
       body: PaddingScrollView(
         child: AnimatedSwitcher(
@@ -107,9 +156,12 @@ class FeaturesPageState extends State<FeaturesPage>
                   children: features
                       .map(
                         (e) => CardButton(
-                          size: const Size.square(166),
+                          size: Size.square(cardSize),
                           onTap: e.onTap,
-                          child: FittedBox(child: Text(e.name)),
+                          child: Padding(
+                            padding: EdgeInsets.all(cardSize / 8),
+                            child: FittedBox(child: Text(e.name)),
+                          ),
                         ),
                       )
                       .toList(),

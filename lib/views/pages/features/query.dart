@@ -1,4 +1,5 @@
 import 'package:arche/arche.dart';
+import 'package:cczu_helper/controllers/platform.dart';
 import 'package:flutter/material.dart';
 
 class QueryFeature extends StatefulWidget {
@@ -26,6 +27,52 @@ class QueryFeatureState extends State<QueryFeature>
 
   @override
   Widget build(BuildContext context) {
+    var pageItems = [
+      const Expanded(
+        flex: 3,
+        child: Card(
+          child: SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Padding(
+                padding: EdgeInsets.all(36),
+                child: Column(children: [
+                  Text(
+                    "0/30",
+                    style: TextStyle(fontSize: 24),
+                  ),
+                  Text(
+                    "最后更新日期 2024/2/1",
+                    style: TextStyle(fontSize: 8),
+                  ),
+                ]),
+              ),
+            ),
+          ),
+        ),
+      ),
+      const Expanded(
+        flex: 2,
+        child: SizedBox.expand(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  title: Text("说明"),
+                  subtitle: Text("README"),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    ];
+
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -52,55 +99,13 @@ class QueryFeatureState extends State<QueryFeature>
             child: const Icon(Icons.refresh),
           ),
         ),
-        body: const Padding(
-          padding: EdgeInsets.all(8),
-          child: Column(
-            children: [
-              Expanded(
-                flex: 3,
-                child: Card(
-                  child: SizedBox.expand(
-                    child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: Padding(
-                        padding: EdgeInsets.all(36),
-                        child: Column(children: [
-                          Text(
-                            "0/30",
-                            style: TextStyle(fontSize: 24),
-                          ),
-                          Text(
-                            "最后更新日期 2024/2/1",
-                            style: TextStyle(fontSize: 8),
-                          ),
-                        ]),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: SizedBox.expand(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          title: Text("说明"),
-                          subtitle: Text("README"),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(8),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+        body: Padding(
+          padding: const EdgeInsets.all(8),
+          child: isWideScreen(context)
+              ? Row(
+                  children: pageItems,
+                )
+              : Column(children: pageItems),
         ));
   }
 }

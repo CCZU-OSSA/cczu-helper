@@ -26,11 +26,13 @@ class ApplicationConfigs {
   ConfigEntry<String> get termname => generator("termname");
   ConfigEntry<bool> get useSystemFont => generator("usesystemfont");
   ConfigEntry<bool> get showBar => generator("showbar");
-  ConfigEntry<bool> get sideBar => generator("sidebar");
   ConfigEntryConverter<int, ThemeMode> get themeMode => ConfigEntryConverter(
         generator("thememode"),
         forward: (value) => ThemeMode.values[value],
         reverse: (value) => ThemeMode.values.indexOf(value),
       );
   ConfigEntry<bool> get material3 => generator("material3");
+  ConfigEntry<bool> get pageview => generator("pageview");
+  ConfigEntry<bool> get immersive => generator("immersive");
+  ConfigEntry<double> get cardsize => generator("cardsize");
 }

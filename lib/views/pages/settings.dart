@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/functions.dart';
@@ -9,6 +11,7 @@ import 'package:cczu_helper/views/pages/log.dart';
 import 'package:cczu_helper/views/pages/termview.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -114,7 +117,7 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                   SwitchListTile(
                       title: const Text("使用 Material 3"),
-                      subtitle: const Text("Use Material You"),
+                      subtitle: const Text("Material You"),
                       secondary: const Icon(Icons.widgets),
                       value: configs.material3.getOr(true),
                       onChanged: (value) {
@@ -124,6 +127,26 @@ class SettingsPageState extends State<SettingsPage> {
 
                         rootKey.currentState?.refresh();
                       }),
+                  Visibility(
+                    visible: Platform.isAndroid,
+                    child: SwitchListTile(
+                        title: const Text("沉浸模式"),
+                        subtitle: const Text("Immersive"),
+                        secondary: const Icon(Icons.phone_android),
+                        value: configs.immersive.getOr(false),
+                        onChanged: (value) {
+                          setState(() {
+                            configs.immersive.write(value);
+                          });
+                          if (value) {
+                            SystemChrome.setEnabledSystemUIMode(
+                                SystemUiMode.immersive);
+                          } else {
+                            SystemChrome.setEnabledSystemUIMode(
+                                SystemUiMode.edgeToEdge);
+                          }
+                        }),
+                  ),
                   SwitchListTile(
                       title: const Text("使用系统字体"),
                       subtitle: const Text("System Font"),
@@ -149,18 +172,18 @@ class SettingsPageState extends State<SettingsPage> {
                       viewKey.currentState?.refresh();
                     },
                   ),
+                  
                   SwitchListTile(
-                      title: const Text("使用侧边导航(适用于宽屏设备)"),
-                      subtitle: const Text("Side Navigation"),
-                      secondary: const Icon(Icons.computer),
-                      value: configs.sideBar.getOr(false),
-                      onChanged: (value) {
-                        setState(() {
-                          configs.sideBar.write(value);
-                        });
+                    secondary: const Icon(Icons.view_carousel),
+                    title: const Text("使用 PageView"),
+                    subtitle: const Text("PageView"),
+                    value: configs.pageview.getOr(false),
+                    onChanged: (value) {
+                      configs.pageview.write(value);
 
-                        viewKey.currentState?.refresh();
-                      }),
+                      viewKey.currentState?.refresh();
+                    },
+                  ),
                 ],
               ),
             ),
