@@ -215,6 +215,7 @@ class MainViewState extends State<MainView> {
                 .toList(),
       ),
       body: NavigationView(
+        key: navKey,
         usePageView: configs.pageview.getOr(false),
         transitionBuilder: (child, animation) => FadeTransition(
           key: ValueKey(child),
