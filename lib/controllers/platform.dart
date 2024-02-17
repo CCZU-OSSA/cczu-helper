@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:arche/arche.dart';
 import 'package:arche/extensions/functions.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
@@ -21,7 +22,14 @@ Future<void> saveFile(
         .then((value) =>
             whenNotNull(value, (value) => File(value).writeAsString(data)));
   }
-  await Permission.storage.request();
+  var logger = ArcheBus.logger;
+
+  var status = await Permission.storage
+      .onDeniedCallback(() => logger.warn(
+          "The `storage` permission wasn't be granted, trying to request it..."))
+      .request();
+  logger.info("isDenied: ${status.isDenied}");
+
   return FilePicker.platform.getDirectoryPath(dialogTitle: dialogTitle).then(
         (value) => whenNotNull(
           value,
