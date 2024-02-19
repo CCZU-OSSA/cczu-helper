@@ -24,9 +24,9 @@ Future<void> saveFile(
   }
   var logger = ArcheBus.logger;
 
-  var status = await Permission.storage
+  var status = await Permission.manageExternalStorage
       .onDeniedCallback(() => logger.warn(
-          "The `storage` permission wasn't be granted, trying to request it..."))
+          "The `manageExternalStorage` permission wasn't be granted, trying to request it..."))
       .request();
   logger.info("isDenied: ${status.isDenied}");
 

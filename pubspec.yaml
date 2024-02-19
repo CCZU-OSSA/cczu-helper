@@ -1,5 +1,5 @@
 name: cczu_helper
-description: "A new Flutter project."
+description: "A app for making you living better in CCZUw"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -47,10 +47,11 @@ dependencies:
     sdk: flutter
   intl: any
   protobuf: ^3.1.0
-  rinf: ^6.6.0
+  rinf: ^6.6.1
   share_plus: ^7.2.2
   file_picker: ^6.1.1
   permission_handler: ^11.3.0
+  webview_flutter: ^4.7.0
 
 
 dev_dependencies:
