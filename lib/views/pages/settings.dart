@@ -149,17 +149,6 @@ class SettingsPageState extends State<SettingsPage> {
                       viewKey.currentState?.refresh();
                     },
                   ),
-                  SwitchListTile(
-                    secondary: const Icon(Icons.view_carousel),
-                    title: const Text("使用 PageView"),
-                    subtitle: const Text("PageView"),
-                    value: configs.pageview.getOr(false),
-                    onChanged: (value) {
-                      configs.pageview.write(value);
-
-                      viewKey.currentState?.refresh();
-                    },
-                  ),
                 ],
               ),
             ),

@@ -6,7 +6,6 @@ import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 Future<void> saveFile(
   String data, {
@@ -22,13 +21,6 @@ Future<void> saveFile(
         .then((value) =>
             whenNotNull(value, (value) => File(value).writeAsString(data)));
   }
-  var logger = ArcheBus.logger;
-
-  var status = await Permission.manageExternalStorage
-      .onDeniedCallback(() => logger.warn(
-          "The `manageExternalStorage` permission wasn't be granted, trying to request it..."))
-      .request();
-  logger.info("isDenied: ${status.isDenied}");
 
   return FilePicker.platform.getDirectoryPath(dialogTitle: dialogTitle).then(
         (value) => whenNotNull(

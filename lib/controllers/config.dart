@@ -32,6 +32,5 @@ class ApplicationConfigs {
         reverse: (value) => ThemeMode.values.indexOf(value),
       );
   ConfigEntry<bool> get material3 => generator("material3");
-  ConfigEntry<bool> get pageview => generator("pageview");
   ConfigEntry<double> get cardsize => generator("cardsize");
 }

@@ -1,7 +1,8 @@
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
+import 'package:arche/extensions/functions.dart';
+import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/messages/ical.pb.dart';
-import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 
 class ICalendarFeature extends StatefulWidget {
@@ -25,33 +26,89 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
     });
   }
 
+  String? firstweekdate;
+  String? reminder;
   @override
   Widget build(BuildContext context) {
-    return PaddingScrollView(
-        child: Column(
-      children: [
-        const Card(
+    var pageItems = [
+      const Expanded(
+        flex: 3,
+        child: Card(
           child: Padding(
-              padding: EdgeInsets.all(8), child: Text("什么是 ICalendar 课表?")),
+              padding: EdgeInsets.all(8),
+              child: SizedBox.expand(
+                child: Text("什么是 ICalendar 课表?"),
+              )),
         ),
-        ElevatedButton.icon(
-          onPressed: () {
-            showDatePicker(
-              barrierDismissible: false,
-              helpText: "选择学期第一周星期一的日期",
-              context: context,
-              firstDate: DateTime.now().add(const Duration(days: -365)),
-              lastDate: DateTime.now().add(const Duration(days: 365)),
-            ).then((value) {
-              ComplexDialog.instance.input(
-                context: context,
-              );
-            });
-          },
-          label: const Text("生成"),
-          icon: const Icon(Icons.public),
-        )
-      ],
-    ));
+      ),
+      Expanded(
+        flex: 2,
+        child: Column(
+          children: [
+            ListTile(
+              title: const Text("日期"),
+              trailing: Text(firstweekdate.toString()),
+              onTap: () {
+                var now = DateTime.now();
+                showDatePicker(
+                  context: context,
+                  initialDate: now,
+                  firstDate: now.add(const Duration(days: -365)),
+                  lastDate: now.add(const Duration(days: 365)),
+                ).then(
+                  (value) => whenNotNull(
+                    value,
+                    (value) => setState(() {
+                      firstweekdate =
+                          "${value.year}${value.month.toString().padLeft(2, "0")}${value.day.toString().padLeft(2, "0")}";
+                    }),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text("课前提醒"),
+              trailing: Text("$reminder 分钟"),
+              onTap: () {
+                ComplexDialog.instance
+                    .input(
+                        context: context,
+                        title: const Text("输入整数"),
+                        decoration: const InputDecoration(
+                          labelText: "课前提醒",
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number)
+                    .then(
+                      (value) => whenNotNull(value, (text) {
+                        if (int.tryParse(text) != null) {
+                          setState(() {
+                            reminder = text;
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("\"$value\" 不是一个整数")));
+                        }
+                      }),
+                    );
+              },
+            ),
+          ],
+        ),
+      )
+    ];
+
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.public),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8),
+        child: isWideScreen(context)
+            ? Row(children: pageItems)
+            : Column(children: pageItems),
+      ),
+    );
   }
 }

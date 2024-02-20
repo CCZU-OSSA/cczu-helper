@@ -35,6 +35,7 @@ jobs:
           rustup update stable
           cargo install rinf
           rinf message
+          dart fix --apply
 
       - run: flutter build apk --release
         env:

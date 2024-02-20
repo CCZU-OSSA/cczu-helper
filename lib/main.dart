@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:arche/arche.dart';
@@ -9,6 +10,7 @@ import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/feature.dart';
 import 'package:cczu_helper/views/pages/home.dart';
+import 'package:cczu_helper/views/pages/onetwork.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
@@ -16,32 +18,45 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    await initializeRust();
-    var logger = ArcheLogger();
-    var configPath =
-        (await platDirectory.getValue()).absolute.subPath("app.config.json");
-    var config = ArcheConfig.path(configPath);
-    logger.info("Application Config Stored in `$configPath`");
-    logger.info("Load Configs");
-    logger.info(config.read());
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await initializeRust();
+      var logger = ArcheLogger();
+      var configPath =
+          (await platDirectory.getValue()).absolute.subPath("app.config.json");
+      var config = ArcheConfig.path(configPath);
+      logger.info("Application Config Stored in `$configPath`");
+      logger.info("Load Configs");
+      logger.info(config.read());
 
-    FlutterError.onError = logger.error;
+      FlutterError.onError = logger.error;
 
-    var configs =
-        ApplicationConfigs(ConfigEntry.withConfig(config, generateMap: true));
-    ArcheBus().provide(ArcheLogger()).provide(config).provide(configs);
-    logger.info("Run Application in `main`...");
+      var configs =
+          ApplicationConfigs(ConfigEntry.withConfig(config, generateMap: true));
+      ArcheBus().provide(ArcheLogger()).provide(config).provide(configs);
+      logger.info("Run Application in `main`...");
 
-    runApp(
-      MainApplication(key: rootKey),
-    );
-  }, (error, stack) {
-    var logger = ArcheBus.logger;
-    logger.error(error);
-    logger.error(stack);
-  });
+      runApp(
+        MainApplication(key: rootKey),
+      );
+      if (Platform.isAndroid) {
+        SystemChrome.setSystemUIOverlayStyle(
+          const SystemUiOverlayStyle(
+            systemNavigationBarColor: Colors.transparent,
+            statusBarColor: Colors.transparent,
+            systemNavigationBarContrastEnforced: false,
+          ),
+        );
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      }
+    },
+    (error, stack) {
+      var logger = ArcheBus.logger;
+      logger.error(error);
+      logger.error(stack);
+    },
+  );
 }
 
 final _defaultLightColorScheme =
@@ -57,47 +72,10 @@ class MainApplication extends StatefulWidget {
   State<StatefulWidget> createState() => MainApplicationState();
 }
 
-class MainApplicationState extends State<MainApplication>
-    with WidgetsBindingObserver {
+class MainApplicationState extends State<MainApplication> {
   void refresh() {
     if (mounted) {
       setState(() {});
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  }
-
-  @override
-  void didChangePlatformBrightness() {
-    super.didChangePlatformBrightness();
-    final Brightness brightness =
-        View.of(context).platformDispatcher.platformBrightness;
-    if (brightness == Brightness.light) {
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          systemNavigationBarColor: Colors.transparent,
-          statusBarColor: Colors.transparent,
-          statusBarBrightness: Brightness.dark,
-          statusBarIconBrightness: Brightness.dark,
-          systemNavigationBarIconBrightness: Brightness.dark,
-          systemNavigationBarContrastEnforced: false,
-        ),
-      );
-    } else {
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          systemNavigationBarColor: Colors.transparent,
-          statusBarColor: Colors.transparent,
-          statusBarBrightness: Brightness.light,
-          statusBarIconBrightness: Brightness.light,
-          systemNavigationBarIconBrightness: Brightness.light,
-          systemNavigationBarContrastEnforced: false,
-        ),
-      );
     }
   }
 
@@ -187,6 +165,11 @@ class MainViewState extends State<MainView> {
       page: FeaturesPage(),
       label: "工具箱",
     ),
+    const NavigationItem(
+      icon: Icon(Icons.person),
+      page: ONetworkView(),
+      label: "一网通办",
+    ),
     NavigationItem(
       icon: const Icon(Icons.settings),
       page: SettingsPage(
@@ -259,7 +242,6 @@ class MainViewState extends State<MainView> {
       ),
       body: NavigationView(
         key: navKey,
-        usePageView: configs.pageview.getOr(false),
         transitionBuilder: (child, animation) => FadeTransition(
           key: ValueKey(child),
           opacity: animation,

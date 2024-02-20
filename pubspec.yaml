@@ -50,8 +50,8 @@ dependencies:
   rinf: ^6.6.1
   share_plus: ^7.2.2
   file_picker: ^6.1.1
-  permission_handler: ^11.3.0
-  webview_flutter: ^4.7.0
+  flutter_inappwebview: ^6.0.0
+
 
 
 dev_dependencies:

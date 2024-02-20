@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:flutter/material.dart';
@@ -47,18 +49,23 @@ class _LogPageState extends State<LogPage> with TickerProviderStateMixin {
               var file = await writeStringToPlatDirectory(
                   logger.getLogs().join("\n"),
                   filename: "application.log");
-              await Share.shareXFiles(
-                  [XFile(file.path, name: "application.log")]);
+              await Share.shareXFiles([
+                XFile(file.path,
+                    name: "application.log", mimeType: "text/plain")
+              ]);
             },
             icon: const Icon(Icons.share),
           ),
-          IconButton(
-            onPressed: () => saveFile(
-              logger.getLogs().join("\n"),
-              dialogTitle: "保存日志",
-              fileName: "application.log",
+          Visibility(
+            visible: !Platform.isAndroid,
+            child: IconButton(
+              onPressed: () => saveFile(
+                logger.getLogs().join("\n"),
+                dialogTitle: "保存日志",
+                fileName: "application.log",
+              ),
+              icon: const Icon(Icons.save),
             ),
-            icon: const Icon(Icons.save),
           )
         ],
       ),
