@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/functions.dart';
@@ -11,7 +9,6 @@ import 'package:cczu_helper/views/pages/log.dart';
 import 'package:cczu_helper/views/pages/termview.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -127,26 +124,6 @@ class SettingsPageState extends State<SettingsPage> {
 
                         rootKey.currentState?.refresh();
                       }),
-                  Visibility(
-                    visible: Platform.isAndroid,
-                    child: SwitchListTile(
-                        title: const Text("沉浸模式"),
-                        subtitle: const Text("Immersive"),
-                        secondary: const Icon(Icons.phone_android),
-                        value: configs.immersive.getOr(false),
-                        onChanged: (value) {
-                          setState(() {
-                            configs.immersive.write(value);
-                          });
-                          if (value) {
-                            SystemChrome.setEnabledSystemUIMode(
-                                SystemUiMode.immersive);
-                          } else {
-                            SystemChrome.setEnabledSystemUIMode(
-                                SystemUiMode.edgeToEdge);
-                          }
-                        }),
-                  ),
                   SwitchListTile(
                       title: const Text("使用系统字体"),
                       subtitle: const Text("System Font"),

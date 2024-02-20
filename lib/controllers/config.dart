@@ -33,6 +33,5 @@ class ApplicationConfigs {
       );
   ConfigEntry<bool> get material3 => generator("material3");
   ConfigEntry<bool> get pageview => generator("pageview");
-  ConfigEntry<bool> get immersive => generator("immersive");
   ConfigEntry<double> get cardsize => generator("cardsize");
 }

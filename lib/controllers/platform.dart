@@ -50,3 +50,11 @@ bool isWideScreen(BuildContext context) {
 
   return size.width > size.height;
 }
+
+void saveLog() async {
+  var logger = ArcheBus.logger;
+  logger.info("saving logs... (${(await platDirectory.getValue()).path})");
+
+  await writeStringToPlatDirectory(ArcheBus.logger.getLogs().join("\n"),
+      filename: "${DateTime.now()}.log");
+}

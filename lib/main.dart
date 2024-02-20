@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:arche/arche.dart';
@@ -14,28 +15,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await initializeRust();
-  var logger = ArcheLogger();
-  var configPath =
-      (await platDirectory.getValue()).absolute.subPath("app.config.json");
-  var config = ArcheConfig.path(configPath);
-  logger.info("Application Config Stored in `$configPath`");
-  logger.info("Load Configs");
-  logger.info(config.read());
-  var configs =
-      ApplicationConfigs(ConfigEntry.withConfig(config, generateMap: true));
-  ArcheBus().provide(ArcheLogger()).provide(config).provide(configs);
-  logger.info("Run Application in `main`...");
-  if (configs.immersive.getOr(false)) {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-  } else {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  }
-  runApp(
-    MainApplication(key: rootKey),
-  );
+void main() {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await initializeRust();
+    var logger = ArcheLogger();
+    var configPath =
+        (await platDirectory.getValue()).absolute.subPath("app.config.json");
+    var config = ArcheConfig.path(configPath);
+    logger.info("Application Config Stored in `$configPath`");
+    logger.info("Load Configs");
+    logger.info(config.read());
+
+    FlutterError.onError = logger.error;
+
+    var configs =
+        ApplicationConfigs(ConfigEntry.withConfig(config, generateMap: true));
+    ArcheBus().provide(ArcheLogger()).provide(config).provide(configs);
+    logger.info("Run Application in `main`...");
+
+    runApp(
+      MainApplication(key: rootKey),
+    );
+  }, (error, stack) {
+    var logger = ArcheBus.logger;
+    logger.error(error);
+    logger.error(stack);
+  });
 }
 
 final _defaultLightColorScheme =
@@ -51,10 +57,47 @@ class MainApplication extends StatefulWidget {
   State<StatefulWidget> createState() => MainApplicationState();
 }
 
-class MainApplicationState extends State<MainApplication> {
+class MainApplicationState extends State<MainApplication>
+    with WidgetsBindingObserver {
   void refresh() {
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    super.didChangePlatformBrightness();
+    final Brightness brightness =
+        View.of(context).platformDispatcher.platformBrightness;
+    if (brightness == Brightness.light) {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.transparent,
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: Brightness.dark,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarIconBrightness: Brightness.dark,
+          systemNavigationBarContrastEnforced: false,
+        ),
+      );
+    } else {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.transparent,
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: Brightness.light,
+          statusBarIconBrightness: Brightness.light,
+          systemNavigationBarIconBrightness: Brightness.light,
+          systemNavigationBarContrastEnforced: false,
+        ),
+      );
     }
   }
 
