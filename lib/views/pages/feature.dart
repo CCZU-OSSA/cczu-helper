@@ -74,7 +74,7 @@ class FeaturesPageState extends State<FeaturesPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: InkWell(
+      floatingActionButton: GestureDetector(
         onLongPress: () {
           if (!useListView) {
             ComplexDialog.instance

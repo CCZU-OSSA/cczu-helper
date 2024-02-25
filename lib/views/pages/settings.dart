@@ -1,12 +1,10 @@
 import 'package:arche/arche.dart';
-import 'package:arche/extensions/dialogs.dart';
-import 'package:arche/extensions/functions.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
+import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/log.dart';
-import 'package:cczu_helper/views/pages/termview.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -31,8 +29,6 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     ApplicationConfigs configs = ArcheBus.bus.of();
-    var username = configs.username.getOr("1145141919810");
-    var termid = configs.termid.getOr("0d00");
     return PaddingScrollView(
       child: Column(
         children: [
@@ -46,28 +42,13 @@ class SettingsPageState extends State<SettingsPage> {
                 children: [
                   ListTile(
                     leading: const Icon(Icons.perm_identity),
-                    title: const Text("学号"),
-                    subtitle: const Text("Student ID"),
-                    trailing: Text(username),
-                    onTap: () => const ComplexDialog()
-                        .input(
-                            context: context,
-                            title: const Text("学号"),
-                            decoration: InputDecoration(
-                                hintText: username,
-                                border: const OutlineInputBorder()))
-                        .then((value) => whenNotNull(
-                            value,
-                            (value) =>
-                                setState(() => configs.username.write(value)))),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.school),
-                    title: const Text("学期"),
-                    subtitle: const Text("Term"),
-                    trailing: Text(termid),
+                    title: const Text("账户"),
+                    subtitle: const Text("Accounts"),
+                    trailing: const Icon(Icons.arrow_right),
                     onTap: () => pushMaterialRoute(
-                      builder: (context) => const TermView(),
+                      builder: (context) => AccountPage(
+                        key: accountKey,
+                      ),
                     ),
                   ),
                 ],
@@ -177,15 +158,22 @@ class SettingsPageState extends State<SettingsPage> {
                         "http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=6wgGLJ_NmKQl7f9Ws6JAprbTwmG9Ouei&authKey=g7bXX%2Bn2dHlbecf%2B8QfGJ15IFVOmEdGTJuoLYfviLg7TZIsZCu45sngzZfL3KktN&noverify=0&group_code=947560153"),
                   ),
                   ListTile(
-                    leading: const Icon(Icons.person),
-                    title: const Text("关于"),
-                    subtitle: const Text("About"),
+                    leading: const Icon(Icons.library_books),
+                    title: const Text("开源许可"),
+                    subtitle: const Text("License"),
                     onTap: () => showDialog(
                       context: context,
                       builder: (context) => const AboutDialog(
                         applicationVersion: "1.0.2",
                         applicationName: "吊大助手",
-                        applicationLegalese: "copyright © 2023 常州大学开源软件协会",
+                        applicationLegalese: "copyright © 2023-2024 常州大学开源软件协会",
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Text(
+                                "除第三方代码与资源（包括但不限于图片字体）保留原有协议外\n应用本身所有代码以及资源均使用GPLv3开源，请参照协议使用"),
+                          )
+                        ],
                       ),
                     ),
                   ),

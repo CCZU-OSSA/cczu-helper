@@ -10,7 +10,6 @@ import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/feature.dart';
 import 'package:cczu_helper/views/pages/home.dart';
-import 'package:cczu_helper/views/pages/onetwork.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +23,9 @@ void main() {
       await initializeRust();
       var logger = ArcheLogger();
       var configPath =
-          (await platDirectory.getValue()).absolute.subPath("app.config.json");
+          (await platDirectory.getValue()).subPath("app.config.json");
       var config = ArcheConfig.path(configPath);
       logger.info("Application Config Stored in `$configPath`");
-      logger.info("Load Configs");
-      logger.info(config.read());
 
       FlutterError.onError = logger.error;
 
@@ -165,11 +162,11 @@ class MainViewState extends State<MainView> {
       page: FeaturesPage(),
       label: "工具箱",
     ),
-    const NavigationItem(
-      icon: Icon(Icons.person),
-      page: ONetworkView(),
-      label: "一网通办",
-    ),
+    // const NavigationItem(
+    //   icon: Icon(Icons.person),
+    //   page: ONetworkView(),
+    //   label: "一网通办",
+    // ),
     NavigationItem(
       icon: const Icon(Icons.settings),
       page: SettingsPage(

@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:arche/arche.dart';
+import 'package:arche/extensions/io.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -9,7 +11,7 @@ FutureLazyDynamicCan<Directory> platDirectory =
 
 Future<Directory> getPlatDirectory() async {
   if (Platform.isWindows) {
-    return Directory("").absolute;
+    return Directory.current.absolute;
   }
 
   return (await getExternalStorageDirectory() ??
@@ -20,8 +22,8 @@ class ApplicationConfigs {
   final ConfigEntry<T> Function<T>(String key) generator;
   const ApplicationConfigs(this.generator);
 
-  ConfigEntry<String> get username => generator<String>("username");
-  ConfigEntry<String> get password => generator("password");
+  ConfigEntry<String> get currentAccountName =>
+      generator<String>("currentaccount");
   ConfigEntry<String> get termid => generator("termid");
   ConfigEntry<String> get termname => generator("termname");
   ConfigEntry<bool> get useSystemFont => generator("usesystemfont");
@@ -33,4 +35,60 @@ class ApplicationConfigs {
       );
   ConfigEntry<bool> get material3 => generator("material3");
   ConfigEntry<double> get cardsize => generator("cardsize");
+  ConfigEntryConverter<FutureOr<String>, FutureOr<AccountData>>
+      get currentAccount => ConfigEntryConverter(
+            generator("currentaccount"),
+            forward: (value) async {
+              return (await AccountManager.accounts.getValue())[value]!;
+            },
+            reverse: (value) async {
+              var data = (await value);
+
+              for (var account
+                  in (await AccountManager.accounts.getValue()).entries) {
+                if (account.value == data) {
+                  return account.key;
+                }
+              }
+
+              throw UnsupportedError("Do not support to query from other list");
+            },
+          );
+}
+
+class AccountManager {
+  static final FutureLazyDynamicCan<ArcheConfig> accountsStored =
+      FutureLazyDynamicCan(
+          builder: () async => ArcheConfig.path(
+              (await platDirectory.getValue()).subPath("accouts.json")));
+
+  static FutureLazyDynamicCan<Map<String, AccountData>> accounts =
+      FutureLazyDynamicCan(
+    builder: () async {
+      Map<String, AccountData> accounts = {};
+
+      for (var account in (await accountsStored.getValue()).read().entries) {
+        accounts[account.key] = AccountData(
+          account.key,
+          account.value["onetpwd"],
+          account.value["eduspwd"],
+        );
+      }
+
+      return accounts;
+    },
+  );
+}
+
+@immutable
+class AccountData {
+  final String studentID;
+  final String onetPassword;
+  final String edusysPassword;
+  const AccountData(this.studentID, this.onetPassword, this.edusysPassword);
+
+  MapEntry<String, Map<String, String>> toMapEntry() {
+    return MapEntry(
+        studentID, {"eduspwd": edusysPassword, "onetpwd": onetPassword});
+  }
 }

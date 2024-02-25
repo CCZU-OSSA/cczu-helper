@@ -41,7 +41,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-app.config.json
+*.json
 
 # Rust related
 .cargo/

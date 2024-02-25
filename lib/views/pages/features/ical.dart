@@ -1,9 +1,15 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/functions.dart';
+import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/messages/ical.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ICalendarFeature extends StatefulWidget {
   const ICalendarFeature({super.key});
@@ -13,16 +19,66 @@ class ICalendarFeature extends StatefulWidget {
 }
 
 class ICalendarFeatureState extends State<ICalendarFeature> {
-  void generateICalendar() {
+  void generateICalendar(FutureOr<AccountData> account) async {
+    var data = await account;
     UserDataSyncInput(
-            username: "2300000002",
-            password: "000000",
-            firstweekdate: "",
-            reminder: "15")
-        .sendSignalToRust(null);
+      username: data.studentID,
+      password: data.edusysPassword,
+      firstweekdate: firstweekdate,
+      reminder: reminder,
+    ).sendSignalToRust(null);
     ICalJsonCallback.rustSignalStream.listen((event) {
-      ComplexDialog.instance
-          .text(context: context, content: Text(event.message.data));
+      Navigator.pop(context);
+      var data = event.message;
+      if (data.ok) {
+        showModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return SizedBox.expand(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    const ListTile(
+                      title: Text("完成！请保存你的课表！"),
+                    ),
+                    Visibility(
+                      visible: !Platform.isAndroid,
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          saveFile(data.data, fileName: "class.ics");
+                        },
+                        icon: const Icon(Icons.save),
+                        label: const SizedBox(
+                            width: double.infinity,
+                            child: Center(child: Text("保存"))),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    FilledButton.icon(
+                      onPressed: () {
+                        Share.shareXFiles([
+                          XFile.fromData(utf8.encode(data.data),
+                              mimeType: "text/calendar", name: "class.ics"),
+                        ]);
+                      },
+                      icon: const Icon(Icons.share),
+                      label: const SizedBox(
+                          width: double.infinity,
+                          child: Center(child: Text("分享"))),
+                    )
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      } else {
+        ComplexDialog.instance
+            .text(context: context, content: Text(event.message.data));
+      }
     });
   }
 
@@ -51,6 +107,7 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
               onTap: () {
                 var now = DateTime.now();
                 showDatePicker(
+                  helpText: "课表第一周周一",
                   context: context,
                   initialDate: now,
                   firstDate: now.add(const Duration(days: -365)),
@@ -100,7 +157,33 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          var account =
+              ArcheBus().of<ApplicationConfigs>().currentAccount.tryGet();
+          var messager = ScaffoldMessenger.of(context);
+          if (account == null) {
+            messager
+                .showSnackBar(const SnackBar(content: Text("请先在设置中添加并选择账户")));
+            return;
+          }
+          if (reminder == null || firstweekdate == null) {
+            messager.showSnackBar(const SnackBar(content: Text("尚未设置时间和日期")));
+            return;
+          }
+
+          ComplexDialog.instance
+              .copy(
+                barrierDismissible: false,
+                child: const Dialog.fullscreen(
+                  child: ProgressIndicatorWidget(),
+                ),
+              )
+              .prompt(
+                context: context,
+              );
+
+          generateICalendar(account);
+        },
         child: const Icon(Icons.public),
       ),
       body: Padding(

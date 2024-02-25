@@ -136,7 +136,7 @@ class CopyIconButtonState extends State<CopyIconButton> {
         opacity: animation,
         child: child,
       ),
-      duration: Durations.short2,
+      duration: Durations.short4,
       child: _copy
           ? IgnorePointer(
               child: IconButton(
