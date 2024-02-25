@@ -8,6 +8,7 @@ import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
+import 'package:cczu_helper/views/pages/curriculum.dart';
 import 'package:cczu_helper/views/pages/feature.dart';
 import 'package:cczu_helper/views/pages/home.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
@@ -167,6 +168,11 @@ class MainViewState extends State<MainView> {
     //   page: ONetworkView(),
     //   label: "一网通办",
     // ),
+    const NavigationItem(
+      icon: Icon(Icons.calendar_month),
+      page: CurriculumPage(),
+      label: "课程表",
+    ),
     NavigationItem(
       icon: const Icon(Icons.settings),
       page: SettingsPage(
