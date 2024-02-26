@@ -10,7 +10,6 @@ import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/curriculum.dart';
 import 'package:cczu_helper/views/pages/feature.dart';
-import 'package:cczu_helper/views/pages/home.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
@@ -155,11 +154,11 @@ class MainView extends StatefulWidget {
 class MainViewState extends State<MainView> {
   int currentIndex = 0;
   var viewItems = [
-    const NavigationItem(
-      icon: Icon(Icons.home),
-      page: HomePage(),
-      label: "主页",
-    ),
+    // const NavigationItem(
+    //  icon: Icon(Icons.home),
+    //  page: HomePage(),
+    //  label: "主页",
+    //),
 
     // const NavigationItem(
     //   icon: Icon(Icons.person),

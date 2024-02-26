@@ -3,7 +3,6 @@ import 'package:arche/extensions/io.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
-import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/features/ical.dart';
 import 'package:flutter/material.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
@@ -45,25 +44,32 @@ class CurriculumPageState extends State<CurriculumPage> {
         }
 
         if (snapshot.data!.isNull()) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text("尚未生成课表"),
-              FilledButton(
-                onPressed: () => setState(() {}),
-                child: const Text("刷新"),
-              ),
-              FilledButton(
-                onPressed: () => pushMaterialRoute(
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("尚未生成课表"),
+                FilledButton(
+                  onPressed: () => setState(() {}),
+                  child: const Text("刷新"),
+                ),
+                FilledButton(
+                  onPressed: () => pushMaterialRoute(
                     builder: (context) => Scaffold(
-                          appBar: AppBar(),
-                          body: const ICalendarFeature(),
-                        )),
-                child: const Text("生成课表"),
+                      appBar: AppBar(
+                        title: const Text("课表生成"),
+                      ),
+                      body: const ICalendarFeature(),
+                    ),
+                  ),
+                  child: const Text("生成"),
+                ),
+              ].joinElement(
+                const SizedBox(
+                  height: 8,
+                ),
               ),
-            ].joinElement(const SizedBox(
-              height: 8,
-            )),
+            ),
           );
         }
 
@@ -79,7 +85,8 @@ class CurriculumPageState extends State<CurriculumPage> {
             showNavigationArrow: true,
             showTodayButton: true,
             showDatePickerButton: true,
-            dataSource: CurriculumDataSource(snapshot.data!.value!.data),
+            dataSource: CurriculumDataSource(
+                snapshot.data!.value!.data, Theme.of(context)),
           ),
         );
       },
@@ -88,7 +95,8 @@ class CurriculumPageState extends State<CurriculumPage> {
 }
 
 class CurriculumDataSource extends CalendarDataSource {
-  CurriculumDataSource(ICalendarData source) {
+  final ThemeData theme;
+  CurriculumDataSource(ICalendarData source, this.theme) {
     appointments = source.courses;
   }
   @override
@@ -104,7 +112,7 @@ class CurriculumDataSource extends CalendarDataSource {
 
   @override
   Color getColor(int index) {
-    return Theme.of(navKey.currentContext!).colorScheme.primary;
+    return theme.colorScheme.primary;
   }
 
   @override

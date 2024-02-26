@@ -10,6 +10,8 @@ import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/messages/ical.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ICalendarFeature extends StatefulWidget {
@@ -66,8 +68,7 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
                       onPressed: () async {
                         platDirectory.getValue().then((value) => value
                             .subFile("_curriculum.ics")
-                            .writeAsString(data.data)
-                            .then((value) => Navigator.of(context).pop()));
+                            .writeAsString(data.data));
                       },
                       icon: const Icon(Icons.calendar_month),
                       label: const SizedBox(
@@ -118,14 +119,33 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
   @override
   Widget build(BuildContext context) {
     var pageItems = [
-      const Expanded(
+      Expanded(
         flex: 3,
         child: Card(
           child: Padding(
-              padding: EdgeInsets.all(8),
-              child: SizedBox.expand(
-                child: Text("什么是 ICalendar 课表?"),
-              )),
+            padding: const EdgeInsets.all(8),
+            child: SizedBox(
+                height: double.infinity,
+                child: SingleChildScrollView(
+                  child: SizedBox(
+                      width: double.infinity,
+                      child: FutureBuilder(
+                        future:
+                            rootBundle.loadString("assets/README_ICALENDAR.md"),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          return Markdown(
+                            data: snapshot.data.toString(),
+                            shrinkWrap: true,
+                          );
+                        },
+                      )),
+                )),
+          ),
         ),
       ),
       Expanded(
