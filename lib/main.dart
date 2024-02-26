@@ -16,6 +16,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 void main() {
   runZonedGuarded(
@@ -99,7 +100,8 @@ class MainApplicationState extends State<MainApplication> {
         localizationsDelegates: const [
           GlobalWidgetsLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate
+          GlobalCupertinoLocalizations.delegate,
+          SfGlobalLocalizations.delegate,
         ],
         supportedLocales: const [
           Locale.fromSubtags(languageCode: 'zh'), // generic Chinese 'zh'
@@ -158,11 +160,7 @@ class MainViewState extends State<MainView> {
       page: HomePage(),
       label: "主页",
     ),
-    const NavigationItem(
-      icon: Icon(Icons.apps),
-      page: FeaturesPage(),
-      label: "工具箱",
-    ),
+
     // const NavigationItem(
     //   icon: Icon(Icons.person),
     //   page: ONetworkView(),
@@ -172,6 +170,11 @@ class MainViewState extends State<MainView> {
       icon: Icon(Icons.calendar_month),
       page: CurriculumPage(),
       label: "课程表",
+    ),
+    const NavigationItem(
+      icon: Icon(Icons.apps),
+      page: FeaturesPage(),
+      label: "工具箱",
     ),
     NavigationItem(
       icon: const Icon(Icons.settings),

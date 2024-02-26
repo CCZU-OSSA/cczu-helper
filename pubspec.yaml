@@ -52,6 +52,10 @@ dependencies:
   file_picker: ^6.1.1
   flutter_inappwebview: ^6.0.0
   flutter_markdown: ^0.6.19
+  syncfusion_flutter_calendar: ^24.2.7
+  icalendar_parser: ^2.0.0
+  syncfusion_localizations: ^24.2.7
+  flutter_local_notifications: ^16.3.2
 
 
 

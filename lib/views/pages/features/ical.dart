@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/functions.dart';
+import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/messages/ical.pb.dart';
@@ -19,16 +20,20 @@ class ICalendarFeature extends StatefulWidget {
 }
 
 class ICalendarFeatureState extends State<ICalendarFeature> {
-  void generateICalendar(FutureOr<AccountData> account) async {
-    var data = await account;
-    UserDataSyncInput(
-      username: data.studentID,
-      password: data.edusysPassword,
-      firstweekdate: firstweekdate,
-      reminder: reminder,
-    ).sendSignalToRust(null);
+  bool _busy = false;
+  late String firstweekdate;
+  String reminder = "15";
+
+  @override
+  void initState() {
+    super.initState();
+    var now = DateTime.now();
+    firstweekdate =
+        "${now.year}${now.month.toString().padLeft(2, "0")}${now.day.toString().padLeft(2, "0")}";
     ICalJsonCallback.rustSignalStream.listen((event) {
-      Navigator.pop(context);
+      setState(() {
+        _busy = false;
+      });
       var data = event.message;
       if (data.ok) {
         showModalBottomSheet(
@@ -51,7 +56,25 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
                         icon: const Icon(Icons.save),
                         label: const SizedBox(
                             width: double.infinity,
-                            child: Center(child: Text("保存"))),
+                            child: Center(child: Text("保存到本地"))),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    FilledButton.icon(
+                      onPressed: () async {
+                        platDirectory.getValue().then((value) => value
+                            .subFile("_curriculum.ics")
+                            .writeAsString(data.data)
+                            .then((value) => Navigator.of(context).pop()));
+                      },
+                      icon: const Icon(Icons.calendar_month),
+                      label: const SizedBox(
+                        width: double.infinity,
+                        child: Center(
+                          child: Text("导入课程表"),
+                        ),
                       ),
                     ),
                     const SizedBox(
@@ -68,7 +91,7 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
                       label: const SizedBox(
                           width: double.infinity,
                           child: Center(child: Text("分享"))),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -82,8 +105,16 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
     });
   }
 
-  String? firstweekdate;
-  String? reminder;
+  void generateICalendar(FutureOr<AccountData> account) async {
+    var data = await account;
+    UserDataSyncInput(
+      username: data.studentID,
+      password: data.edusysPassword,
+      firstweekdate: firstweekdate,
+      reminder: reminder,
+    ).sendSignalToRust(null);
+  }
+
   @override
   Widget build(BuildContext context) {
     var pageItems = [
@@ -166,25 +197,19 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
                 .showSnackBar(const SnackBar(content: Text("请先在设置中添加并选择账户")));
             return;
           }
-          if (reminder == null || firstweekdate == null) {
-            messager.showSnackBar(const SnackBar(content: Text("尚未设置时间和日期")));
-            return;
-          }
 
-          ComplexDialog.instance
-              .copy(
-                barrierDismissible: false,
-                child: const Dialog.fullscreen(
-                  child: ProgressIndicatorWidget(),
-                ),
-              )
-              .prompt(
-                context: context,
-              );
-
-          generateICalendar(account);
+          setState(
+            () {
+              if (!_busy) {
+                generateICalendar(account);
+                _busy = true;
+              }
+            },
+          );
         },
-        child: const Icon(Icons.public),
+        child: _busy
+            ? const CircularProgressIndicator()
+            : const Icon(Icons.public),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8),
