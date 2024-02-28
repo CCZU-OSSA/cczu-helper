@@ -165,9 +165,11 @@ class MainViewState extends State<MainView> {
     //   page: ONetworkView(),
     //   label: "一网通办",
     // ),
-    const NavigationItem(
-      icon: Icon(Icons.calendar_month),
-      page: CurriculumPage(),
+    NavigationItem(
+      icon: const Icon(Icons.calendar_month),
+      page: CurriculumPage(
+        key: curriculmKey,
+      ),
       label: "课程表",
     ),
     const NavigationItem(

@@ -1,11 +1,14 @@
 import 'package:arche/arche.dart';
+import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
+import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/views/pages/features/ical.dart';
 import 'package:flutter/material.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class CurriculumPage extends StatefulWidget {
@@ -16,8 +19,15 @@ class CurriculumPage extends StatefulWidget {
 }
 
 class CurriculumPageState extends State<CurriculumPage> {
+  void refresh() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    var isWide = isWideScreen(context);
     return FutureBuilder(
       future: Future<Optional<ICalendarParser>>(() async {
         var datafile =
@@ -72,7 +82,7 @@ class CurriculumPageState extends State<CurriculumPage> {
             ),
           );
         }
-
+        var theme = Theme.of(context);
         return Scaffold(
           body: SfCalendar(
             allowedViews: const [
@@ -85,8 +95,87 @@ class CurriculumPageState extends State<CurriculumPage> {
             showNavigationArrow: true,
             showTodayButton: true,
             showDatePickerButton: true,
-            dataSource: CurriculumDataSource(
-                snapshot.data!.value!.data, Theme.of(context)),
+            selectionDecoration: const BoxDecoration(),
+            scheduleViewSettings: ScheduleViewSettings(
+                appointmentItemHeight: 60,
+                hideEmptyScheduleWeek: true,
+                monthHeaderSettings: MonthHeaderSettings(
+                    backgroundColor: theme.colorScheme.primary)),
+            appointmentBuilder: (context, calendarAppointmentDetails) {
+              CourseData appointment =
+                  calendarAppointmentDetails.appointments.first;
+              var time =
+                  '${DateFormat('a hh:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('a hh:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
+              return InkWell(
+                onTap: () {
+                  ComplexDialog.instance.text(
+                      title: Text(appointment.summary),
+                      content: Wrap(
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.calendar_month),
+                            title: const Text("时间"),
+                            subtitle:
+                                Visibility(visible: !isWide, child: Text(time)),
+                            trailing:
+                                Visibility(visible: isWide, child: Text(time)),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.location_on),
+                            title: const Text("地点"),
+                            subtitle: Visibility(
+                                visible: !isWide,
+                                child: Text(appointment.location)),
+                            trailing: Visibility(
+                                visible: isWide,
+                                child: Text(appointment.location)),
+                          )
+                        ],
+                      ),
+                      context: context);
+                },
+                child: Container(
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    border: theme.brightness == Brightness.dark
+                        ? null
+                        : Border.all(color: theme.colorScheme.outlineVariant),
+                    borderRadius: BorderRadius.circular(4),
+                    color: theme.colorScheme.onSecondary,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: ListView(
+                      clipBehavior: Clip.hardEdge,
+                      children: [
+                        Text(
+                          appointment.summary,
+                        ),
+                        Wrap(
+                          children: [
+                            const Icon(
+                              Icons.calendar_month,
+                            ),
+                            Text(
+                              time,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const Icon(
+                              Icons.location_on,
+                            ),
+                            Text(
+                              appointment.location,
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+            dataSource: CurriculumDataSource(snapshot.data!.value!.data, theme),
           ),
         );
       },
@@ -106,13 +195,18 @@ class CurriculumDataSource extends CalendarDataSource {
   }
 
   @override
+  String? getNotes(int index) {
+    return (appointments![index] as CourseData).summary;
+  }
+
+  @override
   String? getLocation(int index) {
     return (appointments![index] as CourseData).location;
   }
 
   @override
   Color getColor(int index) {
-    return theme.colorScheme.primary;
+    return theme.colorScheme.onSecondary;
   }
 
   @override
@@ -164,10 +258,11 @@ class ICalendarParser {
           if (icalItem.containsKey("location")) {
             courses.add(
               CourseData(
-                  location: icalItem["location"],
-                  summary: icalItem["summary"],
-                  start: icalItem["dtstart"],
-                  end: icalItem["dtend"]),
+                location: icalItem["location"],
+                summary: icalItem["summary"],
+                start: icalItem["dtstart"],
+                end: icalItem["dtend"],
+              ),
             );
           }
 

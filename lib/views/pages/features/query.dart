@@ -65,6 +65,7 @@ class QueryFeatureState extends State<QueryFeature>
                 ),
                 Padding(
                   padding: EdgeInsets.all(8),
+                  child: Text("尚未完成，请持续关注"),
                 )
               ],
             ),

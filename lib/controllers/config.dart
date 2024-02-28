@@ -35,25 +35,9 @@ class ApplicationConfigs {
       );
   ConfigEntry<bool> get material3 => generator("material3");
   ConfigEntry<double> get cardsize => generator("cardsize");
-  ConfigEntryConverter<FutureOr<String>, FutureOr<AccountData>>
-      get currentAccount => ConfigEntryConverter(
-            generator("currentaccount"),
-            forward: (value) async {
-              return (await AccountManager.accounts.getValue())[value]!;
-            },
-            reverse: (value) async {
-              var data = (await value);
-
-              for (var account
-                  in (await AccountManager.accounts.getValue()).entries) {
-                if (account.value == data) {
-                  return account.key;
-                }
-              }
-
-              throw UnsupportedError("Do not support to query from other list");
-            },
-          );
+  Future<Optional<AccountData>> get currentAccount async => Optional(
+      value: (await AccountManager.accounts
+          .getValue())[currentAccountName.tryGet()]);
 }
 
 class AccountManager {

@@ -1,4 +1,5 @@
 import 'package:arche/arche.dart';
+import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
@@ -43,19 +44,22 @@ class AccountPageState extends State<AccountPage> {
             return ListView(
               children: snapshot.data!.entries
                   .map<Widget>(
-                    (e) => ListTile(
-                      title: Text(e.key),
+                    (e) => GestureDetector(
                       onLongPress: () => pushMaterialRoute(
                         builder: (context) => AccountLoginPage(
                           data: e.value,
                         ),
                       ),
-                      tileColor: currentAccount == e.key
-                          ? Theme.of(context).colorScheme.primary
-                          : null,
-                      onTap: () => setState(() {
-                        currentAccountNameCfg.write(e.key);
-                      }),
+                      child: RadioListTile(
+                        groupValue: currentAccount,
+                        value: e.key,
+                        title: Text(e.key),
+                        onChanged: (String? value) {
+                          setState(() {
+                            currentAccountNameCfg.write(e.key);
+                          });
+                        },
+                      ),
                     ),
                   )
                   .toList(),
@@ -111,16 +115,27 @@ class _AccountLoginPageState extends State<AccountLoginPage> {
             visible: widget.data != null,
             child: IconButton(
               onPressed: () {
-                AccountManager.accountsStored.getValue().then((value) {
-                  value.delete(widget.data!.studentID);
-                  var cfg =
-                      ArcheBus.bus.of<ApplicationConfigs>().currentAccountName;
-                  if (cfg.tryGet() == widget.data!.studentID) {
-                    cfg.delete();
-                  }
+                ComplexDialog.instance
+                    .confirm(
+                  title: const Text("确认"),
+                  content: const Text("是否要删除此账户?"),
+                  context: context,
+                )
+                    .then((value) {
+                  if (value) {
+                    AccountManager.accountsStored.getValue().then((value) {
+                      value.delete(widget.data!.studentID);
+                      var cfg = ArcheBus.bus
+                          .of<ApplicationConfigs>()
+                          .currentAccountName;
+                      if (cfg.tryGet() == widget.data!.studentID) {
+                        cfg.delete();
+                      }
 
-                  accountKey.currentState?.refresh();
-                  Navigator.of(context).pop();
+                      accountKey.currentState?.refresh();
+                      Navigator.of(context).pop();
+                    });
+                  }
                 });
               },
               icon: const Icon(Icons.delete),

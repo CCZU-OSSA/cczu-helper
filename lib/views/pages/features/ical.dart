@@ -9,6 +9,7 @@ import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/messages/ical.pb.dart';
+import 'package:cczu_helper/models/fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -66,9 +67,20 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
                     ),
                     FilledButton.icon(
                       onPressed: () async {
-                        platDirectory.getValue().then((value) => value
-                            .subFile("_curriculum.ics")
-                            .writeAsString(data.data));
+                        platDirectory.getValue().then(
+                              (value) => value
+                                  .subFile("_curriculum.ics")
+                                  .writeAsString(data.data)
+                                  .then(
+                                    (value) => ComplexDialog.instance.text(
+                                      context: context,
+                                      title: const Text("导入成功"),
+                                      content: const Text("请返回课程表页面查看"),
+                                    ),
+                                  )
+                                  .then((value) =>
+                                      curriculmKey.currentState?.refresh()),
+                            );
                       },
                       icon: const Icon(Icons.calendar_month),
                       label: const SizedBox(
@@ -123,29 +135,26 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
         flex: 3,
         child: Card(
           child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: SizedBox(
+              padding: const EdgeInsets.all(8),
+              child: SizedBox(
                 height: double.infinity,
-                child: SingleChildScrollView(
-                  child: SizedBox(
-                      width: double.infinity,
-                      child: FutureBuilder(
-                        future:
-                            rootBundle.loadString("assets/README_ICALENDAR.md"),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          return Markdown(
-                            data: snapshot.data.toString(),
-                            shrinkWrap: true,
+                child: SizedBox(
+                    width: double.infinity,
+                    child: FutureBuilder(
+                      future:
+                          rootBundle.loadString("assets/README_ICALENDAR.md"),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
                           );
-                        },
-                      )),
-                )),
-          ),
+                        }
+                        return Markdown(
+                          data: snapshot.data.toString(),
+                        );
+                      },
+                    )),
+              )),
         ),
       ),
       Expanded(
@@ -181,6 +190,7 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
                 ComplexDialog.instance
                     .input(
                         context: context,
+                        autofocus: true,
                         title: const Text("输入整数"),
                         decoration: const InputDecoration(
                           labelText: "课前提醒",
@@ -208,11 +218,10 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          var account =
-              ArcheBus().of<ApplicationConfigs>().currentAccount.tryGet();
+        onPressed: () =>
+            ArcheBus().of<ApplicationConfigs>().currentAccount.then((account) {
           var messager = ScaffoldMessenger.of(context);
-          if (account == null) {
+          if (account.isNull()) {
             messager
                 .showSnackBar(const SnackBar(content: Text("请先在设置中添加并选择账户")));
             return;
@@ -221,12 +230,12 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
           setState(
             () {
               if (!_busy) {
-                generateICalendar(account);
+                generateICalendar(account.value!);
                 _busy = true;
               }
             },
           );
-        },
+        }),
         child: _busy
             ? const CircularProgressIndicator()
             : const Icon(Icons.public),
