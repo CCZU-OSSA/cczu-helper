@@ -83,6 +83,7 @@ class CurriculumPageState extends State<CurriculumPage> {
           );
         }
         var theme = Theme.of(context);
+        var controller = CalendarController();
         return Scaffold(
           body: SfCalendar(
             allowedViews: const [
@@ -91,13 +92,13 @@ class CurriculumPageState extends State<CurriculumPage> {
               CalendarView.schedule,
               CalendarView.timelineDay,
             ],
+            controller: controller,
             view: CalendarView.schedule,
             showNavigationArrow: true,
             showTodayButton: true,
             showDatePickerButton: true,
             selectionDecoration: const BoxDecoration(),
             scheduleViewSettings: ScheduleViewSettings(
-                appointmentItemHeight: 60,
                 hideEmptyScheduleWeek: true,
                 monthHeaderSettings: MonthHeaderSettings(
                     backgroundColor: theme.colorScheme.primary)),
@@ -106,6 +107,7 @@ class CurriculumPageState extends State<CurriculumPage> {
                   calendarAppointmentDetails.appointments.first;
               var time =
                   '${DateFormat('a hh:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('a hh:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
+
               return InkWell(
                 onTap: () {
                   ComplexDialog.instance.text(
@@ -145,32 +147,44 @@ class CurriculumPageState extends State<CurriculumPage> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(4),
-                    child: ListView(
-                      clipBehavior: Clip.hardEdge,
-                      children: [
-                        Text(
-                          appointment.summary,
-                        ),
-                        Wrap(
-                          children: [
-                            const Icon(
-                              Icons.calendar_month,
-                            ),
-                            Text(
-                              time,
+                    child: controller.view != CalendarView.schedule &&
+                            controller.view != CalendarView.day
+                        ? Center(
+                            child: Text(
+                              appointment.summary,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const Icon(
-                              Icons.location_on,
-                            ),
-                            Text(
-                              appointment.location,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  appointment.summary,
+                                ),
+                              ),
+                              Expanded(
+                                child: Wrap(
+                                  children: [
+                                    const Icon(
+                                      Icons.calendar_month,
+                                    ),
+                                    Text(
+                                      time,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const Icon(
+                                      Icons.location_on,
+                                    ),
+                                    Text(
+                                      appointment.location,
+                                      overflow: TextOverflow.ellipsis,
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
                   ),
                 ),
               );
