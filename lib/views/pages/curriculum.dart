@@ -7,6 +7,7 @@ import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/views/pages/features/ical.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -83,6 +84,7 @@ class CurriculumPageState extends State<CurriculumPage> {
           );
         }
         var theme = Theme.of(context);
+        var configs = ArcheBus().of<ApplicationConfigs>();
         var controller = CalendarController();
         return Scaffold(
           body: SfCalendar(
@@ -90,10 +92,15 @@ class CurriculumPageState extends State<CurriculumPage> {
               CalendarView.day,
               CalendarView.week,
               CalendarView.schedule,
-              CalendarView.timelineDay,
             ],
             controller: controller,
-            view: CalendarView.schedule,
+            view: configs.calendarView.getOr(CalendarView.schedule),
+            firstDayOfWeek: 1,
+            timeSlotViewSettings: TimeSlotViewSettings(
+              startHour: 8,
+              endHour: 21,
+              timeIntervalHeight: isWide ? 60 : 100,
+            ),
             showNavigationArrow: true,
             showTodayButton: true,
             showDatePickerButton: true,
@@ -103,39 +110,43 @@ class CurriculumPageState extends State<CurriculumPage> {
                 monthHeaderSettings: MonthHeaderSettings(
                     backgroundColor: theme.colorScheme.primary)),
             appointmentBuilder: (context, calendarAppointmentDetails) {
-              CourseData appointment =
+              CalendarData appointment =
                   calendarAppointmentDetails.appointments.first;
               var time =
                   '${DateFormat('a hh:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('a hh:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
 
-              return InkWell(
-                onTap: () {
-                  ComplexDialog.instance.text(
-                      title: Text(appointment.summary),
-                      content: Wrap(
-                        children: [
-                          ListTile(
-                            leading: const Icon(Icons.calendar_month),
-                            title: const Text("时间"),
-                            subtitle:
-                                Visibility(visible: !isWide, child: Text(time)),
-                            trailing:
-                                Visibility(visible: isWide, child: Text(time)),
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.location_on),
-                            title: const Text("地点"),
-                            subtitle: Visibility(
-                                visible: !isWide,
-                                child: Text(appointment.location)),
-                            trailing: Visibility(
-                                visible: isWide,
-                                child: Text(appointment.location)),
-                          )
-                        ],
-                      ),
-                      context: context);
-                },
+              return GestureDetector(
+                onTap: appointment.isAllday
+                    ? null
+                    : () {
+                        ComplexDialog.instance.text(
+                            title: Text(appointment.summary),
+                            content: Wrap(
+                              children: [
+                                ListTile(
+                                  leading: const Icon(Icons.calendar_month),
+                                  title: const Text("时间"),
+                                  subtitle: Visibility(
+                                      visible: !isWide, child: Text(time)),
+                                  trailing: Visibility(
+                                      visible: isWide, child: Text(time)),
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.location_on),
+                                  title: const Text("地点"),
+                                  subtitle: Visibility(
+                                      visible: !isWide,
+                                      child: Text(
+                                          appointment.location.toString())),
+                                  trailing: Visibility(
+                                      visible: isWide,
+                                      child: Text(
+                                          appointment.location.toString())),
+                                )
+                              ],
+                            ),
+                            context: context);
+                      },
                 child: Container(
                   clipBehavior: Clip.hardEdge,
                   decoration: BoxDecoration(
@@ -143,49 +154,60 @@ class CurriculumPageState extends State<CurriculumPage> {
                         ? null
                         : Border.all(color: theme.colorScheme.outlineVariant),
                     borderRadius: BorderRadius.circular(4),
-                    color: theme.colorScheme.onSecondary,
+                    color: appointment.isAllday
+                        ? theme.colorScheme.inversePrimary
+                        : theme.colorScheme.onSecondary,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: controller.view != CalendarView.schedule &&
-                            controller.view != CalendarView.day
-                        ? Center(
-                            child: Text(
-                              appointment.summary,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          )
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  appointment.summary,
-                                ),
-                              ),
-                              Expanded(
-                                child: Wrap(
-                                  children: [
-                                    const Icon(
-                                      Icons.calendar_month,
-                                    ),
-                                    Text(
-                                      time,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const Icon(
-                                      Icons.location_on,
-                                    ),
-                                    Text(
-                                      appointment.location,
-                                      overflow: TextOverflow.ellipsis,
-                                    )
-                                  ],
-                                ),
-                              )
-                            ],
+                  child: appointment.isAllday
+                      ? Center(
+                          child: Text(
+                            appointment.summary,
                           ),
-                  ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Visibility(
+                            visible: controller.view != CalendarView.week,
+                            replacement: Text(
+                              "${appointment.summary} | ${appointment.location}",
+                              overflow: TextOverflow.fade,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    appointment.summary,
+                                    overflow: TextOverflow.fade,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Wrap(
+                                      children: [
+                                        const Icon(
+                                          Icons.calendar_month,
+                                        ),
+                                        Text(
+                                          time,
+                                        ),
+                                        const Icon(
+                                          Icons.location_on,
+                                        ),
+                                        Text(
+                                          appointment.location.toString(),
+                                          overflow: TextOverflow.ellipsis,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                 ),
               );
             },
@@ -204,18 +226,18 @@ class CurriculumDataSource extends CalendarDataSource {
   }
   @override
   String getSubject(int index) {
-    CourseData data = appointments![index];
+    CalendarData data = appointments![index];
     return "${data.summary}\n${data.location}";
   }
 
   @override
   String? getNotes(int index) {
-    return (appointments![index] as CourseData).summary;
+    return (appointments![index] as CalendarData).summary;
   }
 
   @override
   String? getLocation(int index) {
-    return (appointments![index] as CourseData).location;
+    return (appointments![index] as CalendarData).location;
   }
 
   @override
@@ -225,26 +247,40 @@ class CurriculumDataSource extends CalendarDataSource {
 
   @override
   DateTime getStartTime(int index) {
-    return (appointments![index] as CourseData).start.toDateTime()!;
+    return (appointments![index] as CalendarData).start.toDateTime()!;
   }
 
   @override
   DateTime getEndTime(int index) {
-    return (appointments![index] as CourseData).end.toDateTime()!;
+    if (isAllDay(index)) {
+      return (appointments![index] as CalendarData)
+          .end
+          .toDateTime()!
+          .add(const Duration(days: -1));
+    }
+
+    return (appointments![index] as CalendarData).end.toDateTime()!;
+  }
+
+  @override
+  bool isAllDay(int index) {
+    return (appointments![index] as CalendarData).isAllday;
   }
 }
 
 @immutable
-class CourseData {
-  final String location;
+class CalendarData {
+  final String? location;
   final String summary;
   final IcsDateTime start;
   final IcsDateTime end;
-  const CourseData({
+  final bool isAllday;
+  const CalendarData({
     required this.location,
     required this.summary,
     required this.start,
     required this.end,
+    this.isAllday = false,
   });
 
   @override
@@ -255,7 +291,7 @@ class CourseData {
 
 @immutable
 class ICalendarData {
-  final List<CourseData> courses;
+  final List<CalendarData> courses;
   const ICalendarData(this.courses);
 }
 
@@ -264,26 +300,14 @@ class ICalendarParser {
   ICalendarParser(String source) : source = ICalendar.fromString(source);
 
   ICalendarData get data {
-    var courses = <CourseData>[];
-
-    for (var icalItem in source.data) {
-      switch (icalItem["type"]) {
-        case "VEVENT":
-          if (icalItem.containsKey("location")) {
-            courses.add(
-              CourseData(
-                location: icalItem["location"],
-                summary: icalItem["summary"],
-                start: icalItem["dtstart"],
-                end: icalItem["dtend"],
-              ),
-            );
-          }
-
-          break;
-        default:
-      }
-    }
-    return ICalendarData(courses);
+    return ICalendarData(
+        source.data.where((element) => element["type"] == "VEVENT").map((e) {
+      return CalendarData(
+          location: e["location"].toString(),
+          summary: e["summary"].toString(),
+          start: e["dtstart"],
+          end: e["dtend"],
+          isAllday: e["location"] == null);
+    }).toList());
   }
 }

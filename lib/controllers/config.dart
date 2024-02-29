@@ -5,6 +5,7 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 FutureLazyDynamicCan<Directory> platDirectory =
     FutureLazyDynamicCan(builder: getPlatDirectory);
@@ -32,6 +33,16 @@ class ApplicationConfigs {
         generator("thememode"),
         forward: (value) => ThemeMode.values[value],
         reverse: (value) => ThemeMode.values.indexOf(value),
+      );
+  ConfigEntryConverter<int, CalendarView> get calendarView =>
+      ConfigEntryConverter(
+        generator("calendarview"),
+        forward: (value) {
+          return CalendarView.values[value];
+        },
+        reverse: (value) {
+          return CalendarView.values.indexOf(value);
+        },
       );
   ConfigEntry<bool> get material3 => generator("material3");
   ConfigEntry<double> get cardsize => generator("cardsize");
