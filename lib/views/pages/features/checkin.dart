@@ -1,15 +1,18 @@
 import 'package:arche/arche.dart';
+import 'package:cczu_helper/controllers/config.dart';
+import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
+import 'package:cczu_helper/views/pages/termview.dart';
 import 'package:flutter/material.dart';
 
-class QueryFeature extends StatefulWidget {
-  const QueryFeature({super.key});
+class CheckInFeature extends StatefulWidget {
+  const CheckInFeature({super.key});
 
   @override
-  State<StatefulWidget> createState() => QueryFeatureState();
+  State<StatefulWidget> createState() => CheckInFeatureState();
 }
 
-class QueryFeatureState extends State<QueryFeature>
+class CheckInFeatureState extends State<CheckInFeature>
     with TickerProviderStateMixin {
   late AnimationController _fabAnimationController;
   @override
@@ -27,6 +30,7 @@ class QueryFeatureState extends State<QueryFeature>
 
   @override
   Widget build(BuildContext context) {
+    var configs = ArcheBus().of<ApplicationConfigs>();
     var pageItems = [
       const Expanded(
         flex: 3,
@@ -51,25 +55,29 @@ class QueryFeatureState extends State<QueryFeature>
           ),
         ),
       ),
-      const Expanded(
+      Expanded(
         flex: 2,
-        child: SizedBox.expand(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ListTile(
-                  title: Text("说明"),
-                  subtitle: Text("README"),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Text("尚未完成，请持续关注"),
-                )
-              ],
+        child: ListView(
+          children: [
+            const ListTile(
+              leading: Icon(Icons.book),
+              title: Text("说明"),
+              subtitle: Text("README"),
             ),
-          ),
+            const Padding(
+              padding: EdgeInsets.all(8),
+              child: Text("由于教务系统可能会进行更新，所以本功能暂时搁置以等待适配新的打卡系统，请持续关注"),
+            ),
+            ListTile(
+              title: const Text("学期"),
+              trailing: Text(configs.termname.tryGet().toString()),
+              onTap: () => pushMaterialRoute(
+                builder: (context) => TermView(
+                  onChanged: () => setState(() {}),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     ];

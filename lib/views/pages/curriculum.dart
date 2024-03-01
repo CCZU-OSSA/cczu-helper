@@ -5,9 +5,8 @@ import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
-import 'package:cczu_helper/views/pages/features/ical.dart';
+import 'package:cczu_helper/views/pages/features/icalendar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -95,11 +94,17 @@ class CurriculumPageState extends State<CurriculumPage> {
             ],
             controller: controller,
             view: configs.calendarView.getOr(CalendarView.schedule),
+            onViewChanged: (viewChangedDetails) {
+              var view = controller.view;
+              if (view != null) {
+                configs.calendarView.write(view);
+              }
+            },
             firstDayOfWeek: 1,
             timeSlotViewSettings: TimeSlotViewSettings(
               startHour: 8,
               endHour: 21,
-              timeIntervalHeight: isWide ? 60 : 100,
+              timeIntervalHeight: isWide ? 60 : 120,
             ),
             showNavigationArrow: true,
             showTodayButton: true,

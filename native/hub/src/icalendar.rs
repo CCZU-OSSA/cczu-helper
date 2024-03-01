@@ -3,10 +3,10 @@ use cczu_ical_rs::{
     user::UserClient,
 };
 
-use crate::messages::ical::{ICalJsonCallback, UserDataSyncInput};
+use crate::messages::icalendar::{ICalJsonCallback, ICalendarGenerateInput};
 
 pub async fn generate_ical() {
-    let mut rev = UserDataSyncInput::get_dart_signal_receiver();
+    let mut rev = ICalendarGenerateInput::get_dart_signal_receiver();
     while let Some(dart_signal) = rev.recv().await {
         impl_generate_ical(dart_signal.message)
             .await
@@ -14,7 +14,8 @@ pub async fn generate_ical() {
     }
 }
 
-async fn impl_generate_ical(user: UserDataSyncInput) -> ICalJsonCallback {
+async fn impl_generate_ical(data: ICalendarGenerateInput) -> ICalJsonCallback {
+    let user = data.account.unwrap();
     let client = UserClient::new(&user.username, &user.password);
     if let Err(message) = client.login().await {
         return ICalJsonCallback {
@@ -24,11 +25,11 @@ async fn impl_generate_ical(user: UserDataSyncInput) -> ICalJsonCallback {
     };
     match client.get_classlist().await {
         Ok(cl) => {
-            let mut ical = ICal::new(user.firstweekdate, cl);
+            let mut ical = ICal::new(data.firstweekdate, cl);
             ICalJsonCallback {
                 ok: true,
                 data: ical
-                    .to_ical(get_reminder(user.reminder.as_str()))
+                    .to_ical(get_reminder(data.reminder.as_str()))
                     .to_string(),
             }
         }

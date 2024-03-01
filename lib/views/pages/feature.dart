@@ -1,8 +1,8 @@
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
-import 'package:cczu_helper/views/pages/features/ical.dart';
-import 'package:cczu_helper/views/pages/features/query.dart';
+import 'package:cczu_helper/views/pages/features/icalendar.dart';
+import 'package:cczu_helper/views/pages/features/checkin.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 
@@ -61,7 +61,7 @@ class FeaturesPageState extends State<FeaturesPage>
   static final List<FeatureItem> features = [
     const FeatureItem(
       name: "打卡查询",
-      child: QueryFeature(),
+      child: CheckInFeature(),
     ),
     const FeatureItem(
       name: "课表生成",

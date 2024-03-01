@@ -13,3 +13,4 @@ final GlobalKey<NavigationViewState> navKey = GlobalKey();
 final GlobalKey<SettingsPageState> settingKey = GlobalKey();
 final GlobalKey<AccountPageState> accountKey = GlobalKey();
 final GlobalKey<CurriculumPageState> curriculmKey = GlobalKey();
+

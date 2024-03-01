@@ -8,8 +8,9 @@ import 'package:arche/extensions/functions.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
-import 'package:cczu_helper/messages/ical.pb.dart';
+import 'package:cczu_helper/messages/icalendar.pb.dart';
 import 'package:cczu_helper/models/fields.dart';
+import 'package:cczu_helper/models/typedata.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -120,9 +121,8 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
 
   void generateICalendar(FutureOr<AccountData> account) async {
     var data = await account;
-    UserDataSyncInput(
-      username: data.studentID,
-      password: data.edusysPassword,
+    ICalendarGenerateInput(
+      account: data.protoEduS,
       firstweekdate: firstweekdate,
       reminder: reminder,
     ).sendSignalToRust(null);
@@ -149,9 +149,17 @@ class ICalendarFeatureState extends State<ICalendarFeature> {
                             child: CircularProgressIndicator(),
                           );
                         }
-                        return Markdown(
-                          data: snapshot.data.toString(),
-                        );
+                        return ListView(children: [
+                          const ListTile(
+                            leading: Icon(Icons.book),
+                            title: Text("说明"),
+                            subtitle: Text("README"),
+                          ),
+                          Markdown(
+                            data: snapshot.data.toString(),
+                            shrinkWrap: true,
+                          ),
+                        ]);
                       },
                     )),
               )),

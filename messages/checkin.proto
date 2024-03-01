@@ -1,0 +1,21 @@
+syntax = "proto3";
+package checkin;
+
+import "common.proto";
+
+// [RINF:DART-SIGNAL]
+message CheckInDataGenerateInput{
+    common.ProtoAccountData account = 1;
+};
+
+// [RINF:RUST-SIGNAL]
+message CheckInDataJsonCallback {
+    bool ok = 1;
+    string data = 2;
+};
+
+// [RINF:RUST-SIGNAL]
+message TermsDataJsonOutput {
+    bool ok = 1;
+    string data = 2;
+};

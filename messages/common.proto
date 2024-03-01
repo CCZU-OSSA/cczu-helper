@@ -1,0 +1,13 @@
+syntax = "proto3";
+package common;
+
+message ProtoAccountData {
+    string username = 1;
+    string password = 2;
+};
+
+
+// [RINF:DART-SIGNAL]
+message RustCallChannel {
+    int32 id = 1;
+}

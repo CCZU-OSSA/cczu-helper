@@ -1,8 +1,5 @@
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/models/fields.dart';
-import 'package:dio/dio.dart';
-import 'package:html/parser.dart';
-
 class CheckData {
   String status;
   String name;

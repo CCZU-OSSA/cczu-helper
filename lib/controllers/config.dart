@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
+import 'package:cczu_helper/models/typedata.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -32,7 +33,7 @@ class ApplicationConfigs {
   ConfigEntryConverter<int, ThemeMode> get themeMode => ConfigEntryConverter(
         generator("thememode"),
         forward: (value) => ThemeMode.values[value],
-        reverse: (value) => ThemeMode.values.indexOf(value),
+        reverse: (value) => value.index,
       );
   ConfigEntryConverter<int, CalendarView> get calendarView =>
       ConfigEntryConverter(
@@ -41,7 +42,7 @@ class ApplicationConfigs {
           return CalendarView.values[value];
         },
         reverse: (value) {
-          return CalendarView.values.indexOf(value);
+          return value.index;
         },
       );
   ConfigEntry<bool> get material3 => generator("material3");
@@ -73,17 +74,4 @@ class AccountManager {
       return accounts;
     },
   );
-}
-
-@immutable
-class AccountData {
-  final String studentID;
-  final String onetPassword;
-  final String edusysPassword;
-  const AccountData(this.studentID, this.onetPassword, this.edusysPassword);
-
-  MapEntry<String, Map<String, String>> toMapEntry() {
-    return MapEntry(
-        studentID, {"eduspwd": edusysPassword, "onetpwd": onetPassword});
-  }
 }
