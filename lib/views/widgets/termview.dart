@@ -42,7 +42,7 @@ class _TermViewState extends State<TermView> with NativeChannelSubscriber {
   @override
   void dispose() {
     super.dispose();
-    subscriber?.cancel();
+    subscriber.cancel();
   }
 
   @override

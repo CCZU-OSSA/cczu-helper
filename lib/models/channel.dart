@@ -16,6 +16,10 @@ extension JsonEncode on Mappable {
   String encode() => jsonEncode(toMap());
 }
 
+extension Encode on Map {
+  String encode() => jsonEncode(this);
+}
+
 @immutable
 class TermData {
   final String value;
@@ -67,5 +71,5 @@ class ICalendarGenerateData implements Mappable {
 }
 
 mixin NativeChannelSubscriber {
-  StreamSubscription? subscriber;
+  late StreamSubscription subscriber;
 }

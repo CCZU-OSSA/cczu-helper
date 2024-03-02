@@ -594,6 +594,7 @@ version = "0.1.0"
 dependencies = [
  "cczu_ical_rs",
  "prost",
+ "regex",
  "reqwest",
  "rinf",
  "scraper",

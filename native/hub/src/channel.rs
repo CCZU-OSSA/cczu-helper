@@ -1,8 +1,6 @@
 use crate::{
-    checkin::impl_generate_termviews,
-    icalendar::impl_generate_ical,
+    implments::{impl_generate_ical, impl_generate_termviews, impl_login_wifi},
     messages::common::{DartReceiveChannel, RustCallChannel},
-    typedata::ICalendarGenerateData,
 };
 use serde::Serialize;
 use serde_json::{from_str, to_string};
@@ -13,14 +11,10 @@ pub async fn handle_channel() {
         let message = dart_signal.message;
         let id = message.id;
         let data = message.data;
-
         match id {
             TERMVIEWS => impl_generate_termviews().await.handle(),
-            LOGINWIFI => {}
-            GENERATE_ICALENDAR => {
-                let data: ICalendarGenerateData = from_str(&data).unwrap();
-                impl_generate_ical(data).await.handle()
-            }
+            LOGINWIFI => impl_login_wifi(from_str(&data).unwrap()).await.handle(),
+            GENERATE_ICALENDAR => impl_generate_ical(from_str(&data).unwrap()).await.handle(),
             _ => (),
         }
     }

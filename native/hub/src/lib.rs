@@ -8,8 +8,7 @@ use channel::handle_channel;
 use tokio_with_wasm::tokio;
 
 mod channel;
-mod checkin;
-mod icalendar;
+mod implments;
 mod messages;
 mod typedata;
 
