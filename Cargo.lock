@@ -150,14 +150,14 @@ checksum = "02f341c093d19155a6e41631ce5971aac4e9a868262212153124c15fa22d1cdc"
 [[package]]
 name = "cczu_ical_rs"
 version = "0.1.2"
-source = "git+https://github.com/CCZU-OSSA/CCZU-iCal-rs.git#00eef0db77743deee32c60f722bd7e4de3f4bee5"
+source = "git+https://github.com/CCZU-OSSA/CCZU-iCal-rs.git#28f8b1cb2ffe28ec7be109c99cb7669bf15ba2e5"
 dependencies = [
  "chrono",
  "icalendar",
  "once_cell",
  "regex",
  "reqwest",
- "scraper 0.18.1",
+ "scraper",
  "serde",
  "serde_json",
  "tokio",
@@ -596,7 +596,7 @@ dependencies = [
  "prost",
  "reqwest",
  "rinf",
- "scraper 0.19.0",
+ "scraper",
  "serde",
  "serde_json",
  "tokio_with_wasm",
@@ -837,9 +837,9 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "0.8.10"
+version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f3d0b296e374a4e6f3c7b0a1f5a51d748a0d34c85e7dc48fc3fa9a87657fe09"
+checksum = "a4a650543ca06a924e8b371db273b2756685faae30f8487da1b56505a8f78b0c"
 dependencies = [
  "libc",
  "wasi",
@@ -1416,22 +1416,6 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
-
-[[package]]
-name = "scraper"
-version = "0.18.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "585480e3719b311b78a573db1c9d9c4c1f8010c2dee4cc59c2efe58ea4dbc3e1"
-dependencies = [
- "ahash",
- "cssparser",
- "ego-tree",
- "getopts",
- "html5ever",
- "once_cell",
- "selectors",
- "tendril",
-]
 
 [[package]]
 name = "scraper"
