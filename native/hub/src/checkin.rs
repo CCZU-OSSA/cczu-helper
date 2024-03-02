@@ -1,7 +1,8 @@
 use scraper::{Html, Selector};
 use tokio_with_wasm::tokio;
 
-use crate::models::TermData;
+use crate::typedata::TermData;
+
 
 pub async fn impl_generate_termviews() -> Result<Vec<TermData>, String> {
     if let Ok(response) = reqwest::get("http://202.195.100.156:808/").await {

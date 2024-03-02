@@ -11,7 +11,29 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3.5.2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Install Rust & Prepare Complie
+        run: |
+          rustup update stable
+          cargo install rinf
+          rinf message
+          dart fix --apply
+      - name: Build
+        run: flutter build windows --release
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: windows-x64
+          path: build/windows/x64/runner/Release/*
+
+  build-android:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3.5.2
@@ -21,7 +43,7 @@ jobs:
           distribution: "zulu"
           java-version: "17"
 
-      - name: Decode Signing 
+      - name: Decode Signing
         run: echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
         env:
           ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}

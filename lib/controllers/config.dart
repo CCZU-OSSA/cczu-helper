@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
-import 'package:cczu_helper/models/typedata.dart';
+import 'package:cczu_helper/models/channel.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';

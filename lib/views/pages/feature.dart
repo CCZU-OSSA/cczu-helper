@@ -1,6 +1,7 @@
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
+import 'package:cczu_helper/views/pages/features/cczuwifi.dart';
 import 'package:cczu_helper/views/pages/features/icalendar.dart';
 import 'package:cczu_helper/views/pages/features/checkin.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
@@ -66,7 +67,11 @@ class FeaturesPageState extends State<FeaturesPage>
     const FeatureItem(
       name: "课表生成",
       child: ICalendarFeature(),
-    )
+    ),
+    const FeatureItem(
+      name: "WIFI认证",
+      child: CCZUWifiFeature(),
+    ),
   ];
 
   late double cardSize;

@@ -216,7 +216,7 @@ class CurriculumPageState extends State<CurriculumPage> {
                 ),
               );
             },
-            dataSource: CurriculumDataSource(snapshot.data!.value!.data, theme),
+            dataSource: CurriculumDataSource(snapshot.data!.value!.data),
           ),
         );
       },
@@ -225,29 +225,8 @@ class CurriculumPageState extends State<CurriculumPage> {
 }
 
 class CurriculumDataSource extends CalendarDataSource {
-  final ThemeData theme;
-  CurriculumDataSource(ICalendarData source, this.theme) {
+  CurriculumDataSource(ICalendarData source) {
     appointments = source.courses;
-  }
-  @override
-  String getSubject(int index) {
-    CalendarData data = appointments![index];
-    return "${data.summary}\n${data.location}";
-  }
-
-  @override
-  String? getNotes(int index) {
-    return (appointments![index] as CalendarData).summary;
-  }
-
-  @override
-  String? getLocation(int index) {
-    return (appointments![index] as CalendarData).location;
-  }
-
-  @override
-  Color getColor(int index) {
-    return theme.colorScheme.onSecondary;
   }
 
   @override

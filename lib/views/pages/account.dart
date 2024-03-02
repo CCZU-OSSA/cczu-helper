@@ -3,8 +3,8 @@ import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
+import 'package:cczu_helper/models/channel.dart';
 import 'package:cczu_helper/models/fields.dart';
-import 'package:cczu_helper/models/typedata.dart';
 import 'package:flutter/material.dart';
 
 class AccountPage extends StatefulWidget {

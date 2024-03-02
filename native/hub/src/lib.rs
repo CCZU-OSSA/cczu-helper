@@ -2,7 +2,6 @@
 //! entry point of the Rust logic.
 
 use channel::handle_channel;
-use icalendar::generate_ical;
 // This `tokio` will be used by Rinf.
 // You can replace it with the original `tokio`
 // if you're not targeting the web.
@@ -12,7 +11,7 @@ mod channel;
 mod checkin;
 mod icalendar;
 mod messages;
-mod models;
+mod typedata;
 
 rinf::write_interface!();
 
@@ -23,6 +22,5 @@ rinf::write_interface!();
 async fn main() {
     // Repeat `tokio::spawn` anywhere in your code
     // if more concurrent tasks are needed.
-    tokio::spawn(generate_ical());
     tokio::spawn(handle_channel());
 }

@@ -1,8 +1,8 @@
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
-import 'package:cczu_helper/controllers/platform.dart';
-import 'package:cczu_helper/views/pages/termview.dart';
+import 'package:cczu_helper/views/widgets/featureview.dart';
+import 'package:cczu_helper/views/widgets/termview.dart';
 import 'package:flutter/material.dart';
 
 class CheckInFeature extends StatefulWidget {
@@ -31,10 +31,35 @@ class CheckInFeatureState extends State<CheckInFeature>
   @override
   Widget build(BuildContext context) {
     var configs = ArcheBus().of<ApplicationConfigs>();
-    var pageItems = [
-      const Expanded(
-        flex: 3,
-        child: Card(
+
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            _fabAnimationController.reset();
+            _fabAnimationController.forward();
+          });
+
+          ComplexDialog.instance
+              .copy(
+                barrierDismissible: false,
+                child: const Dialog.fullscreen(
+                  child: Center(
+                    child: ProgressIndicatorWidget(
+                      data: ProgressIndicatorWidgetData(text: "请耐心等待..."),
+                    ),
+                  ),
+                ),
+              )
+              .prompt(context: context);
+        },
+        child: RotationTransition(
+          turns: _fabAnimationController,
+          child: const Icon(Icons.refresh),
+        ),
+      ),
+      body: FeatureView(
+        primary: const Card(
           child: SizedBox.expand(
             child: FittedBox(
               fit: BoxFit.contain,
@@ -54,10 +79,7 @@ class CheckInFeatureState extends State<CheckInFeature>
             ),
           ),
         ),
-      ),
-      Expanded(
-        flex: 2,
-        child: ListView(
+        secondary: ListView(
           children: [
             const ListTile(
               leading: Icon(Icons.book),
@@ -80,41 +102,6 @@ class CheckInFeatureState extends State<CheckInFeature>
           ],
         ),
       ),
-    ];
-
-    return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              _fabAnimationController.reset();
-              _fabAnimationController.forward();
-            });
-
-            ComplexDialog.instance
-                .copy(
-                  barrierDismissible: false,
-                  child: const Dialog.fullscreen(
-                    child: Center(
-                      child: ProgressIndicatorWidget(
-                        data: ProgressIndicatorWidgetData(text: "请耐心等待..."),
-                      ),
-                    ),
-                  ),
-                )
-                .prompt(context: context);
-          },
-          child: RotationTransition(
-            turns: _fabAnimationController,
-            child: const Icon(Icons.refresh),
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(8),
-          child: isWideScreen(context)
-              ? Row(
-                  children: pageItems,
-                )
-              : Column(children: pageItems),
-        ));
+    );
   }
 }

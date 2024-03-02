@@ -1,4 +1,5 @@
-import 'package:cczu_helper/controllers/platform.dart';
+import 'package:cczu_helper/views/widgets/featureview.dart';
+import 'package:cczu_helper/views/widgets/markdown.dart';
 import 'package:flutter/material.dart';
 
 class CCZUWifiFeature extends StatefulWidget {
@@ -16,14 +17,12 @@ class _CCZUWifiFeatureState extends State<CCZUWifiFeature> {
 
   @override
   Widget build(BuildContext context) {
-    var isWide = isWideScreen(context);
-    var pageItems = [const Expanded(child: Text("123"))];
-    return isWide
-        ? Row(
-            children: pageItems,
-          )
-        : Column(
-            children: pageItems,
-          );
+    return const FeatureView(
+      primary: Card(
+        child: SizedBox.expand(
+          child: READMEWidget(resource: "resource"),
+        ),
+      ),
+    );
   }
 }
