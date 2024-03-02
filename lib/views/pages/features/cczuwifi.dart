@@ -6,6 +6,7 @@ import 'package:cczu_helper/models/channel.dart';
 import 'package:cczu_helper/views/widgets/featureview.dart';
 import 'package:cczu_helper/views/widgets/markdown.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class CCZUWifiFeature extends StatefulWidget {
   const CCZUWifiFeature({super.key});
@@ -30,11 +31,12 @@ class _CCZUWifiFeatureState extends State<CCZUWifiFeature>
       if (message.ok) {
         ComplexDialog.instance
             .text(context: context, content: const Text("登录成功！"));
-      } else {}
-      ComplexDialog.instance.text(
-          context: context,
-          title: const Text("确认接入校园网?"),
-          content: Text(message.data));
+      } else {
+        ComplexDialog.instance.text(
+            context: context,
+            title: const Text("确认接入校园网?"),
+            content: Text(message.data));
+      }
     });
   }
 
@@ -54,53 +56,59 @@ class _CCZUWifiFeatureState extends State<CCZUWifiFeature>
                 data: ProgressIndicatorWidgetData(text: "正在登陆中..."),
               ),
             )
-          : FeatureView(
-              primary: const Card(
-                child: SizedBox.expand(
-                  child: READMEWidget(resource: "assets/README_CCZUWIFI.md"),
-                ),
+          : Scaffold(
+              floatingActionButton: FloatingActionButton(
+                child: const Icon(Icons.wifi),
+                onPressed: () async {
+                  var account = ArcheBus()
+                      .of<ApplicationConfigs>()
+                      .currentAccount
+                      .tryGet();
+                  if (account == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("请先在设置中添加并选择账户")));
+                    return;
+                  }
+
+                  if (_busy) {
+                    return;
+                  }
+
+                  setState(
+                    () {
+                      _busy = true;
+                    },
+                  );
+
+                  RustCallChannel(
+                    id: channelLoginWifi,
+                    data: (await account).protoONetAccount.encode(),
+                  ).sendSignalToRust(null);
+                },
               ),
-              secondary: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  children: [
-                    FilledButton.icon(
-                      onPressed: () async {
-                        ArcheBus()
-                            .of<ApplicationConfigs>()
-                            .currentAccount
-                            .then((account) {
-                          if (account.isNull()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("请先在设置中添加并选择账户")));
-                            return;
-                          }
-
-                          if (_busy) {
-                            return;
-                          }
-
-                          setState(
-                            () {
-                              _busy = true;
-                            },
-                          );
-
-                          RustCallChannel(
-                            id: channelLoginWifi,
-                            data: account.value!.protoONetAccount.encode(),
-                          ).sendSignalToRust(null);
-                        });
-                      },
-                      icon: const Icon(Icons.public),
-                      label: const SizedBox(
-                        width: double.infinity,
-                        child: Center(
-                          child: Text("连接"),
+              body: FeatureView(
+                primary: const Card(
+                  child: SizedBox.expand(
+                    child: READMEWidget(resource: "assets/README_CCZUWIFI.md"),
+                  ),
+                ),
+                secondary: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    children: [
+                      FilledButton.icon(
+                        icon: const Icon(Icons.account_circle),
+                        onPressed: () => launchUrlString(
+                            "http://sso.cczu.edu.cn/sso/active"),
+                        label: const SizedBox(
+                          width: double.infinity,
+                          child: Center(
+                            child: Text("激活账户"),
+                          ),
                         ),
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

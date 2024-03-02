@@ -26,10 +26,7 @@ jobs:
           rinf message
           dart fix --apply
       - name: Build
-        run: |
-          flutter pub cache clean
-          flutter pub get
-          flutter build windows --release
+        run: flutter build windows --release
       - name: Upload Artifact
         uses: actions/upload-artifact@v3.1.2
         with:

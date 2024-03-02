@@ -67,11 +67,11 @@ class CheckInFeatureState extends State<CheckInFeature>
                 padding: EdgeInsets.all(36),
                 child: Column(children: [
                   Text(
-                    "0/30",
+                    "114/514",
                     style: TextStyle(fontSize: 24),
                   ),
                   Text(
-                    "最后更新日期 2024/2/1",
+                    "最后更新日期 2077/7/21",
                     style: TextStyle(fontSize: 8),
                   ),
                 ]),

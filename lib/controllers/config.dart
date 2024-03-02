@@ -47,9 +47,16 @@ class ApplicationConfigs {
       );
   ConfigEntry<bool> get material3 => generator("material3");
   ConfigEntry<double> get cardsize => generator("cardsize");
-  Future<Optional<AccountData>> get currentAccount async => Optional(
-      value: (await AccountManager.accounts
-          .getValue())[currentAccountName.tryGet()]);
+  ConfigEntryConverter<FutureOr<String>, Future<AccountData>>
+      get currentAccount => ConfigEntryConverter(
+            currentAccountName,
+            forward: (value) async {
+              return (await AccountManager.accounts.getValue())[value]!;
+            },
+            reverse: (value) async {
+              return (await value).studentID;
+            },
+          );
 }
 
 class AccountManager {

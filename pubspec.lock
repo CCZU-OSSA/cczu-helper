@@ -4,12 +4,11 @@ packages:
   arche:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "1e809a6a529505a4a732386c273c48c37bac0c17"
-      url: "https://github.com/H2Sxxa/Arche.git"
-    source: git
-    version: "0.0.4"
+      name: arche
+      sha256: e9f41caddf9081bcb0154fa974eeb1a2320eaae78db392fb580e8f65412b87c5
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.5"
   args:
     dependency: transitive
     description:

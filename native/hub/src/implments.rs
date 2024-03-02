@@ -42,7 +42,7 @@ pub async fn impl_generate_termviews() -> Result<Vec<TermData>, String> {
 }
 
 pub async fn impl_login_wifi(account: AccountData) -> Result<String, String> {
-    if let Ok(response) = reqwest::get("http://6.6.6.6").await {
+    if let Ok(response) = reqwest::get("http://6.6.6.6/").await {
         if let Ok(text) = response.text().await {
             let re = Regex::new(r#"wlanacip=(.*?)&ssid"#).unwrap();
             if let Some(raw_acip) = re.find(&text) {

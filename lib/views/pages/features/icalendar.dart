@@ -147,102 +147,97 @@ class ICalendarFeatureState extends State<ICalendarFeature>
                 data: ProgressIndicatorWidgetData(text: "正在生成课表..."),
               ),
             )
-          : FeatureView(
-              primary: const Card(
-                child: SizedBox(
-                  height: double.infinity,
+          : Scaffold(
+              floatingActionButton: FloatingActionButton(
+                child: const Icon(Icons.public),
+                onPressed: () {
+                  var account = ArcheBus()
+                      .of<ApplicationConfigs>()
+                      .currentAccount
+                      .tryGet();
+
+                  if (account == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("请先在设置中添加并选择账户")));
+                    return;
+                  }
+
+                  setState(
+                    () {
+                      if (!_busy) {
+                        generateICalendar(account);
+                        _busy = true;
+                      }
+                    },
+                  );
+                },
+              ),
+              body: FeatureView(
+                primary: const Card(
                   child: SizedBox(
-                    width: double.infinity,
-                    child: READMEWidget(resource: "assets/README_ICALENDAR.md"),
+                    height: double.infinity,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child:
+                          READMEWidget(resource: "assets/README_ICALENDAR.md"),
+                    ),
                   ),
                 ),
-              ),
-              secondary: Column(
-                children: [
-                  ListTile(
-                    title: const Text("日期"),
-                    trailing: Text(firstweekdate.toString()),
-                    onTap: () {
-                      var now = DateTime.now();
-                      showDatePicker(
-                        helpText: "课表第一周周一",
-                        context: context,
-                        initialDate: now,
-                        firstDate: now.add(const Duration(days: -365)),
-                        lastDate: now.add(const Duration(days: 365)),
-                      ).then(
-                        (value) => whenNotNull(
-                          value,
-                          (value) => setState(() {
-                            firstweekdate =
-                                "${value.year}${value.month.toString().padLeft(2, "0")}${value.day.toString().padLeft(2, "0")}";
-                          }),
-                        ),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    title: const Text("课前提醒"),
-                    trailing: Text("$reminder 分钟"),
-                    onTap: () {
-                      ComplexDialog.instance
-                          .input(
-                              context: context,
-                              autofocus: true,
-                              title: const Text("输入整数"),
-                              decoration: const InputDecoration(
-                                labelText: "课前提醒",
-                                border: OutlineInputBorder(),
-                              ),
-                              keyboardType: TextInputType.number)
-                          .then(
-                            (value) => whenNotNull(value, (text) {
-                              if (int.tryParse(text) != null) {
-                                setState(() {
-                                  reminder = text;
-                                });
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text("\"$value\" 不是一个整数")));
-                              }
+                secondary: Column(
+                  children: [
+                    ListTile(
+                      title: const Text("日期"),
+                      trailing: Text(firstweekdate.toString()),
+                      onTap: () {
+                        var now = DateTime.now();
+                        showDatePicker(
+                          helpText: "课表第一周周一",
+                          context: context,
+                          initialDate: now,
+                          firstDate: now.add(const Duration(days: -365)),
+                          lastDate: now.add(const Duration(days: 365)),
+                        ).then(
+                          (value) => whenNotNull(
+                            value,
+                            (value) => setState(() {
+                              firstweekdate =
+                                  "${value.year}${value.month.toString().padLeft(2, "0")}${value.day.toString().padLeft(2, "0")}";
                             }),
-                          );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: FilledButton.icon(
-                      onPressed: () => ArcheBus()
-                          .of<ApplicationConfigs>()
-                          .currentAccount
-                          .then((account) {
-                        var messager = ScaffoldMessenger.of(context);
-                        if (account.isNull()) {
-                          messager.showSnackBar(
-                              const SnackBar(content: Text("请先在设置中添加并选择账户")));
-                          return;
-                        }
-
-                        setState(
-                          () {
-                            if (!_busy) {
-                              generateICalendar(account.value!);
-                              _busy = true;
-                            }
-                          },
+                          ),
                         );
-                      }),
-                      icon: const Icon(Icons.public),
-                      label: const SizedBox(
-                        width: double.infinity,
-                        child: Center(
-                          child: Text("生成"),
-                        ),
-                      ),
+                      },
                     ),
-                  )
-                ],
+                    ListTile(
+                      title: const Text("课前提醒"),
+                      trailing: Text("$reminder 分钟"),
+                      onTap: () {
+                        ComplexDialog.instance
+                            .input(
+                                context: context,
+                                autofocus: true,
+                                title: const Text("输入整数"),
+                                decoration: const InputDecoration(
+                                  labelText: "课前提醒",
+                                  border: OutlineInputBorder(),
+                                ),
+                                keyboardType: TextInputType.number)
+                            .then(
+                              (value) => whenNotNull(value, (text) {
+                                if (int.tryParse(text) != null) {
+                                  setState(() {
+                                    reminder = text;
+                                  });
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text("\"$value\" 不是一个整数")));
+                                }
+                              }),
+                            );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
     );
