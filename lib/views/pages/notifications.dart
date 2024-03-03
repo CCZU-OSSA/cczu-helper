@@ -92,38 +92,34 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.schedule),
-                    title: const Text("查看计划中的通知"),
+                    title: const Text("查看下一个计划的提醒"),
                     subtitle: const Text("Notifications"),
                     onTap: () async {
-                      if (scheduler == null) {
-                        return;
-                      }
-
-                      await scheduler!.getScheduleNotifications().then(
-                            (value) => showModalBottomSheet(
-                              context: context,
-                              builder: (context) {
-                                return Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: ListView(
-                                    children: value
-                                        .map(
-                                          (e) => Card(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .outlineVariant,
-                                            child: ListTile(
-                                              title: Text(e.title.toString()),
-                                              subtitle: Text(e.body.toString()),
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
+                      await Scheduler.getScheduleNotifications().then(
+                        (value) => showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: ListView(
+                                children: value
+                                    .map(
+                                      (e) => Card(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outlineVariant,
+                                        child: ListTile(
+                                          title: Text(e.title.toString()),
+                                          subtitle: Text(e.body.toString()),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            );
+                          },
+                        ),
+                      );
                     },
                   ),
                   ListTile(

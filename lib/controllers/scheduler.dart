@@ -73,7 +73,8 @@ class Scheduler {
     );
   }
 
-  Future<List<PendingNotificationRequest>> getScheduleNotifications() async {
+  static Future<List<PendingNotificationRequest>>
+      getScheduleNotifications() async {
     return await plugin.pendingNotificationRequests();
   }
 
