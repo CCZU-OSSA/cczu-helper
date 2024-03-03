@@ -51,7 +51,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   secondary: const Icon(Icons.notifications_on),
                   title: const Text("仅计划今日通知"),
                   subtitle: const Text("Day Schedule"),
-                  value: configs.notificationsEnable.getOr(false),
+                  value: configs.notificationsDay.getOr(false),
                   onChanged: (bool value) async {
                     setState(() {
                       configs.notificationsDay.write(value);
@@ -66,7 +66,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     leading: const Icon(Icons.refresh),
                     title: const Text("重新计划通知"),
                     subtitle: const Text("reSchedule"),
-                    onTap: () => Scheduler.reScheduleAll(context),
+                    onTap: () {
+                      Scheduler.reScheduleAll(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("重新计划完成")));
+                    },
                   ),
                 ),
                 ListTile(
@@ -111,29 +115,32 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   title: const Text("查看计划中的通知"),
                   subtitle: const Text("Notifications"),
                   onTap: () => Scheduler.getScheduleNotifications().then(
-                    (value) => showModalBottomSheet(
-                      context: context,
-                      builder: (context) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: ListView(
-                            children: value
-                                .map(
-                                  (e) => Card(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .outlineVariant,
-                                    child: ListTile(
-                                      title: Text(e.title.toString()),
-                                      subtitle: Text(e.body.toString()),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        );
-                      },
-                    ),
+                    (value) => value.isNotEmpty
+                        ? showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: ListView(
+                                  children: value
+                                      .map(
+                                        (e) => Card(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outlineVariant,
+                                          child: ListTile(
+                                            title: Text(e.title.toString()),
+                                            subtitle: Text(e.body.toString()),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              );
+                            },
+                          )
+                        : ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("暂无计划中的通知"))),
                   ),
                 ),
                 ListTile(
