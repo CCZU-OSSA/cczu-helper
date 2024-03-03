@@ -21,7 +21,7 @@ import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 void main() {
   runZonedGuarded(
     () async {
-      await initializeRust();
+      //await initializeRust();
       WidgetsFlutterBinding.ensureInitialized();
 
       var logger = ArcheLogger();
