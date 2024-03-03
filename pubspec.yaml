@@ -37,8 +37,7 @@ dependencies:
   dynamic_color: ^1.6.8
   path_provider: ^2.1.1
   url_launcher: ^6.2.1
-  arche:
-    git: https://github.com/H2Sxxa/Arche
+  arche: ^0.0.6
   font_awesome_flutter: ^10.7.0
   flutter_localizations:
     sdk: flutter

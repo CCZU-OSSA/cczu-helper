@@ -62,9 +62,7 @@ class SettingsPageState extends State<SettingsPage> {
                       subtitle: const Text("Notifications"),
                       trailing: const Icon(Icons.arrow_right),
                       onTap: () => pushMaterialRoute(
-                        builder: (context) => NotificationsPage(
-                          key: accountKey,
-                        ),
+                        builder: (context) => const NotificationsPage(),
                       ),
                     ),
                   ),
