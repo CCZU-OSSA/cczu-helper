@@ -88,9 +88,20 @@ class MainApplication extends StatefulWidget {
 }
 
 class MainApplicationState extends State<MainApplication> {
+  late ApplicationConfigs configs;
   void refresh() {
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    configs = ArcheBus().of();
+    if (configs.notificationsEnable.getOr(false) &&
+        configs.notificationsDay.getOr(true)) {
+      Scheduler.scheduleAll(context);
     }
   }
 
@@ -109,7 +120,6 @@ class MainApplicationState extends State<MainApplication> {
 
   @override
   Widget build(BuildContext context) {
-    ApplicationConfigs configs = ArcheBus().of();
     var useSystemFont = configs.useSystemFont.getOr(true);
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) => MaterialApp(

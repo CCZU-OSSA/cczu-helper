@@ -47,6 +47,28 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     }
                   },
                 ),
+                SwitchListTile(
+                  secondary: const Icon(Icons.notifications_on),
+                  title: const Text("仅计划今日通知"),
+                  subtitle: const Text("Day Schedule"),
+                  value: configs.notificationsEnable.getOr(false),
+                  onChanged: (bool value) async {
+                    setState(() {
+                      configs.notificationsDay.write(value);
+                    });
+
+                    Scheduler.reScheduleAll(context);
+                  },
+                ),
+                Visibility(
+                  visible: configs.notificationsEnable.getOr(false),
+                  child: ListTile(
+                    leading: const Icon(Icons.refresh),
+                    title: const Text("重新计划通知"),
+                    subtitle: const Text("reSchedule"),
+                    onTap: () => Scheduler.reScheduleAll(context),
+                  ),
+                ),
                 ListTile(
                   leading: const Icon(Icons.timer),
                   title: const Text("课前提醒"),
@@ -86,7 +108,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.schedule),
-                  title: const Text("查看计划的通知"),
+                  title: const Text("查看计划中的通知"),
                   subtitle: const Text("Notifications"),
                   onTap: () => Scheduler.getScheduleNotifications().then(
                     (value) => showModalBottomSheet(

@@ -63,6 +63,7 @@ class ApplicationConfigs {
       generator("notifications_enable");
   ConfigEntry<int> get notificationsReminder =>
       generator("notifications_reminder");
+  ConfigEntry<bool> get notificationsDay => generator("notifications_day");
 }
 
 class AccountManager {

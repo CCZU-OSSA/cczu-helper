@@ -90,6 +90,7 @@ class Scheduler {
           (await platDirectory.getValue()).subFile("_curriculum.ics");
       var reminder =
           Duration(minutes: configs.notificationsReminder.getOr(15) * -1);
+      var schedulerDay = configs.notificationsDay.getOr(true);
       if (await sourcefile.exists()) {
         ICalendarParser(await sourcefile.readAsString())
             .data
@@ -99,12 +100,21 @@ class Scheduler {
                   element.start
                       .toDateTime()!
                       .add(reminder)
-                      .isAfter(now.toLocal()),
+                      .isAfter(now.toLocal()) &&
+                  (schedulerDay
+                      ? now.isSameDay(element.start.toDateTime()!)
+                      : true),
             )
             .indexed
             .forEach((data) =>
                 scheduleCalendar(data.$1, data.$2, reminder, context));
       }
     }
+  }
+}
+
+extension SameDay on DateTime {
+  bool isSameDay(DateTime other) {
+    return other.day == day && other.month == month && other.year == year;
   }
 }
