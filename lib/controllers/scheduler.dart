@@ -1,5 +1,6 @@
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
+import 'package:arche/modules/application.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/views/pages/curriculum.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -9,6 +10,10 @@ import 'package:timezone/timezone.dart';
 @pragma('vm:entry-point')
 void notificationTapBackground(
     NotificationResponse notificationResponse) async {
+  if (notificationResponse.id != 0) {
+    return;
+  }
+  ArcheBus.logger.info("schedule Next");
   await Scheduler.scheduleNext();
 }
 
@@ -61,7 +66,7 @@ class Scheduler {
 
   static void scheduleTest() async {
     await plugin.zonedSchedule(
-      0,
+      1,
       "测试通知",
       "如果能够看到这条通知说明权限正常",
       TZDateTime.from(DateTime.now().add(const Duration(seconds: 5)),
