@@ -225,8 +225,8 @@ class CurriculumPageState extends State<CurriculumPage> {
 }
 
 class CurriculumDataSource extends CalendarDataSource {
-  CurriculumDataSource(ICalendarData source) {
-    appointments = source.courses;
+  CurriculumDataSource(List<CalendarData> source) {
+    appointments = source;
   }
 
   @override
@@ -273,25 +273,18 @@ class CalendarData {
   }
 }
 
-@immutable
-class ICalendarData {
-  final List<CalendarData> courses;
-  const ICalendarData(this.courses);
-}
-
 class ICalendarParser {
   final ICalendar source;
   ICalendarParser(String source) : source = ICalendar.fromString(source);
 
-  ICalendarData get data {
-    return ICalendarData(
-        source.data.where((element) => element["type"] == "VEVENT").map((e) {
+  List<CalendarData> get data {
+    return source.data.where((element) => element["type"] == "VEVENT").map((e) {
       return CalendarData(
           location: e["location"].toString(),
           summary: e["summary"].toString(),
           start: e["dtstart"],
           end: e["dtend"],
           isAllday: e["location"] == null);
-    }).toList());
+    }).toList();
   }
 }

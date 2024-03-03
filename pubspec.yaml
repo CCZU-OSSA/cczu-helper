@@ -37,7 +37,8 @@ dependencies:
   dynamic_color: ^1.6.8
   path_provider: ^2.1.1
   url_launcher: ^6.2.1
-  arche: ^0.0.5
+  arche:
+    git: https://github.com/H2Sxxa/Arche
   font_awesome_flutter: ^10.7.0
   flutter_localizations:
     sdk: flutter
@@ -52,6 +53,7 @@ dependencies:
   icalendar_parser: ^2.0.0
   syncfusion_localizations: ^24.2.7
   flutter_local_notifications: ^16.3.2
+  timezone: ^0.9.2
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +85,7 @@ flutter:
   assets:
     - assets/README_ICALENDAR.md
     - assets/README_CCZUWIFI.md
+    - assets/cczu_helper_icon.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

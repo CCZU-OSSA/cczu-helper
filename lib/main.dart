@@ -6,6 +6,7 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
+import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/curriculum.dart';
@@ -20,19 +21,25 @@ import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 void main() {
   runZonedGuarded(
     () async {
-      WidgetsFlutterBinding.ensureInitialized();
       await initializeRust();
+      WidgetsFlutterBinding.ensureInitialized();
+
       var logger = ArcheLogger();
-      var configPath =
-          (await platDirectory.getValue()).subPath("app.config.json");
+      var platdir = await platDirectory.getValue();
+      var configPath = platdir.subPath("app.config.json");
       var config = ArcheConfig.path(configPath);
       logger.info("Application Config Stored in `$configPath`");
 
       FlutterError.onError = logger.error;
-
+      var bus = ArcheBus();
       var configs =
           ApplicationConfigs(ConfigEntry.withConfig(config, generateMap: true));
-      ArcheBus().provide(ArcheLogger()).provide(config).provide(configs);
+      bus.provide(ArcheLogger()).provide(config).provide(configs);
+
+      if (Platform.isAndroid) {
+        await Scheduler.init();
+      }
+
       logger.info("Run Application in `main`...");
 
       runApp(
@@ -49,10 +56,20 @@ void main() {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       }
     },
-    (error, stack) {
+    (error, stack) async {
+      var bus = ArcheBus();
       var logger = ArcheBus.logger;
       logger.error(error);
       logger.error(stack);
+
+      if (bus.has<ApplicationConfigs>()) {
+        ApplicationConfigs configs = bus.of();
+        if (configs.autosavelog.getOr(false)) {
+          await (await platDirectory.getValue())
+              .subFile("error.log")
+              .writeAsString(logger.getLogs().join("\n"));
+        }
+      }
     },
   );
 }

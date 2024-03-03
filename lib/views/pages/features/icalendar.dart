@@ -217,7 +217,7 @@ class ICalendarFeatureState extends State<ICalendarFeature>
                                 autofocus: true,
                                 title: const Text("输入整数"),
                                 decoration: const InputDecoration(
-                                  labelText: "课前提醒",
+                                  labelText: "课前提醒(分钟)",
                                   border: OutlineInputBorder(),
                                 ),
                                 keyboardType: TextInputType.number)

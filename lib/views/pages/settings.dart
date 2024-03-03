@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
@@ -5,6 +7,7 @@ import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/log.dart';
+import 'package:cczu_helper/views/pages/notifications.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -51,6 +54,31 @@ class SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
+                  Visibility(
+                    visible: Platform.isAndroid,
+                    child: ListTile(
+                      leading: const Icon(Icons.notifications),
+                      title: const Text("课程表通知"),
+                      subtitle: const Text("Notifications"),
+                      trailing: const Icon(Icons.arrow_right),
+                      onTap: () => pushMaterialRoute(
+                        builder: (context) => NotificationsPage(
+                          key: accountKey,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SwitchListTile(
+                    value: configs.autosavelog.getOr(false),
+                    secondary: const Icon(Icons.error),
+                    title: const Text("自动保存错误日志"),
+                    subtitle: const Text("Auto Save"),
+                    onChanged: (value) {
+                      setState(() {
+                        configs.autosavelog.write(value);
+                      });
+                    },
+                  )
                 ],
               ),
             ),

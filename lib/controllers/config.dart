@@ -47,6 +47,7 @@ class ApplicationConfigs {
       );
   ConfigEntry<bool> get material3 => generator("material3");
   ConfigEntry<double> get cardsize => generator("cardsize");
+  ConfigEntry<bool> get autosavelog => generator("autosavelog");
   ConfigEntryConverter<FutureOr<String>, Future<AccountData>>
       get currentAccount => ConfigEntryConverter(
             currentAccountName,
@@ -57,6 +58,11 @@ class ApplicationConfigs {
               return (await value).studentID;
             },
           );
+
+  ConfigEntry<bool> get notificationsEnable =>
+      generator("notifications_enable");
+  ConfigEntry<int> get notificationsReminder =>
+      generator("notifications_reminder");
 }
 
 class AccountManager {
