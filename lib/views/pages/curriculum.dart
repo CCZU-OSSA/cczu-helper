@@ -269,7 +269,7 @@ class CalendarData {
 
   @override
   String toString() {
-    return "CourseData { summary: $summary, location: $location }";
+    return "CourseData { summary: $summary, location: $location, dtstart: $start }";
   }
 }
 

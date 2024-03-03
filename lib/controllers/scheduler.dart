@@ -90,10 +90,13 @@ class Scheduler {
         ICalendarParser(await sourcefile.readAsString())
             .data
             .where((element) =>
-                !element.isAllday && element.start.toDateTime()!.isAfter(now))
+                !element.isAllday &&
+                element.start.toDateTime()!.isAfter(now.toLocal()))
             .forEach((course) {
-          if (now.difference(course.start.toDateTime()!) < diff) {
+          var tmp = course.start.toDateTime()!.difference(now).abs();
+          if (tmp <= diff) {
             data = course;
+            diff = tmp;
           }
         });
         if (data != null) {

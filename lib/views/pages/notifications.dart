@@ -28,7 +28,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               top: 12,
               bottom: 12,
             ),
-            child: Column(
+            child: Wrap(
               children: [
                 SwitchListTile(
                   secondary: const Icon(Icons.notifications_on),
@@ -36,15 +36,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   subtitle: const Text("Enable Notifications"),
                   value: configs.notificationsEnable.getOr(false),
                   onChanged: (bool value) async {
+                    setState(() {
+                      configs.notificationsEnable.write(value);
+                    });
+
                     if (value) {
                       await Scheduler.scheduleNext();
                     } else {
                       await Scheduler.cancelAll();
                     }
-
-                    setState(() {
-                      configs.notificationsEnable.write(value);
-                    });
                   },
                 ),
                 ListTile(
