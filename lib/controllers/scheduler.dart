@@ -77,6 +77,10 @@ class Scheduler {
     return await plugin.pendingNotificationRequests();
   }
 
+  static void reScheduleAll(BuildContext context) {
+    cancelAll().then((value) async => await scheduleAll(context));
+  }
+
   static Future<void> scheduleAll(BuildContext context) async {
     var now = DateTime.now();
     var configs = ArcheBus().of<ApplicationConfigs>();

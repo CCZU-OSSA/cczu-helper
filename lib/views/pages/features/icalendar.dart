@@ -8,6 +8,7 @@ import 'package:arche/extensions/functions.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
+import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/messages/common.pb.dart';
 import 'package:cczu_helper/models/channel.dart';
 import 'package:cczu_helper/models/fields.dart';
@@ -82,8 +83,13 @@ class ICalendarFeatureState extends State<ICalendarFeature>
                                         content: const Text("请返回课程表页面查看"),
                                       ),
                                     )
-                                    .then((value) =>
-                                        curriculmKey.currentState?.refresh()),
+                                    .then((value) {
+                                  curriculmKey.currentState?.refresh();
+
+                                  if (Platform.isAndroid) {
+                                    Scheduler.reScheduleAll(context);
+                                  }
+                                }),
                               );
                         },
                         icon: const Icon(Icons.calendar_month),

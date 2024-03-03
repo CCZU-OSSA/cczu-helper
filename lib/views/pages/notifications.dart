@@ -80,8 +80,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         configs.notificationsReminder.write(reminder);
                       });
 
-                      Scheduler.cancelAll();
-                      Scheduler.scheduleAll(context);
+                      Scheduler.reScheduleAll(context);
                     },
                   ),
                 ),
