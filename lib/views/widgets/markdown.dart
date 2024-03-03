@@ -31,6 +31,7 @@ class READMEWidget extends StatelessWidget {
             Markdown(
               data: data.toString(),
               shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
             ),
           ],
         ),
