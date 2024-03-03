@@ -3,19 +3,11 @@ import 'package:arche/extensions/io.dart';
 import 'package:arche/modules/application.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/views/pages/curriculum.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart';
 import 'package:timezone/data/latest.dart';
 import 'package:timezone/timezone.dart';
-
-@pragma('vm:entry-point')
-void notificationTapBackground(
-    NotificationResponse notificationResponse) async {
-  if (notificationResponse.id != 0) {
-    return;
-  }
-  ArcheBus.logger.info("schedule Next");
-  await Scheduler.scheduleNext();
-}
 
 class Scheduler {
   static final FlutterLocalNotificationsPlugin plugin =
@@ -34,9 +26,6 @@ class Scheduler {
       const InitializationSettings(
         android: AndroidInitializationSettings("@mipmap/ic_launcher"),
       ),
-      onDidReceiveNotificationResponse: (details) async =>
-          await Scheduler.scheduleNext(),
-      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
     if (successed == null || !successed) {
       ArcheBus.logger
@@ -46,12 +35,17 @@ class Scheduler {
     }
   }
 
-  static void scheduleCalendar(CalendarData data, Duration add) async {
+  static void scheduleCalendar(
+      int id, CalendarData data, Duration add, BuildContext context) async {
     var start = data.start.toDateTime()!;
+    var time =
+        DateFormat('a hh:mm', Localizations.localeOf(context).languageCode)
+            .format(start);
+
     await plugin.zonedSchedule(
-      0,
+      id,
       data.summary,
-      data.location,
+      "${data.location} ($time)",
       TZDateTime.from(start.add(add), getLocation("Asia/Shanghai")),
       notificationDetails,
       uiLocalNotificationDateInterpretation:
@@ -66,7 +60,7 @@ class Scheduler {
 
   static void scheduleTest() async {
     await plugin.zonedSchedule(
-      1,
+      -1,
       "测试通知",
       "如果能够看到这条通知说明权限正常",
       TZDateTime.from(DateTime.now().add(const Duration(seconds: 5)),
@@ -83,31 +77,29 @@ class Scheduler {
     return await plugin.pendingNotificationRequests();
   }
 
-  static Future<void> scheduleNext() async {
+  static Future<void> scheduleAll(BuildContext context) async {
     var now = DateTime.now();
     var configs = ArcheBus().of<ApplicationConfigs>();
+
     if (configs.notificationsEnable.getOr(false)) {
       var sourcefile =
           (await platDirectory.getValue()).subFile("_curriculum.ics");
+      var reminder =
+          Duration(minutes: configs.notificationsReminder.getOr(15) * -1);
       if (await sourcefile.exists()) {
-        Duration diff = const Duration(days: 365);
-        CalendarData? data;
         ICalendarParser(await sourcefile.readAsString())
             .data
-            .where((element) =>
-                !element.isAllday &&
-                element.start.toDateTime()!.isAfter(now.toLocal()))
-            .forEach((course) {
-          var tmp = course.start.toDateTime()!.difference(now).abs();
-          if (tmp <= diff) {
-            data = course;
-            diff = tmp;
-          }
-        });
-        if (data != null) {
-          scheduleCalendar(data!,
-              Duration(minutes: configs.notificationsReminder.getOr(15) * -1));
-        }
+            .where(
+              (element) =>
+                  !element.isAllday &&
+                  element.start
+                      .toDateTime()!
+                      .add(reminder)
+                      .isAfter(now.toLocal()),
+            )
+            .indexed
+            .forEach((data) =>
+                scheduleCalendar(data.$1, data.$2, reminder, context));
       }
     }
   }

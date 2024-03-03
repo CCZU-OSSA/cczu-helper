@@ -41,7 +41,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     });
 
                     if (value) {
-                      await Scheduler.scheduleNext();
+                      await Scheduler.scheduleAll(context);
                     } else {
                       await Scheduler.cancelAll();
                     }
@@ -79,40 +79,41 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       setState(() {
                         configs.notificationsReminder.write(reminder);
                       });
+
+                      Scheduler.cancelAll();
+                      Scheduler.scheduleAll(context);
                     },
                   ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.schedule),
-                  title: const Text("查看下一个计划的提醒"),
+                  title: const Text("查看计划的通知"),
                   subtitle: const Text("Notifications"),
-                  onTap: () async {
-                    await Scheduler.getScheduleNotifications().then(
-                      (value) => showModalBottomSheet(
-                        context: context,
-                        builder: (context) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: ListView(
-                              children: value
-                                  .map(
-                                    (e) => Card(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .outlineVariant,
-                                      child: ListTile(
-                                        title: Text(e.title.toString()),
-                                        subtitle: Text(e.body.toString()),
-                                      ),
+                  onTap: () => Scheduler.getScheduleNotifications().then(
+                    (value) => showModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: ListView(
+                            children: value
+                                .map(
+                                  (e) => Card(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .outlineVariant,
+                                    child: ListTile(
+                                      title: Text(e.title.toString()),
+                                      subtitle: Text(e.body.toString()),
                                     ),
-                                  )
-                                  .toList(),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.admin_panel_settings),
@@ -123,15 +124,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         .resolvePlatformSpecificImplementation<
                             AndroidFlutterLocalNotificationsPlugin>();
                     plugin?.requestNotificationsPermission().then(
-                          (notification) => plugin
-                              .requestExactAlarmsPermission()
-                              .then(
-                                (alarm) => ComplexDialog.instance.text(
-                                  context: context,
-                                  title: const Text("权限状态"),
-                                  content: Text("通知:$notification，精确通知:$alarm"),
-                                ),
-                              ),
+                          (notification) =>
+                              plugin.requestExactAlarmsPermission().then(
+                                    (alarm) => ComplexDialog.instance.text(
+                                      context: context,
+                                      title: const Text("权限状态"),
+                                      content: Text(
+                                          "通知:$notification，精确通知:$alarm\n如果关闭应用无通知，请查询如何让你的手机系统允许应用后台行为"),
+                                    ),
+                                  ),
                         );
                   },
                 ),
