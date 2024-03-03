@@ -13,13 +13,11 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  late Scheduler? scheduler;
   late ApplicationConfigs configs;
   @override
   void initState() {
     super.initState();
     var bus = ArcheBus();
-    scheduler = bus.of();
     configs = bus.of();
   }
 
