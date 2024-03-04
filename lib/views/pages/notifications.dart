@@ -155,7 +155,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           ? showModalBottomSheet(
                               context: context,
                               builder: (context) {
-                                value.sort((a, b) => a.id.compareTo(b.id));
                                 return Padding(
                                   padding: const EdgeInsets.all(8),
                                   child: ListView(

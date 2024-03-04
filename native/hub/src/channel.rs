@@ -1,5 +1,5 @@
 use crate::{
-    implments::{impl_generate_ical, impl_generate_termviews, impl_login_wifi},
+    implments::{impl_check_update, impl_generate_ical, impl_generate_termviews, impl_login_wifi},
     messages::common::{DartReceiveChannel, RustCallChannel},
 };
 use serde::Serialize;
@@ -14,17 +14,24 @@ pub async fn handle_channel() {
         match id {
             TERMVIEWS => impl_generate_termviews().await.handle(),
             LOGINWIFI => impl_login_wifi(from_str(&data).unwrap()).await.handle(),
-            GENERATE_ICALENDAR => impl_generate_ical(from_str(&data).unwrap()).await.handle(),
+            GENERATE_ICALENDAR => impl_generate_ical(from_str(&data).unwrap())
+                .await
+                .handle_raw(),
+            CHECK_UPDATE => impl_check_update().await.handle_raw(),
             _ => (),
         }
     }
 }
 
-pub trait ResultChannelHandler<T> {
+pub trait ResultChannelHandler {
     fn handle(&self);
 }
 
-impl<T> ResultChannelHandler<T> for Result<T, String>
+pub trait StringResultChannelHandler {
+    fn handle_raw(&self);
+}
+
+impl<T> ResultChannelHandler for Result<T, String>
 where
     T: Serialize + Clone,
 {
@@ -44,6 +51,20 @@ where
     }
 }
 
+impl StringResultChannelHandler for Result<String, String> {
+    fn handle_raw(&self) {
+        match self.clone() {
+            Ok(data) => DartReceiveChannel { ok: true, data }.send_signal_to_dart(None),
+            Err(message) => DartReceiveChannel {
+                ok: false,
+                data: message,
+            }
+            .send_signal_to_dart(None),
+        }
+    }
+}
+
 const TERMVIEWS: i32 = 1;
 const LOGINWIFI: i32 = 2;
 const GENERATE_ICALENDAR: i32 = 3;
+const CHECK_UPDATE: i32 = 4;

@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 const int channelTermview = 1;
 const int channelLoginWifi = 2;
 const int channelGenerateICalendar = 3;
+const int channelCheckUpdate = 4;
 
 abstract interface class Mappable {
   Map toMap();

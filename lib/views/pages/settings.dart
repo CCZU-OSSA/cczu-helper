@@ -8,6 +8,7 @@ import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/views/pages/account.dart';
+import 'package:cczu_helper/views/pages/checkupdate.dart';
 import 'package:cczu_helper/views/pages/log.dart';
 import 'package:cczu_helper/views/pages/notifications.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
@@ -74,7 +75,9 @@ class SettingsPageState extends State<SettingsPage> {
                     title: const Text("检查更新"),
                     subtitle: const Text("Check Update"),
                     trailing: const Icon(Icons.arrow_right),
-                    onTap: () {},
+                    onTap: () => pushMaterialRoute(
+                      builder: (context) => const CheckUpdatePage(),
+                    ),
                   )
                 ],
               ),
@@ -245,7 +248,7 @@ class SettingsPageState extends State<SettingsPage> {
                     onTap: () => showDialog(
                       context: context,
                       builder: (context) => const AboutDialog(
-                        applicationVersion: "1.0.2",
+                        applicationVersion: "v1.0.2",
                         applicationName: "吊大助手",
                         applicationLegalese: "copyright © 2023-2024 常州大学开源软件协会",
                         children: [

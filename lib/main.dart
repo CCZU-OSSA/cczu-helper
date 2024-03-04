@@ -115,6 +115,7 @@ class MainApplicationState extends State<MainApplication>
     var useSystemFont = configs.useSystemFont.getOr(true);
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) => MaterialApp(
+        scaffoldMessengerKey: messagerKey,
         localizationsDelegates: const [
           GlobalWidgetsLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -223,7 +224,6 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
         ? MediaQuery.of(context).platformBrightness == Brightness.dark
         : themeMode == ThemeMode.dark;
     return Scaffold(
-      key: ValueKey(configs.material3.getOr(true)),
       appBar: AppBar(
         title: Text(viewItems[currentIndex].label),
       ),

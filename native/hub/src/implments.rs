@@ -36,7 +36,6 @@ pub async fn impl_generate_termviews() -> Result<Vec<TermData>, String> {
                 })
                 .collect::<Vec<TermData>>());
         }
-        return Err("获取页面错误".into());
     }
     Err("获取页面错误".into())
 }
@@ -65,7 +64,20 @@ pub async fn impl_login_wifi(account: AccountData) -> Result<String, String> {
                 return Err("获取ACIP错误".into());
             }
         }
-        return Err("获取页面错误".into());
+    }
+    Err("获取页面错误".into())
+}
+
+pub async fn impl_check_update() -> Result<String, String> {
+    if let Ok(response) = reqwest::Client::new()
+        .get("https://api.github.com/repos/CCZU-OSSA/cczu-helper/releases/latest")
+        .header("User-Agent", "CCZU Helper")
+        .send()
+        .await
+    {
+        if let Ok(text) = response.text().await {
+            return Ok(text);
+        }
     }
     Err("获取页面错误".into())
 }

@@ -44,7 +44,7 @@ class ICalendarFeatureState extends State<ICalendarFeature>
         });
         var data = event.message;
         if (data.ok) {
-          var text = jsonDecode(data.data);
+          var text = data.data;
           showModalBottomSheet(
             context: context,
             builder: (context) {
@@ -60,7 +60,10 @@ class ICalendarFeatureState extends State<ICalendarFeature>
                         visible: !Platform.isAndroid,
                         child: FilledButton.icon(
                           onPressed: () {
-                            saveFile(text, fileName: "class.ics");
+                            var time = DateTime.now();
+                            saveFile(text,
+                                fileName:
+                                    "${time.year}${time.month.toString().padLeft(2, "0")}${time.day.toString().padLeft(2, "0")}${time.hour.toString().padLeft(2, "0")}${time.minute.toString().padLeft(2, "0")}.ics");
                           },
                           icon: const Icon(Icons.save),
                           label: const SizedBox(
