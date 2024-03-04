@@ -20,6 +20,14 @@ class Scheduler {
       priority: Priority.high,
     ),
   );
+
+  static Future<bool> requestAndroidPermission() async {
+    var aplugin = plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()!;
+    return (await aplugin.requestNotificationsPermission() == true) &&
+        (await aplugin.requestExactAlarmsPermission() == true);
+  }
+
   static Future<void> init() async {
     initializeTimeZones();
     var successed = await plugin.initialize(

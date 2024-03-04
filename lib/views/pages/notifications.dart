@@ -1,9 +1,9 @@
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
+import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -37,29 +37,56 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     subtitle: const Text("Enable Notifications"),
                     value: configs.notificationsEnable.getOr(false),
                     onChanged: (bool value) async {
-                      setState(() {
-                        configs.notificationsEnable.write(value);
-                      });
-
                       if (value) {
-                        await Scheduler.scheduleAll(context);
-                      } else {
-                        await Scheduler.cancelAll();
+                        Scheduler.requestAndroidPermission().then((value) {
+                          if (!value) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("尚未生成课表")));
+                            return;
+                          }
+
+                          platDirectory.getValue().then((platdir) {
+                            platdir
+                                .subFile("_curriculum.ics")
+                                .exists()
+                                .then((value) {
+                              if (value) {
+                                Scheduler.scheduleAll(context);
+                                setState(() {
+                                  configs.notificationsEnable.write(true);
+                                });
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("尚未生成课表")));
+                              }
+                            });
+                          });
+                        });
+
+                        return;
                       }
+
+                      await Scheduler.cancelAll();
+                      setState(() {
+                        configs.notificationsEnable.write(false);
+                      });
                     },
                   ),
-                  SwitchListTile(
-                    secondary: const Icon(Icons.notifications_on),
-                    title: const Text("仅计划今日通知"),
-                    subtitle: const Text("Day Schedule"),
-                    value: configs.notificationsDay.getOr(false),
-                    onChanged: (bool value) async {
-                      setState(() {
-                        configs.notificationsDay.write(value);
-                      });
+                  Visibility(
+                    visible: configs.notificationsEnable.getOr(false),
+                    child: SwitchListTile(
+                      secondary: const Icon(Icons.notifications_on),
+                      title: const Text("仅计划今日通知"),
+                      subtitle: const Text("Day Schedule"),
+                      value: configs.notificationsDay.getOr(false),
+                      onChanged: (bool value) async {
+                        setState(() {
+                          configs.notificationsDay.write(value);
+                        });
 
-                      Scheduler.reScheduleAll(context);
-                    },
+                        Scheduler.reScheduleAll(context);
+                      },
+                    ),
                   ),
                   Visibility(
                     visible: configs.notificationsEnable.getOr(false),
@@ -120,6 +147,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           ? showModalBottomSheet(
                               context: context,
                               builder: (context) {
+                                value.sort((a, b) => a.id.compareTo(b.id));
                                 return Padding(
                                   padding: const EdgeInsets.all(8),
                                   child: ListView(
@@ -149,20 +177,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     title: const Text("通知权限"),
                     subtitle: const Text("Notification Permission"),
                     onTap: () {
-                      var plugin = Scheduler.plugin
-                          .resolvePlatformSpecificImplementation<
-                              AndroidFlutterLocalNotificationsPlugin>();
-                      plugin?.requestNotificationsPermission().then(
-                            (notification) =>
-                                plugin.requestExactAlarmsPermission().then(
-                                      (alarm) => ComplexDialog.instance.text(
-                                        context: context,
-                                        title: const Text("权限状态"),
-                                        content: Text(
-                                            "通知:$notification，精确通知:$alarm\n如果关闭应用无通知，请查询如何让你的手机系统允许应用后台行为"),
-                                      ),
-                                    ),
-                          );
+                      Scheduler.requestAndroidPermission().then(
+                        (value) => ComplexDialog.instance.text(
+                          context: context,
+                          title: const Text("权限状态"),
+                          content:
+                              Text("权限 $value\n如果关闭应用无通知，请查询如何让你的手机系统允许应用后台行为"),
+                        ),
+                      );
                     },
                   ),
                   ListTile(
