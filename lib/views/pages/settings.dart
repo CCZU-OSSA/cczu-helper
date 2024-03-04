@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:arche/arche.dart';
+import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
+import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/views/pages/account.dart';
@@ -11,6 +13,7 @@ import 'package:cczu_helper/views/pages/notifications.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -66,16 +69,12 @@ class SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  SwitchListTile(
-                    value: configs.autosavelog.getOr(false),
-                    secondary: const Icon(Icons.error),
-                    title: const Text("自动保存错误日志"),
-                    subtitle: const Text("Auto Save"),
-                    onChanged: (value) {
-                      setState(() {
-                        configs.autosavelog.write(value);
-                      });
-                    },
+                  ListTile(
+                    leading: const Icon(Icons.update),
+                    title: const Text("检查更新"),
+                    subtitle: const Text("Check Update"),
+                    trailing: const Icon(Icons.arrow_right),
+                    onTap: () {},
                   )
                 ],
               ),
@@ -111,7 +110,7 @@ class SettingsPageState extends State<SettingsPage> {
                                   setState(() {
                                     configs.themeMode.write(e);
                                   });
-                                  rootKey.currentState?.refresh();
+                                  rootKey.currentState?.refreshMounted();
                                 },
                               ),
                             )
@@ -129,7 +128,7 @@ class SettingsPageState extends State<SettingsPage> {
                           configs.material3.write(value);
                         });
 
-                        rootKey.currentState?.refresh();
+                        rootKey.currentState?.refreshMounted();
                       }),
                   SwitchListTile(
                       title: const Text("使用系统字体"),
@@ -141,7 +140,7 @@ class SettingsPageState extends State<SettingsPage> {
                           configs.useSystemFont.write(value);
                         });
 
-                        rootKey.currentState?.refresh();
+                        rootKey.currentState?.refreshMounted();
                       }),
                   SwitchListTile(
                     title: const Text("显示导航栏"),
@@ -153,9 +152,65 @@ class SettingsPageState extends State<SettingsPage> {
                         configs.showBar.write(value);
                       });
 
-                      viewKey.currentState?.refresh();
+                      viewKey.currentState?.refreshMounted();
                     },
                   ),
+                ],
+              ),
+            ),
+          ),
+          const ListTile(
+            title: Text("调试"),
+          ),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 12),
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    value: configs.autosavelog.getOr(false),
+                    secondary: const Icon(Icons.error),
+                    title: const Text("自动保存错误日志"),
+                    subtitle: const Text("Auto Save"),
+                    onChanged: (value) {
+                      setState(() {
+                        configs.autosavelog.write(value);
+                      });
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.share),
+                    title: const Text("分享错误日志"),
+                    subtitle: const Text("Share Error Logs"),
+                    trailing: const Icon(Icons.arrow_right),
+                    onTap: () async {
+                      var platdir = await platDirectory.getValue();
+                      var subfile = platdir.subFile("error.log");
+                      if (await subfile.exists()) {
+                        Share.shareXFiles([
+                          XFile(
+                            subfile.path,
+                            name: "error.log",
+                            mimeType: "text/plain",
+                          )
+                        ]);
+                      }
+                      if (mounted) {
+                        showSnackBar(
+                            context: this.context,
+                            content: const Text("暂无错误日志"));
+                      }
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.book),
+                    title: const Text("当前日志"),
+                    subtitle: const Text("Current Logs"),
+                    trailing: const Icon(Icons.arrow_right),
+                    onTap: () => pushMaterialRoute(
+                      builder: (context) => const LogPage(),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -203,14 +258,6 @@ class SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.book),
-                    title: const Text("日志"),
-                    subtitle: const Text("Log"),
-                    onTap: () => pushMaterialRoute(
-                      builder: (context) => const LogPage(),
-                    ),
-                  )
                 ],
               ),
             ),

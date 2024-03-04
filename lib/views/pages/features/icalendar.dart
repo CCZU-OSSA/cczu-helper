@@ -9,6 +9,7 @@ import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/controllers/scheduler.dart';
+import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/messages/common.pb.dart';
 import 'package:cczu_helper/models/channel.dart';
 import 'package:cczu_helper/models/fields.dart';
@@ -163,8 +164,10 @@ class ICalendarFeatureState extends State<ICalendarFeature>
                       .tryGet();
 
                   if (account == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("请先在设置中添加并选择账户")));
+                    showSnackBar(
+                      context: context,
+                      content: const Text("请先在设置中添加并选择账户"),
+                    );
                     return;
                   }
 
@@ -234,9 +237,10 @@ class ICalendarFeatureState extends State<ICalendarFeature>
                                     reminder = text;
                                   });
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text("\"$value\" 不是一个整数")));
+                                  showSnackBar(
+                                    context: context,
+                                    content: Text("\"$value\" 不是一个整数"),
+                                  );
                                 }
                               }),
                             );

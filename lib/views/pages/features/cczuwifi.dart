@@ -1,6 +1,7 @@
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:cczu_helper/controllers/config.dart';
+import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/messages/common.pb.dart';
 import 'package:cczu_helper/models/channel.dart';
 import 'package:cczu_helper/views/widgets/featureview.dart';
@@ -65,8 +66,10 @@ class _CCZUWifiFeatureState extends State<CCZUWifiFeature>
                       .currentAccount
                       .tryGet();
                   if (account == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("请先在设置中添加并选择账户")));
+                    showSnackBar(
+                      context: context,
+                      content: const Text("请先在设置中添加并选择账户"),
+                    );
                     return;
                   }
 

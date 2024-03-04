@@ -39,19 +39,6 @@ class CheckInFeatureState extends State<CheckInFeature>
             _fabAnimationController.reset();
             _fabAnimationController.forward();
           });
-
-          ComplexDialog.instance
-              .copy(
-                barrierDismissible: false,
-                child: const Dialog.fullscreen(
-                  child: Center(
-                    child: ProgressIndicatorWidget(
-                      data: ProgressIndicatorWidgetData(text: "请耐心等待..."),
-                    ),
-                  ),
-                ),
-              )
-              .prompt(context: context);
         },
         child: RotationTransition(
           turns: _fabAnimationController,

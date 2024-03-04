@@ -87,22 +87,14 @@ class MainApplication extends StatefulWidget {
   State<StatefulWidget> createState() => MainApplicationState();
 }
 
-class MainApplicationState extends State<MainApplication> {
+class MainApplicationState extends State<MainApplication>
+    with RefreshMountedStateMixin {
   late ApplicationConfigs configs;
-  void refresh() {
-    if (mounted) {
-      setState(() {});
-    }
-  }
 
   @override
   void initState() {
     super.initState();
     configs = ArcheBus().of();
-    if (configs.notificationsEnable.getOr(false) &&
-        configs.notificationsDay.getOr(true)) {
-      Scheduler.scheduleAll(context);
-    }
   }
 
   final _appLifecycleListener = AppLifecycleListener(
@@ -178,7 +170,7 @@ class MainView extends StatefulWidget {
   State<StatefulWidget> createState() => MainViewState();
 }
 
-class MainViewState extends State<MainView> {
+class MainViewState extends State<MainView> with RefreshMountedStateMixin {
   int currentIndex = 0;
   var viewItems = [
     // const NavigationItem(
@@ -212,16 +204,20 @@ class MainViewState extends State<MainView> {
       label: "设置",
     ),
   ];
+  late ApplicationConfigs configs;
 
-  void refresh() {
-    if (mounted) {
-      setState(() {});
+  @override
+  void initState() {
+    super.initState();
+    configs = ArcheBus().of();
+    if (configs.notificationsEnable.getOr(false) &&
+        configs.notificationsDay.getOr(true)) {
+      Scheduler.scheduleAll(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    ApplicationConfigs configs = ArcheBus().of();
     var themeMode = configs.themeMode.getOr(ThemeMode.system);
     bool isDark = themeMode == ThemeMode.system
         ? MediaQuery.of(context).platformBrightness == Brightness.dark
@@ -246,12 +242,12 @@ class MainViewState extends State<MainView> {
                   onTap: () => setState(() {
                     configs.themeMode
                         .write(isDark ? ThemeMode.light : ThemeMode.dark);
-                    rootKey.currentState?.refresh();
+                    rootKey.currentState?.refreshMounted();
                     settingKey.currentState?.refresh();
                   }),
                   onLongPress: () => setState(() {
                     configs.themeMode.write(ThemeMode.system);
-                    rootKey.currentState?.refresh();
+                    rootKey.currentState?.refreshMounted();
                     settingKey.currentState?.refresh();
                   }),
                   child: AnimatedRotation(

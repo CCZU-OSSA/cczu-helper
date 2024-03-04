@@ -3,6 +3,7 @@ import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/scheduler.dart';
+import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:flutter/material.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -40,8 +41,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       if (value) {
                         Scheduler.requestAndroidPermission().then((value) {
                           if (!value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("尚未生成课表")));
+                            showSnackBar(
+                              context: context,
+                              content: const Text("尚未生成课表"),
+                            );
+
                             return;
                           }
 
@@ -56,8 +60,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                   configs.notificationsEnable.write(true);
                                 });
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("尚未生成课表")));
+                                showSnackBar(
+                                  context: context,
+                                  content: const Text("尚未生成课表"),
+                                );
                               }
                             });
                           });
@@ -96,8 +102,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       subtitle: const Text("reSchedule"),
                       onTap: () {
                         Scheduler.reScheduleAll(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("重新计划完成")));
+                        showSnackBar(
+                            context: context, content: const Text("重新计划完成"));
                       },
                     ),
                   ),
@@ -125,8 +131,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         var reminder = int.tryParse(value);
 
                         if (reminder == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("\"$value\" 不是一个整数")));
+                          showSnackBar(
+                            context: context,
+                            content: Text("\"$value\" 不是一个整数"),
+                          );
                           return;
                         }
 
@@ -168,8 +176,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                 );
                               },
                             )
-                          : ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("暂无计划中的通知"))),
+                          : showSnackBar(
+                              context: context,
+                              content: const Text("暂无计划中的通知"),
+                            ),
                     ),
                   ),
                   ListTile(

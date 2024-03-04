@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:cczu_helper/controllers/config.dart';
+import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/messages/common.pb.dart';
 import 'package:cczu_helper/models/channel.dart';
 import 'package:flutter/material.dart';
@@ -70,10 +71,10 @@ class _TermViewState extends State<TermView> with NativeChannelSubscriber {
                           onTap: () {
                             configs.termid.write(e.value);
                             configs.termname.write(e.name);
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            showSnackBar(
+                              context: context,
                               content: Text("切换至 ${e.name}(${e.value})"),
-                              showCloseIcon: true,
-                            ));
+                            );
 
                             widget.onChanged?.call();
                           },

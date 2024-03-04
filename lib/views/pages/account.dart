@@ -3,6 +3,7 @@ import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
+import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/models/channel.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:flutter/material.dart';
@@ -193,10 +194,9 @@ class _AccountLoginPageState extends State<AccountLoginPage> {
               return;
             }
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("学号不可留空"),
-              ),
+            showSnackBar(
+              context: context,
+              content: const Text("学号不可留空"),
             );
           }),
     );
