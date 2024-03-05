@@ -7,6 +7,7 @@ import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
+import 'package:cczu_helper/models/version.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/checkupdate.dart';
 import 'package:cczu_helper/views/pages/log.dart';
@@ -197,6 +198,7 @@ class SettingsPageState extends State<SettingsPage> {
                             mimeType: "text/plain",
                           )
                         ]);
+                        return;
                       }
                       if (mounted) {
                         showSnackBar(
@@ -247,11 +249,11 @@ class SettingsPageState extends State<SettingsPage> {
                     subtitle: const Text("License"),
                     onTap: () => showDialog(
                       context: context,
-                      builder: (context) => const AboutDialog(
-                        applicationVersion: "v1.0.2",
+                      builder: (context) => AboutDialog(
+                        applicationVersion: appVersion.format(),
                         applicationName: "吊大助手",
                         applicationLegalese: "copyright © 2023-2024 常州大学开源软件协会",
-                        children: [
+                        children: const [
                           Padding(
                             padding: EdgeInsets.all(8),
                             child: Text(
