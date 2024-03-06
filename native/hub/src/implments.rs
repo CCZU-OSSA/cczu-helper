@@ -1,11 +1,10 @@
+use crate::typedata::{AccountData, GradeData, ICalendarGenerateData, TermData};
 use cczu_ical_rs::{
     ical::{get_reminder, ICal},
     user::UserClient,
 };
 use regex::Regex;
-use scraper::{Html, Selector};
-
-use crate::typedata::{AccountData, ICalendarGenerateData, TermData};
+use scraper::{ElementRef, Html, Selector};
 
 pub async fn impl_generate_ical(data: ICalendarGenerateData) -> Result<String, String> {
     let user = data.account;
@@ -80,4 +79,39 @@ pub async fn impl_check_update() -> Result<String, String> {
         }
     }
     Err("获取页面错误".into())
+}
+
+fn extract_string(element: &ElementRef) -> String {
+    element.text().next().unwrap().to_string()
+}
+
+pub async fn impl_get_grades(account: AccountData) -> Result<Vec<GradeData>, String> {
+    let client = UserClient::new(&account.username, &account.password);
+    if let Err(message) = client.login().await {
+        return Err(message);
+    }
+    if let Ok(response) = client
+        .client
+        .get("http://219.230.159.132/web_cjgl/cx_cj_jxjhcj_xh.aspx")
+        .send()
+        .await
+    {
+        if let Ok(text) = response.text().await {
+            let selector = Selector::parse(r#"tr[class="dg1-item"]"#).unwrap();
+            let dom = Html::parse_document(&text);
+            return Ok(dom
+                .select(&selector)
+                .map(|e| {
+                    let childs: Vec<ElementRef> = e.child_elements().collect();
+                    GradeData {
+                        name: extract_string(childs.get(5).unwrap()),
+                        point: extract_string(childs.get(8).unwrap()),
+                        grade: extract_string(childs.get(9).unwrap()),
+                    }
+                })
+                .collect());
+        }
+    }
+
+    Err("获取页面失败".into())
 }

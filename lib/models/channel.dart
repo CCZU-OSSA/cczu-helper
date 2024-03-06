@@ -8,6 +8,7 @@ const int channelTermview = 1;
 const int channelLoginWifi = 2;
 const int channelGenerateICalendar = 3;
 const int channelCheckUpdate = 4;
+const int channelGetGrades = 5;
 
 abstract interface class Mappable {
   Map toMap();
@@ -73,4 +74,15 @@ class ICalendarGenerateData implements Mappable {
 
 mixin NativeChannelSubscriber {
   late StreamSubscription subscriber;
+}
+
+@immutable
+class GradeData {
+  final String name;
+  final String point;
+  final String grade;
+  const GradeData(this.name, this.point, this.grade);
+
+  static GradeData fromMap(Map map) =>
+      GradeData(map["name"], map["point"], map["grade"]);
 }

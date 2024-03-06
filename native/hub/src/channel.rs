@@ -1,5 +1,8 @@
 use crate::{
-    implments::{impl_check_update, impl_generate_ical, impl_generate_termviews, impl_login_wifi},
+    implments::{
+        impl_check_update, impl_generate_ical, impl_generate_termviews, impl_get_grades,
+        impl_login_wifi,
+    },
     messages::common::{DartReceiveChannel, RustCallChannel},
 };
 use serde::Serialize;
@@ -18,6 +21,7 @@ pub async fn handle_channel() {
                 .await
                 .handle_raw(),
             CHECK_UPDATE => impl_check_update().await.handle_raw(),
+            GET_GRADES => impl_get_grades(from_str(&data).unwrap()).await.handle(),
             _ => (),
         }
     }
@@ -68,3 +72,4 @@ const TERMVIEWS: i32 = 1;
 const LOGINWIFI: i32 = 2;
 const GENERATE_ICALENDAR: i32 = 3;
 const CHECK_UPDATE: i32 = 4;
+const GET_GRADES: i32 = 5;

@@ -20,3 +20,10 @@ pub struct TermData {
     pub name: String,
     pub value: String,
 }
+
+#[derive(Serialize, Debug, Clone)]
+pub struct GradeData {
+    pub name: String,
+    pub point: String,
+    pub grade: String,
+}
