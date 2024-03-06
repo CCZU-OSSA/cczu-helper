@@ -5,77 +5,64 @@
 
 <div align=center>
 
-  更加那么不蚌埠地查询体育打卡信息😋
+  一款改善你在CCZU的生活体验的应用😋
 
-  <img src="https://img.shields.io/badge/flutter-3+-blue" alt="flutter">
-  <img src="https://img.shields.io/github/languages/code-size/CCZU-OSSA/cczu-helper" alt="size">
+  <img src="https://img.shields.io/badge/flutter-3+-blue" alt="Flutter">
+  <img src="https://img.shields.io/badge/Rust-2021-brown" alt="Rust">
+  <img src="https://img.shields.io/github/languages/code-size/CCZU-OSSA/cczu-helper?color=green" alt="size">
   <img src="https://img.shields.io/github/license/CCZU-OSSA/cczu-helper" alt="license">
 </div>
 
 
 ## 为什么有这个
 
-*OSA有一个用于查询打卡和讲座前端项目CCZU Helper，这也算是延续了🤔*
-
-为什么吊大的体育打卡查询做的这么烂，为什么全是ASP.NET😡😡😡
+起源于吊大的打卡查询的应用，起初是自用的应用，后来觉得不如做好点发出来大家一起用，技术本身就是用来改善生活的，希望这个应用能让你在吊大更加便利~
 
 ## 截图
 
-![#截图](doc/screenshot0.jpg)
+todo!()
 
-## 使用方法
+## 平台支持
 
-先去设置里设置学期和学号，然后在主页点击刷新等待几分钟(?)即可🥰
+|Windows|Android|Linux|MacOS|IOS|
+|--|--|--|--|--|
+|✅|✅|❌|❌|❌|
 
-## 关于学期
+由于主要开发人员缺乏 Linux桌面环境 / Apple 设备，所以无法适配对应的版本，你可以尝试自行编译，如果平台对应的功能没有适配，欢迎提供Pull Request~
 
-体育打卡网站 http://202.195.100.156:808/
+## 参与本项目
 
-按下 F12 打开 Dev Tool 选择元素移到学期框上就能定位找到
+### 反馈意见
 
-`value`的值是你需要的，例如我想查`23-24-1`，它的`value`就是81，而你需要在设置里填写81
+如果不会使用可以，可以搜一下`如何提issue`
 
-![#截图](doc/screenshot1.png)
+https://github.com/CCZU-OSSA/cczu-helper/issues
 
-## Using Rust Inside Flutter
+### 项目结构
 
-This project leverages Flutter for GUI and Rust for the backend logic,
-utilizing the capabilities of the
-[Rinf](https://pub.dev/packages/rinf) framework.
+  - lib 存放Flutter代码
+    - models 存放数据类型与一些常量还有一些用于沟通Rust和Flutter的代码
+    - views 存放页面文件
+    - controllers 存放配置文件的读取、页面更换等相关代码
+    - messages 由rinf生成
+  - message 存放用于生成沟通Rust与Flutter的proto文件
+  - assets 存放应用资源文件
+  - native 存放Rust代码(RINF)
 
-To run and build this app, you need to have
-[Flutter SDK](https://docs.flutter.dev/get-started/install)
-and [Rust toolchain](https://www.rust-lang.org/tools/install)
-installed on your system.
-You can check that your system is ready with the commands below.
-Note that all the Flutter subcomponents should be installed.
+### 如何编译
 
-```bash
-rustc --version
-flutter doctor
-```
+编译之前先确保你的设备上拥有 Rust 与 Flutter 环境，需要`clone`此项目你还需要一个`git`
 
-You also need to have the CLI tool for Rinf ready.
+然后运行以下代码
 
-```bash
+`<target-platform>`取决于你的目标平台
+
+可以使用`flutter help build`命令查看
+
+```sh
+git clone https://github.com/CCZU-OSSA/cczu-helper.git
+cd cczu-helper
 cargo install rinf
-```
-
-Messages sent between Dart and Rust are implemented using Protobuf.
-If you have newly cloned the project repository
-or made changes to the `.proto` files in the `./messages` directory,
-run the following command:
-
-```bash
 rinf message
+flutter build <target-platform> --release
 ```
-
-Now you can run and build this app just like any other Flutter projects.
-
-```bash
-flutter run
-```
-
-For detailed instructions on writing Rust and Flutter together,
-please refer to Rinf's [documentation](https://rinf.cunarist.com).
-
