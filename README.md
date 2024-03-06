@@ -18,9 +18,7 @@
 
 起源于吊大的打卡查询的应用，起初是自用的应用，后来觉得不如做好点发出来大家一起用，技术本身就是用来改善生活的，希望这个应用能让你在吊大更加便利~
 
-## 截图
-
-todo!()
+[![图片](doc/screenshot.png)](https://github.com/CCZU-OSSA/cczu-helper/releases/latest)
 
 ## 平台支持
 
