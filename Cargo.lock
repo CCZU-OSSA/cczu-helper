@@ -150,7 +150,7 @@ checksum = "a0ba8f7aaa012f30d5b2861462f6708eccd49c3c39863fe083a308035f63d723"
 [[package]]
 name = "cczu_ical_rs"
 version = "0.1.2"
-source = "git+https://github.com/CCZU-OSSA/CCZU-iCal-rs.git#06c34143333d83a55fee5114a6af4f6afac23016"
+source = "git+https://github.com/CCZU-OSSA/CCZU-iCal-rs.git#61edd341d1475cbb22cca1c42961eb2aed5c0a46"
 dependencies = [
  "chrono",
  "icalendar",
