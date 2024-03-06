@@ -167,6 +167,7 @@ class CurriculumPageState extends State<CurriculumPage> {
                       ? Center(
                           child: Text(
                             appointment.summary,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         )
                       : Padding(
