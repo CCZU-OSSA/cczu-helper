@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
 import 'package:arche/arche.dart';
+import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
@@ -16,6 +18,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 void main() {
@@ -216,6 +219,54 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
       ArcheBus.logger.info("try to `reScheduleAll` Notifications");
       Scheduler.reScheduleAll(context);
     }
+    platDirectory.getValue().then((subdir) {
+      var subfile = subdir.subFile("error.log");
+      if (subfile.existsSync()) {
+        var data = subfile.readAsStringSync();
+        subfile.deleteSync();
+
+        ComplexDialog.instance.text(
+          context: context,
+          title: const Text("错误日志处理"),
+          content: Wrap(
+            direction: Axis.vertical,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const Text("检测到存在未处理的错误日志"),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: FilledButton.icon(
+                  onPressed: () {
+                    Share.shareXFiles([
+                      XFile.fromData(
+                        utf8.encode(data),
+                        mimeType: "text/plain",
+                        name: "error.log",
+                      )
+                    ]);
+                  },
+                  icon: const Icon(Icons.share),
+                  label: const Text("分享"),
+                ),
+              ),
+              Visibility(
+                visible: !Platform.isAndroid,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      saveFile(data, fileName: "error.log");
+                    },
+                    icon: const Icon(Icons.save),
+                    label: const Text("保存"),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      }
+    });
   }
 
   @override

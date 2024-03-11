@@ -1,10 +1,8 @@
 import 'dart:io';
 
 import 'package:arche/arche.dart';
-import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
-import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/models/version.dart';
@@ -15,7 +13,6 @@ import 'package:cczu_helper/views/pages/notifications.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -180,31 +177,6 @@ class SettingsPageState extends State<SettingsPage> {
                       setState(() {
                         configs.autosavelog.write(value);
                       });
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.share),
-                    title: const Text("分享错误日志"),
-                    subtitle: const Text("Share Error Logs"),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: () async {
-                      var platdir = await platDirectory.getValue();
-                      var subfile = platdir.subFile("error.log");
-                      if (await subfile.exists()) {
-                        Share.shareXFiles([
-                          XFile(
-                            subfile.path,
-                            name: "error.log",
-                            mimeType: "text/plain",
-                          )
-                        ]);
-                        return;
-                      }
-                      if (mounted) {
-                        showSnackBar(
-                            context: this.context,
-                            content: const Text("暂无错误日志"));
-                      }
                     },
                   ),
                   ListTile(

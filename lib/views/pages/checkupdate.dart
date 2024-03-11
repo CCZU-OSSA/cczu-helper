@@ -137,6 +137,10 @@ class CheckUpdatePageState extends State<CheckUpdatePage>
                             ])
                   : ElevatedButton.icon(
                       onPressed: () {
+                        setState(() {
+                          _busy = true;
+                        });
+
                         RustCallChannel(id: channelCheckUpdate)
                             .sendSignalToRust(null);
                       },
