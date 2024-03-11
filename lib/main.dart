@@ -213,7 +213,8 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     configs = ArcheBus().of();
     if (configs.notificationsEnable.getOr(false) &&
         configs.notificationsDay.getOr(true)) {
-      Scheduler.scheduleAll(context);
+      ArcheBus.logger.info("try to `reScheduleAll` Notifications");
+      Scheduler.reScheduleAll(context);
     }
   }
 
