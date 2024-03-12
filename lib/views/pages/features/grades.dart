@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
+import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/messages/common.pb.dart';
 import 'package:cczu_helper/models/channel.dart';
@@ -17,6 +18,7 @@ class GradesFeature extends StatefulWidget {
 class _GradesFeatureState extends State<GradesFeature>
     with NativeChannelSubscriber {
   late final ApplicationConfigs configs;
+  late final ScrollController controller;
   bool _busy = true;
   List<GradeData> data = [];
   @override
@@ -47,31 +49,61 @@ class _GradesFeatureState extends State<GradesFeature>
             ).sendSignalToRust(null),
           );
     }
+    controller = ScrollController()..addListener(() {});
   }
 
   @override
   void dispose() {
     super.dispose();
     subscriber.cancel();
+    controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return _busy
         ? const Center(child: ProgressIndicatorWidget())
-        : ListView(
-            children: data
-                .map(
-                  (e) => Visibility(
-                    visible: e.grade.trim().isNotEmpty,
-                    child: ListTile(
+        : Scaffold(
+            body: ListView(
+              controller: ScrollController(),
+              children: data
+                  .map<Widget>(
+                    (e) => ListTile(
                       title: Text(e.name),
                       subtitle: Text(e.point),
-                      trailing: Text(e.grade.toString()),
+                      trailing: Text(
+                          e.grade.trim().isEmpty ? "暂无" : e.grade.toString()),
                     ),
-                  ),
-                )
-                .toList(),
+                  )
+                  .toList()
+                  .addThen(const SizedBox(
+                    height: 80,
+                  )),
+            ),
+            floatingActionButton: SearchAnchor(
+              suggestionsBuilder: (context, controller) => data
+                  .where(
+                    (element) => element.name
+                        .toLowerCase()
+                        .contains(controller.text.toLowerCase()),
+                  )
+                  .map(
+                    (e) => ListTile(
+                      title: Text(e.name),
+                      subtitle: Text(e.point),
+                      trailing: Text(
+                          e.grade.trim().isEmpty ? "暂无" : e.grade.toString()),
+                    ),
+                  )
+                  .toList(),
+              builder: (context, controller) {
+                return FloatingActionButton(
+                    child: const Icon(Icons.search),
+                    onPressed: () {
+                      controller.openView();
+                    });
+              },
+            ),
           );
   }
 }
