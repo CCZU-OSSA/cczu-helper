@@ -22,9 +22,9 @@
 
 ## 平台支持
 
-|Windows|Android|Linux|MacOS|IOS|
-|--|--|--|--|--|
-|✅|✅|❌|❌|❌|
+| Windows | Android | Linux | MacOS | IOS |
+| ------- | ------- | ----- | ----- | --- |
+| ✅       | ✅       | ❌     | ❌     | ❌   |
 
 由于主要开发人员缺乏 Linux桌面环境 / Apple 设备，所以无法适配对应的版本，你可以尝试自行编译，如果平台对应的功能没有适配，欢迎提供Pull Request~
 
@@ -32,7 +32,7 @@
 
 ### 反馈意见
 
-如果不会使用可以，可以搜一下`如何提issue`
+如果不知道如何在Github提issue，可以搜一下`如何提issue`
 
 https://github.com/CCZU-OSSA/cczu-helper/issues
 
