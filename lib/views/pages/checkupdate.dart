@@ -34,6 +34,7 @@ class CheckUpdatePageState extends State<CheckUpdatePage>
       _busy = false;
 
       if (message.ok) {
+        ok = true;
         var data = jsonDecode(message.data);
         Version latestVersion = getVersionfromString(data["tag_name"]);
         if (latestVersion < appVersion) {
