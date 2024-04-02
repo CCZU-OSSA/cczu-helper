@@ -1,7 +1,7 @@
 use crate::{
     implments::{
-        impl_check_update, impl_generate_ical, impl_generate_termviews, impl_get_grades,
-        impl_login_wifi,
+        impl_check_update, impl_cmcc_account, impl_generate_ical, impl_generate_termviews,
+        impl_get_grades, impl_login_wifi,
     },
     messages::common::{DartReceiveChannel, RustCallChannel},
 };
@@ -22,6 +22,7 @@ pub async fn handle_channel() {
                 .handle_raw(),
             CHECK_UPDATE => impl_check_update().await.handle_raw(),
             GET_GRADES => impl_get_grades(from_str(&data).unwrap()).await.handle(),
+            GENERATE_ACCOUNT => impl_cmcc_account(data).await.handle(),
             _ => (),
         }
     }
@@ -73,3 +74,4 @@ const LOGINWIFI: i32 = 2;
 const GENERATE_ICALENDAR: i32 = 3;
 const CHECK_UPDATE: i32 = 4;
 const GET_GRADES: i32 = 5;
+const GENERATE_ACCOUNT: i32 = 6;

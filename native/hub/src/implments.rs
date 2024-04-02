@@ -115,3 +115,27 @@ pub async fn impl_get_grades(account: AccountData) -> Result<Vec<GradeData>, Str
 
     Err("获取页面失败".into())
 }
+
+pub async fn impl_cmcc_account(phone: String) -> Result<String, String> {
+    if cfg!(windows) {
+        use windows::Win32::System::Com::CoCreateGuid;
+
+        let raw_guid = unsafe { CoCreateGuid() }.unwrap();
+        let guid = guid_create::GUID::build_from_components(
+            raw_guid.data1,
+            raw_guid.data2,
+            raw_guid.data3,
+            &raw_guid.data4,
+        )
+        .to_string()
+        .replace("-", "");
+        let mut check = 0;
+        for i in 0..3 {
+            check += phone.chars().collect::<Vec<char>>()[i] as u32
+                + guid.chars().collect::<Vec<char>>()[i] as u32;
+        }
+        return Ok(format!("{}{:0<4}01{}", guid, check, phone).to_ascii_lowercase());
+    }
+
+    Err("仅限Windows平台".into())
+}

@@ -186,13 +186,8 @@ class ICalendarFeatureState extends State<ICalendarFeature>
               ),
               body: FeatureView(
                 primary: const Card(
-                  child: SizedBox(
-                    height: double.infinity,
-                    child: SizedBox(
-                      width: double.infinity,
-                      child:
-                          READMEWidget(resource: "assets/README_ICALENDAR.md"),
-                    ),
+                  child: SizedBox.expand(
+                    child: READMEWidget(resource: "assets/README_ICALENDAR.md"),
                   ),
                 ),
                 secondary: Column(
