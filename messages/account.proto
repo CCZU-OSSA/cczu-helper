@@ -1,0 +1,16 @@
+syntax = "proto3";
+package account;
+
+
+// [RINF:DART-SIGNAL]
+message AccountLogin {
+    string user = 1;
+    string password = 2;
+}
+
+// [RINF:RUST-SIGNAL]
+message AccountLoginCallback {
+    bool ok = 1;
+    string cookies = 2;
+    AccountLogin account = 3;
+}

@@ -1,0 +1,18 @@
+syntax = "proto3";
+package icalendar;
+
+import "account.proto";
+
+
+// [RINF:DART-SIGNAL]
+message ICalendarInput {
+    string firstweekdate = 1;
+    optional int32 reminder = 2;
+    account.AccountLogin account = 3;
+}
+
+// [RINF:RUST-SIGNAL]
+message ICalendarOutput {
+    bool ok = 1;
+    string data = 2;
+}

@@ -1,16 +1,12 @@
 //! This `hub` crate is the
 //! entry point of the Rust logic.
 
-use channel::handle_channel;
 // This `tokio` will be used by Rinf.
 // You can replace it with the original `tokio`
 // if you're not targeting the web.
 use tokio_with_wasm::tokio;
 
-mod channel;
-mod implments;
 mod messages;
-mod typedata;
 
 rinf::write_interface!();
 
@@ -21,5 +17,4 @@ rinf::write_interface!();
 async fn main() {
     // Repeat `tokio::spawn` anywhere in your code
     // if more concurrent tasks are needed.
-    tokio::spawn(handle_channel());
 }

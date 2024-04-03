@@ -1,0 +1,22 @@
+syntax = "proto3";
+package grades;
+
+import "account.proto";
+
+
+// [RINF:DART-SIGNAL]
+message GradesInput {
+    account.AccountLogin account = 3;
+}
+
+message GradeData {
+    string name = 1;
+    string point = 2;
+    string grade = 3;
+}
+
+// [RINF:RUST-SIGNAL]
+message GradesOutput {
+    bool ok = 1;
+    repeated GradeData data = 2;
+}

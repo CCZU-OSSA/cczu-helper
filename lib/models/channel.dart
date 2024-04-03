@@ -9,6 +9,7 @@ const int channelLoginWifi = 2;
 const int channelGenerateICalendar = 3;
 const int channelCheckUpdate = 4;
 const int channelGetGrades = 5;
+const int channelCMCCAccount = 6;
 
 abstract interface class Mappable {
   Map toMap();
