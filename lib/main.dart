@@ -12,7 +12,7 @@ import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/curriculum.dart';
-import 'package:cczu_helper/views/pages/feature.dart';
+import 'package:cczu_helper/views/pages/services.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
@@ -193,12 +193,12 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
       page: CurriculumPage(
         key: curriculmKey,
       ),
-      label: "课程表",
+      label: "课表",
     ),
     const NavigationItem(
-      icon: Icon(Icons.apps),
-      page: FeaturesPage(),
-      label: "工具箱",
+      icon: Icon(Icons.school),
+      page: ServicePage(),
+      label: "服务",
     ),
     NavigationItem(
       icon: const Icon(Icons.settings),
@@ -275,9 +275,11 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     bool isDark = themeMode == ThemeMode.system
         ? MediaQuery.of(context).platformBrightness == Brightness.dark
         : themeMode == ThemeMode.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(viewItems[currentIndex].label),
+        forceMaterialTransparency: true,
       ),
       drawer: NavigationDrawer(
         selectedIndex: currentIndex,

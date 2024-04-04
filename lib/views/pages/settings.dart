@@ -6,7 +6,6 @@ import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/models/version.dart';
-import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/checkupdate.dart';
 import 'package:cczu_helper/views/pages/log.dart';
 import 'package:cczu_helper/views/pages/notifications.dart';
@@ -50,11 +49,7 @@ class SettingsPageState extends State<SettingsPage> {
                     title: const Text("账户"),
                     subtitle: const Text("Accounts"),
                     trailing: const Icon(Icons.arrow_right),
-                    onTap: () => pushMaterialRoute(
-                      builder: (context) => AccountPage(
-                        key: accountKey,
-                      ),
-                    ),
+                    onTap: () {},
                   ),
                   Visibility(
                     visible: Platform.isAndroid,

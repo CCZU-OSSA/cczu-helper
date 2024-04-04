@@ -8,9 +8,14 @@ message AccountLogin {
     string password = 2;
 }
 
+message AccountWithCookies {
+    string user = 1;
+    string password = 2;
+    string cookies = 3;
+}
+
 // [RINF:RUST-SIGNAL]
 message AccountLoginCallback {
     bool ok = 1;
-    string cookies = 2;
-    AccountLogin account = 3;
+    optional AccountWithCookies account = 2;
 }

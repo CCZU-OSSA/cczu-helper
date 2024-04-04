@@ -8,7 +8,7 @@ import "account.proto";
 message ICalendarInput {
     string firstweekdate = 1;
     optional int32 reminder = 2;
-    account.AccountLogin account = 3;
+    account.AccountWithCookies account = 3;
 }
 
 // [RINF:RUST-SIGNAL]

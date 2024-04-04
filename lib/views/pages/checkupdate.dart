@@ -1,12 +1,6 @@
-import 'dart:convert';
-
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/platform.dart';
-import 'package:cczu_helper/messages/common.pb.dart';
-import 'package:cczu_helper/models/channel.dart';
-import 'package:cczu_helper/models/fields.dart';
-import 'package:cczu_helper/models/version.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -18,8 +12,7 @@ class CheckUpdatePage extends StatefulWidget {
   State<StatefulWidget> createState() => CheckUpdatePageState();
 }
 
-class CheckUpdatePageState extends State<CheckUpdatePage>
-    with NativeChannelSubscriber {
+class CheckUpdatePageState extends State<CheckUpdatePage> {
   bool _busy = true;
   String status = "空空如也";
   bool hasUpdate = false;
@@ -29,42 +22,11 @@ class CheckUpdatePageState extends State<CheckUpdatePage>
   @override
   void initState() {
     super.initState();
-    subscriber = DartReceiveChannel.rustSignalStream.listen((event) {
-      var message = event.message;
-      _busy = false;
-
-      if (message.ok) {
-        ok = true;
-        var data = jsonDecode(message.data);
-        Version latestVersion = getVersionfromString(data["tag_name"]);
-        if (latestVersion < appVersion) {
-          return setState(() {
-            status = "正在使用测试版本";
-          });
-        } else if (latestVersion == appVersion) {
-          return setState(() {
-            status = "已是最新版";
-          });
-        }
-
-        return setState(() {
-          this.data = data;
-          hasUpdate = true;
-        });
-      }
-
-      return setState(() {
-        ok = false;
-      });
-    });
-
-    RustCallChannel(id: channelCheckUpdate).sendSignalToRust(null);
   }
 
   @override
   void dispose() {
     super.dispose();
-    subscriber.cancel();
   }
 
   @override
@@ -141,9 +103,6 @@ class CheckUpdatePageState extends State<CheckUpdatePage>
                         setState(() {
                           _busy = true;
                         });
-
-                        RustCallChannel(id: channelCheckUpdate)
-                            .sendSignalToRust(null);
                       },
                       label: const Text("重试"),
                       icon: const Icon(Icons.refresh),
