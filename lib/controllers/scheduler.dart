@@ -71,7 +71,7 @@ class Scheduler {
       -1,
       "测试通知",
       "如果能够看到这条通知说明权限正常",
-      TZDateTime.from(DateTime.now().add(const Duration(seconds: 5)),
+      TZDateTime.from(DateTime.now().add(const Duration(seconds: 1)),
           getLocation("Asia/Shanghai")),
       notificationDetails,
       uiLocalNotificationDateInterpretation:

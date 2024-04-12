@@ -18,4 +18,5 @@ message AccountWithCookies {
 message AccountLoginCallback {
     bool ok = 1;
     optional AccountWithCookies account = 2;
+    optional string error = 3;
 }

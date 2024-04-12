@@ -6,8 +6,8 @@
 // if you're not targeting the web.
 use tokio_with_wasm::tokio;
 
+mod implments;
 mod messages;
-
 rinf::write_interface!();
 
 // Always use non-blocking async functions
@@ -17,4 +17,6 @@ rinf::write_interface!();
 async fn main() {
     // Repeat `tokio::spawn` anywhere in your code
     // if more concurrent tasks are needed.
+    tokio::spawn(implments::login());
+    tokio::spawn(implments::generate_icalendar());
 }

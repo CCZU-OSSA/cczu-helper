@@ -17,3 +17,5 @@ prost = "0.12.3"
 wasm-bindgen = "0.2.91"
 tokio_with_wasm = "0.4.3"
 cczu-client-api = { git = "https://github.com/CCZU-OSSA/cczu-client-api.git" }
+serde = "*"
+serde_json = "*"

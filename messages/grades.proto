@@ -6,7 +6,7 @@ import "account.proto";
 
 // [RINF:DART-SIGNAL]
 message GradesInput {
-    account.AccountWithCookies account = 3;
+    account.AccountLogin account = 3;
 }
 
 message GradeData {

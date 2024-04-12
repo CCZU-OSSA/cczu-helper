@@ -1,4 +1,5 @@
 import 'package:cczu_helper/controllers/navigator.dart';
+import 'package:cczu_helper/views/services/icalendar.dart';
 import 'package:flutter/material.dart';
 
 class ServicePage extends StatefulWidget {
@@ -27,6 +28,7 @@ class ServicePageState extends State<ServicePage>
     "教务系统": [
       const ServiceItem(
         text: "生成课程表",
+        service: ICalendarServicePage(),
       )
     ],
   };

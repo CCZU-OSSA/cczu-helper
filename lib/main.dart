@@ -12,6 +12,7 @@ import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/curriculum.dart';
+import 'package:cczu_helper/views/pages/login.dart';
 import 'package:cczu_helper/views/pages/services.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -161,7 +162,9 @@ class MainApplicationState extends State<MainApplication>
           typography: Typography.material2021(),
         ),
         themeMode: configs.themeMode.getOr(ThemeMode.system),
-        home: MainView(key: viewKey),
+        home: AccountLoginPage(
+          key: loginKey,
+        ),
       ),
     );
   }
@@ -177,17 +180,6 @@ class MainView extends StatefulWidget {
 class MainViewState extends State<MainView> with RefreshMountedStateMixin {
   int currentIndex = 0;
   var viewItems = [
-    // const NavigationItem(
-    //  icon: Icon(Icons.home),
-    //  page: HomePage(),
-    //  label: "主页",
-    //),
-
-    // const NavigationItem(
-    //   icon: Icon(Icons.person),
-    //   page: ONetworkView(),
-    //   label: "一网通办",
-    // ),
     NavigationItem(
       icon: const Icon(Icons.calendar_month),
       page: CurriculumPage(
