@@ -8,6 +8,7 @@ import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/models/version.dart';
 import 'package:cczu_helper/views/pages/checkupdate.dart';
 import 'package:cczu_helper/views/pages/log.dart';
+import 'package:cczu_helper/views/pages/login.dart';
 import 'package:cczu_helper/views/pages/notifications.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,19 @@ class SettingsPageState extends State<SettingsPage> {
                     title: const Text("账户"),
                     subtitle: const Text("Accounts"),
                     trailing: const Icon(Icons.arrow_right),
-                    onTap: () {},
+                    onTap: () {
+                      pushMaterialRoute(
+                        builder: (context) => Scaffold(
+                          appBar: AppBar(
+                            title: const Text("账户"),
+                          ),
+                          body: AccountLoginPage(
+                            autoLogin: false,
+                            callback: (context) => Navigator.of(context).pop(),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   Visibility(
                     visible: Platform.isAndroid,

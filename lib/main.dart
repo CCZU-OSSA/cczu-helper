@@ -7,6 +7,7 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
+import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/messages/generated.dart';
@@ -164,6 +165,12 @@ class MainApplicationState extends State<MainApplication>
         themeMode: configs.themeMode.getOr(ThemeMode.system),
         home: AccountLoginPage(
           key: loginKey,
+          callback: (context) => pushMaterialRoute(
+            context: context,
+            builder: (context) => MainView(
+              key: viewKey,
+            ),
+          ),
         ),
       ),
     );
