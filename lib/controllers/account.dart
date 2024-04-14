@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/messages/account.pb.dart';
@@ -37,6 +38,15 @@ Future<AccountWithCookies?> readAccount() async {
     password: map["password"],
     cookies: map["cookies"],
   );
+}
+
+Future<Optional<AccountWithCookies>> tryReadAccount() async {
+  var data = await readAccount();
+  if (data == null) {
+    return Optional.empty();
+  }
+
+  return Optional(value: data);
 }
 
 extension AccountWithCookiesSerialize on AccountWithCookies {

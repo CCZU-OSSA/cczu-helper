@@ -1,3 +1,5 @@
+import 'package:arche/arche.dart';
+import 'package:arche/extensions/dialogs.dart';
 import 'package:flutter/material.dart';
 
 class ProgressiveView extends StatefulWidget {
@@ -18,19 +20,12 @@ class ProgressiveViewState extends State<ProgressiveView> {
     super.initState();
 
     _canSubmit = widget.children.length == 1;
-
     pageController = PageController();
-    pageController.addListener(() {
-      if (pageController.page?.toInt() == widget.children.length - 1) {
-        setState(() {
-          _canSubmit = true;
-        });
-      } else {
-        setState(() {
-          _canSubmit = false;
-        });
-      }
-    });
+  }
+
+  void animateToPage(int page) {
+    pageController.animateToPage(page,
+        duration: Durations.medium4, curve: Curves.fastEaseInToSlowEaseOut);
   }
 
   @override
@@ -42,7 +37,20 @@ class ProgressiveViewState extends State<ProgressiveView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: BackButton(
+          onPressed: () => ComplexDialog.instance
+              .confirm(
+                  context: context,
+                  title: const Text("返回?"),
+                  content: const Text("未保存的内容将会丢失"))
+              .then((value) {
+            if (value) {
+              Navigator.of(context).pop();
+            }
+          }),
+        ),
+      ),
       floatingActionButton: AnimatedSwitcher(
         duration: Durations.medium4,
         child: _canSubmit
@@ -63,6 +71,17 @@ class ProgressiveViewState extends State<ProgressiveView> {
       ),
       body: PageView(
         controller: pageController,
+        onPageChanged: (value) {
+          if (value == widget.children.length - 1) {
+            setState(() {
+              _canSubmit = true;
+            });
+          } else {
+            setState(() {
+              _canSubmit = false;
+            });
+          }
+        },
         children: widget.children,
       ),
     );

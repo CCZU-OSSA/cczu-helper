@@ -7,7 +7,6 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
-import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/messages/generated.dart';
@@ -120,59 +119,52 @@ class MainApplicationState extends State<MainApplication>
     var useSystemFont = configs.useSystemFont.getOr(true);
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) => MaterialApp(
-        scaffoldMessengerKey: messagerKey,
-        localizationsDelegates: const [
-          GlobalWidgetsLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          SfGlobalLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale.fromSubtags(languageCode: 'zh'), // generic Chinese 'zh'
-          Locale.fromSubtags(
-              languageCode: 'zh',
-              scriptCode: 'Hans'), // generic simplified Chinese 'zh_Hans'
-          Locale.fromSubtags(
-              languageCode: 'zh',
-              scriptCode: 'Hant'), // generic traditional Chinese 'zh_Hant'
-          Locale.fromSubtags(
-              languageCode: 'zh',
-              scriptCode: 'Hans',
-              countryCode: 'CN'), // 'zh_Hans_CN'
-          Locale.fromSubtags(
-              languageCode: 'zh',
-              scriptCode: 'Hant',
-              countryCode: 'TW'), // 'zh_Hant_TW'
-          Locale.fromSubtags(
-              languageCode: 'zh',
-              scriptCode: 'Hant',
-              countryCode: 'HK'), // 'zh_Hant_HK'
-        ],
-        darkTheme: ThemeData(
-          brightness: Brightness.dark,
-          fontFamily: useSystemFont ? null : "Default",
-          useMaterial3: configs.material3.getOr(true),
-          colorScheme: darkDynamic ?? _defaultDarkColorScheme,
-          typography: Typography.material2021(),
-        ),
-        theme: ThemeData(
-          brightness: Brightness.light,
-          fontFamily: useSystemFont ? null : "Default",
-          useMaterial3: configs.material3.getOr(true),
-          colorScheme: lightDynamic ?? _defaultLightColorScheme,
-          typography: Typography.material2021(),
-        ),
-        themeMode: configs.themeMode.getOr(ThemeMode.system),
-        home: AccountLoginPage(
-          key: loginKey,
-          callback: (context) => pushMaterialRoute(
-            context: context,
-            builder: (context) => MainView(
-              key: viewKey,
-            ),
+          scaffoldMessengerKey: messagerKey,
+          localizationsDelegates: const [
+            GlobalWidgetsLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            SfGlobalLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale.fromSubtags(languageCode: 'zh'), // generic Chinese 'zh'
+            Locale.fromSubtags(
+                languageCode: 'zh',
+                scriptCode: 'Hans'), // generic simplified Chinese 'zh_Hans'
+            Locale.fromSubtags(
+                languageCode: 'zh',
+                scriptCode: 'Hant'), // generic traditional Chinese 'zh_Hant'
+            Locale.fromSubtags(
+                languageCode: 'zh',
+                scriptCode: 'Hans',
+                countryCode: 'CN'), // 'zh_Hans_CN'
+            Locale.fromSubtags(
+                languageCode: 'zh',
+                scriptCode: 'Hant',
+                countryCode: 'TW'), // 'zh_Hant_TW'
+            Locale.fromSubtags(
+                languageCode: 'zh',
+                scriptCode: 'Hant',
+                countryCode: 'HK'), // 'zh_Hant_HK'
+          ],
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            fontFamily: useSystemFont ? null : "Default",
+            useMaterial3: configs.material3.getOr(true),
+            colorScheme: darkDynamic ?? _defaultDarkColorScheme,
+            typography: Typography.material2021(),
           ),
-        ),
-      ),
+          theme: ThemeData(
+            brightness: Brightness.light,
+            fontFamily: useSystemFont ? null : "Default",
+            useMaterial3: configs.material3.getOr(true),
+            colorScheme: lightDynamic ?? _defaultLightColorScheme,
+            typography: Typography.material2021(),
+          ),
+          themeMode: configs.themeMode.getOr(ThemeMode.system),
+          home: MainView(
+            key: viewKey,
+          )),
     );
   }
 }
@@ -185,6 +177,7 @@ class MainView extends StatefulWidget {
 }
 
 class MainViewState extends State<MainView> with RefreshMountedStateMixin {
+  bool _loginReady = false;
   int currentIndex = 0;
   var viewItems = [
     NavigationItem(
@@ -274,6 +267,15 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     bool isDark = themeMode == ThemeMode.system
         ? MediaQuery.of(context).platformBrightness == Brightness.dark
         : themeMode == ThemeMode.dark;
+
+    if (!_loginReady) {
+      return AccountLoginPage(
+        loginCallback: (context) {
+          _loginReady = true;
+          refreshMounted();
+        },
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

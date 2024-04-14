@@ -58,7 +58,8 @@ class SettingsPageState extends State<SettingsPage> {
                           ),
                           body: AccountLoginPage(
                             autoLogin: false,
-                            callback: (context) => Navigator.of(context).pop(),
+                            loginCallback: (context) =>
+                                Navigator.of(context).pop(),
                           ),
                         ),
                       );
