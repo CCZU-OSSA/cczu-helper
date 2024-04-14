@@ -65,6 +65,17 @@ class SettingsPageState extends State<SettingsPage> {
                       );
                     },
                   ),
+                  SwitchListTile(
+                    secondary: const Icon(Icons.login),
+                    title: const Text("跳过登录页"),
+                    subtitle: const Text("Skip Login"),
+                    value: configs.skipLoginPage.getOr(false),
+                    onChanged: (value) {
+                      setState(() {
+                        configs.skipLoginPage.write(value);
+                      });
+                    },
+                  ),
                   Visibility(
                     visible: Platform.isAndroid,
                     child: ListTile(
@@ -85,7 +96,7 @@ class SettingsPageState extends State<SettingsPage> {
                     onTap: () => pushMaterialRoute(
                       builder: (context) => const CheckUpdatePage(),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -128,18 +139,6 @@ class SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  SwitchListTile(
-                      title: const Text("使用 Material 3"),
-                      subtitle: const Text("Material You"),
-                      secondary: const Icon(Icons.widgets),
-                      value: configs.material3.getOr(true),
-                      onChanged: (value) {
-                        setState(() {
-                          configs.material3.write(value);
-                        });
-
-                        rootKey.currentState?.refreshMounted();
-                      }),
                   SwitchListTile(
                       title: const Text("使用系统字体"),
                       subtitle: const Text("System Font"),

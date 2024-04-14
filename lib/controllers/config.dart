@@ -43,9 +43,8 @@ class ApplicationConfigs {
           return value.index;
         },
       );
-  ConfigEntry<bool> get material3 => generator("material3");
-  ConfigEntry<double> get cardsize => generator("cardsize");
   ConfigEntry<bool> get autosavelog => generator("autosavelog");
+  ConfigEntry<bool> get skipLoginPage => generator("skiploginpage");
 
   ConfigEntry<bool> get notificationsEnable =>
       generator("notifications_enable");

@@ -150,14 +150,14 @@ class MainApplicationState extends State<MainApplication>
           darkTheme: ThemeData(
             brightness: Brightness.dark,
             fontFamily: useSystemFont ? null : "Default",
-            useMaterial3: configs.material3.getOr(true),
+            useMaterial3: true,
             colorScheme: darkDynamic ?? _defaultDarkColorScheme,
             typography: Typography.material2021(),
           ),
           theme: ThemeData(
             brightness: Brightness.light,
             fontFamily: useSystemFont ? null : "Default",
-            useMaterial3: configs.material3.getOr(true),
+            useMaterial3: true,
             colorScheme: lightDynamic ?? _defaultLightColorScheme,
             typography: Typography.material2021(),
           ),
@@ -268,7 +268,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
         ? MediaQuery.of(context).platformBrightness == Brightness.dark
         : themeMode == ThemeMode.dark;
 
-    if (!_loginReady) {
+    if (!_loginReady && !configs.skipLoginPage.getOr(false)) {
       return AccountLoginPage(
         loginCallback: (context) {
           _loginReady = true;

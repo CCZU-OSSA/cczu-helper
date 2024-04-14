@@ -78,6 +78,8 @@ class CurriculumPageState extends State<CurriculumPage> {
         var controller = CalendarController();
         return Scaffold(
           body: SfCalendar(
+            headerStyle:
+                const CalendarHeaderStyle(backgroundColor: Colors.transparent),
             allowedViews: const [
               CalendarView.day,
               CalendarView.week,
