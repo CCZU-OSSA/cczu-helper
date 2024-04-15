@@ -1,5 +1,6 @@
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
+import 'package:cczu_helper/controllers/config.dart';
 import 'package:flutter/material.dart';
 
 class ProgressiveView extends StatefulWidget {
@@ -39,16 +40,26 @@ class ProgressiveViewState extends State<ProgressiveView> {
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
-          onPressed: () => ComplexDialog.instance
-              .confirm(
-                  context: context,
-                  title: const Text("返回?"),
-                  content: const Text("未保存的内容将会丢失"))
-              .then((value) {
-            if (value) {
+          onPressed: () {
+            if (ArcheBus.bus
+                .of<ApplicationConfigs>()
+                .skipServiceExitConfirm
+                .getOr(false)) {
               Navigator.of(context).pop();
+              return;
             }
-          }),
+
+            ComplexDialog.instance
+                .confirm(
+                    context: context,
+                    title: const Text("返回?"),
+                    content: const Text("未保存的内容将会丢失"))
+                .then((value) {
+              if (value) {
+                Navigator.of(context).pop();
+              }
+            });
+          },
         ),
       ),
       floatingActionButton: AnimatedSwitcher(

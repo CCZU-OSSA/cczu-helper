@@ -33,73 +33,77 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
   void initState() {
     super.initState();
     firstweekdate = DateTime.now();
-    _streamICalendarOutput = ICalendarOutput.rustSignalStream.listen((event) {
-      setState(() {
-        _underGenerating = false;
-      });
-      var message = event.message;
+    _streamICalendarOutput = ICalendarOutput.rustSignalStream.listen(
+      (event) {
+        setState(() {
+          _underGenerating = false;
+        });
+        var message = event.message;
 
-      if (!message.ok) {
-        ComplexDialog.instance
-            .text(context: context, content: Text(message.data));
-      } else {
-        var data = message.data;
-        showModalBottomSheet(
+        if (!message.ok) {
+          ComplexDialog.instance
+              .text(context: context, content: Text(message.data));
+        } else {
+          var data = message.data;
+          showModalBottomSheet(
             context: context,
             builder: (context) => SizedBox.expand(
-                    child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: Text(
-                            "完成!",
-                            style: TextStyle(fontSize: 16),
-                          ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(left: 8),
+                        child: Text(
+                          "完成!",
+                          style: TextStyle(fontSize: 16),
                         ),
-                        const Divider(),
-                        FilledButton.icon(
-                          onPressed: () {
-                            Share.shareXFiles([
-                              XFile.fromData(utf8.encode(data),
-                                  mimeType: "text/calendar",
-                                  name: "Curriculum.ics")
-                            ]);
-                          },
-                          icon: const Icon(Icons.share),
-                          label: const SizedBox(
-                            width: double.infinity,
-                            child: Center(child: Text("分享")),
-                          ),
+                      ),
+                      const Divider(),
+                      FilledButton.icon(
+                        onPressed: () {
+                          Share.shareXFiles([
+                            XFile.fromData(utf8.encode(data),
+                                mimeType: "text/calendar",
+                                name: "Curriculum.ics")
+                          ]);
+                        },
+                        icon: const Icon(Icons.share),
+                        label: const SizedBox(
+                          width: double.infinity,
+                          child: Center(child: Text("分享")),
                         ),
-                        const SizedBox(
-                          height: 8,
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      FilledButton.icon(
+                        onPressed: () async {
+                          var dir = await platDirectory.getValue();
+                          await dir
+                              .subFile("_curriculum.ics")
+                              .writeAsString(data)
+                              .then((value) => ComplexDialog.instance.text(
+                                  context: context,
+                                  content: const Text("导入成功")));
+                        },
+                        icon: const Icon(FontAwesomeIcons.fileImport),
+                        label: const SizedBox(
+                          width: double.infinity,
+                          child: Center(child: Text("导入应用日历")),
                         ),
-                        FilledButton.icon(
-                          onPressed: () async {
-                            var dir = await platDirectory.getValue();
-                            await dir
-                                .subFile("_curriculum.ics")
-                                .writeAsString(data)
-                                .then((value) => ComplexDialog.instance.text(
-                                    context: context,
-                                    content: const Text("导入成功")));
-                          },
-                          icon: const Icon(FontAwesomeIcons.fileImport),
-                          label: const SizedBox(
-                            width: double.infinity,
-                            child: Center(child: Text("导入应用课程表")),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                )));
-      }
-    });
+                ),
+              ),
+            ),
+          );
+        }
+      },
+    );
   }
 
   @override

@@ -88,8 +88,8 @@ class ServiceItem extends StatelessWidget {
           }
         },
         child: SizedBox(
-          width: 256,
-          height: 256,
+          width: 200,
+          height: 200,
           child: Column(
             children: [
               Flexible(

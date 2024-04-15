@@ -45,7 +45,8 @@ class ApplicationConfigs {
       );
   ConfigEntry<bool> get autosavelog => generator("autosavelog");
   ConfigEntry<bool> get skipLoginPage => generator("skiploginpage");
-
+  ConfigEntry<bool> get skipServiceExitConfirm =>
+      generator("skipserviceexitconfirm");
   ConfigEntry<bool> get notificationsEnable =>
       generator("notifications_enable");
   ConfigEntry<int> get notificationsReminder =>

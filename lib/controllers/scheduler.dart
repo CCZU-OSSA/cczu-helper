@@ -2,7 +2,7 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:arche/modules/application.dart';
 import 'package:cczu_helper/controllers/config.dart';
-import 'package:cczu_helper/views/pages/curriculum.dart';
+import 'package:cczu_helper/views/pages/calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';

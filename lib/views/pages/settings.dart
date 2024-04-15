@@ -97,6 +97,17 @@ class SettingsPageState extends State<SettingsPage> {
                       builder: (context) => const CheckUpdatePage(),
                     ),
                   ),
+                  SwitchListTile(
+                    secondary: const Icon(Icons.skip_next),
+                    title: const Text("跳过服务退出确认"),
+                    subtitle: const Text("Skip Service Exit Confirm"),
+                    value: configs.skipServiceExitConfirm.getOr(false),
+                    onChanged: (value) {
+                      setState(() {
+                        configs.skipServiceExitConfirm.write(value);
+                      });
+                    },
+                  ),
                 ],
               ),
             ),

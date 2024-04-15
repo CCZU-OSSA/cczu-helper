@@ -11,7 +11,7 @@ import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
-import 'package:cczu_helper/views/pages/curriculum.dart';
+import 'package:cczu_helper/views/pages/calendar.dart';
 import 'package:cczu_helper/views/pages/login.dart';
 import 'package:cczu_helper/views/pages/services.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
