@@ -8,6 +8,7 @@ import 'package:cczu_helper/controllers/account.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/messages/icalendar.pb.dart';
 import 'package:cczu_helper/views/widgets/adaptive.dart';
+import 'package:cczu_helper/views/widgets/markdown.dart';
 import 'package:cczu_helper/views/widgets/progressive.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -129,6 +130,9 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
     return ProgressiveView(
       key: _progressiveKey,
       children: [
+        const AdaptiveView(
+            cardMargin: EdgeInsets.only(bottom: 48),
+            child: AssetMarkdown(resource: "assets/README_ICALENDAR_START.md")),
         AdaptiveView(
             cardMargin: const EdgeInsets.only(bottom: 48),
             child: Column(
@@ -145,12 +149,8 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
                   height: 8,
                 ),
                 const Card.outlined(
-                  child: SizedBox(
-                    height: 200,
-                    width: double.infinity,
-                    child: Padding(
-                        padding: EdgeInsets.all(8), child: Text("说明....")),
-                  ),
+                  child: AssetMarkdown(
+                      resource: "assets/README_ICALENDAR_DATE.md"),
                 ),
                 Card.outlined(
                   child: SizedBox(
@@ -201,12 +201,8 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
               height: 8,
             ),
             const Card.outlined(
-              child: SizedBox(
-                height: 200,
-                width: double.infinity,
-                child:
-                    Padding(padding: EdgeInsets.all(8), child: Text("说明....")),
-              ),
+              child: AssetMarkdown(
+                  resource: "assets/README_ICALENDAR_REMINDER.md"),
             ),
             Card.outlined(
               child: SizedBox(
@@ -264,12 +260,17 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
             Wrap(spacing: 8, runSpacing: 8, children: [
               ActionChip(
                 onPressed: () => _progressiveKey.currentState!.animateToPage(0),
+                avatar: const Icon(Icons.book),
+                label: const Text("说明"),
+              ),
+              ActionChip(
+                onPressed: () => _progressiveKey.currentState!.animateToPage(1),
                 avatar: const Icon(Icons.date_range),
                 label: Text(displayDate),
               ),
               ActionChip(
                   onPressed: () =>
-                      _progressiveKey.currentState!.animateToPage(1),
+                      _progressiveKey.currentState!.animateToPage(2),
                   avatar: const Icon(Icons.alarm),
                   label: Text(displayReminder)),
             ]),

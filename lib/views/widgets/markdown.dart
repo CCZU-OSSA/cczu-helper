@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
-class READMEWidget extends StatelessWidget {
+class AssetMarkdown extends StatelessWidget {
   final String resource;
-  final EdgeInsetsGeometry padding;
-  const READMEWidget({
+  final EdgeInsets padding;
+  const AssetMarkdown({
     super.key,
     required this.resource,
     this.padding = const EdgeInsets.all(8),
@@ -19,22 +19,11 @@ class READMEWidget extends StatelessWidget {
       loading: const ProgressIndicatorWidget(
         data: ProgressIndicatorWidgetData(text: "正在读取文件"),
       ),
-      data: (data) => Padding(
+      data: (data) => Markdown(
+        data: data.toString(),
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
         padding: padding,
-        child: ListView(
-          children: [
-            const ListTile(
-              leading: Icon(Icons.book),
-              title: Text("说明"),
-              subtitle: Text("README"),
-            ),
-            Markdown(
-              data: data.toString(),
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-            ),
-          ],
-        ),
       ),
     );
   }
