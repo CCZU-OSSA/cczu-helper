@@ -19,4 +19,5 @@ message GradeData {
 message GradesOutput {
     bool ok = 1;
     repeated GradeData data = 2;
+    optional string error = 3;
 }

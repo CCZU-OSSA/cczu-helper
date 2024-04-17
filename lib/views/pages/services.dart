@@ -1,4 +1,5 @@
 import 'package:cczu_helper/controllers/navigator.dart';
+import 'package:cczu_helper/views/services/grade.dart';
 import 'package:cczu_helper/views/services/icalendar.dart';
 import 'package:flutter/material.dart';
 
@@ -29,6 +30,10 @@ class ServicePageState extends State<ServicePage>
       const ServiceItem(
         text: "生成课程表",
         service: ICalendarServicePage(),
+      ),
+      const ServiceItem(
+        text: "查询成绩",
+        service: GradeQueryServicePage(),
       )
     ],
   };
@@ -77,19 +82,24 @@ class ServiceItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10),
-        onTap: () {
-          if (service != null) {
-            pushMaterialRoute(
-              builder: (context) => service!,
-            );
-          }
-        },
-        child: SizedBox(
-          width: 200,
-          height: 200,
+    var mediaWidth = MediaQuery.of(context).size.width;
+    double dimesion = 200;
+    if (mediaWidth ~/ 200 <= 2) {
+      dimesion = ((mediaWidth - 16) ~/ 2).toDouble();
+    }
+
+    return SizedBox.square(
+      dimension: dimesion,
+      child: Card(
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: () {
+            if (service != null) {
+              pushMaterialRoute(
+                builder: (context) => service!,
+              );
+            }
+          },
           child: Column(
             children: [
               Flexible(
@@ -100,7 +110,7 @@ class ServiceItem extends StatelessWidget {
                     image: DecorationImage(
                       image: image,
                     ),
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.surfaceTint,
                   ),
                 ),
               ),

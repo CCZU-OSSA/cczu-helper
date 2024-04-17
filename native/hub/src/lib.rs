@@ -6,8 +6,8 @@
 // if you're not targeting the web.
 use tokio_with_wasm::tokio;
 
-mod jwcas_implments;
 mod account_implents;
+mod jwcas_implments;
 mod messages;
 rinf::write_interface!();
 
@@ -20,4 +20,5 @@ async fn main() {
     // if more concurrent tasks are needed.
     tokio::spawn(account_implents::login());
     tokio::spawn(jwcas_implments::generate_icalendar());
+    tokio::spawn(jwcas_implments::get_grades());
 }
