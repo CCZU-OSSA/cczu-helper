@@ -1,5 +1,5 @@
 import 'package:cczu_helper/controllers/navigator.dart';
-import 'package:cczu_helper/views/services/grade.dart';
+import 'package:cczu_helper/views/services/grades.dart';
 import 'package:cczu_helper/views/services/icalendar.dart';
 import 'package:flutter/material.dart';
 

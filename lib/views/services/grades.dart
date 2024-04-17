@@ -82,7 +82,7 @@ class GradeQueryServicePageState extends State<GradeQueryServicePage> {
                 .map((e) => ListTile(
                       title: Text(e.name),
                       subtitle: Text(e.point),
-                      trailing: Text(e.grade.isEmpty ? "暂无" : e.grade),
+                      trailing: Text(e.grade.trim().isEmpty ? "暂无" : e.grade),
                     ));
           },
         ),
