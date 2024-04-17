@@ -25,7 +25,6 @@ class AccountLoginPageState extends State<AccountLoginPage> {
 
   late TextEditingController user;
   late TextEditingController password;
-  bool _obscurePasswordText = true;
   bool _loginFailed = false;
   bool _underLogin = false;
 
@@ -96,20 +95,25 @@ class AccountLoginPageState extends State<AccountLoginPage> {
               const SizedBox(
                 height: 8,
               ),
-              TextField(
-                controller: password,
-                decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.lock),
-                    labelText: "密码",
-                    suffixIcon: IconButton(
+              ValueStateBuilder(
+                builder: (context, state) {
+                  return TextField(
+                    controller: password,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.lock),
+                      labelText: "密码",
+                      suffixIcon: IconButton(
                         onPressed: () {
-                          setState(() {
-                            _obscurePasswordText = !_obscurePasswordText;
-                          });
+                          state.update(!state.value);
                         },
-                        icon: const Icon(Icons.remove_red_eye))),
-                obscureText: _obscurePasswordText,
+                        icon: const Icon(Icons.remove_red_eye),
+                      ),
+                    ),
+                    obscureText: state.value,
+                  );
+                },
+                init: true,
               ),
               const SizedBox(
                 height: 32,
