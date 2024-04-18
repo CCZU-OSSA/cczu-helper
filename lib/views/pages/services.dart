@@ -30,10 +30,12 @@ class ServicePageState extends State<ServicePage>
       const ServiceItem(
         text: "生成课程表",
         service: ICalendarServicePage(),
+        image: AssetImage("assets/icalendar.png"),
       ),
       const ServiceItem(
         text: "查询成绩",
         service: GradeQueryServicePage(),
+        image: AssetImage("assets/grade.png"),
       )
     ],
   };
@@ -85,7 +87,7 @@ class ServiceItem extends StatelessWidget {
     var mediaWidth = MediaQuery.of(context).size.width;
     double dimesion = 200;
     if (mediaWidth ~/ 200 <= 2) {
-      dimesion = ((mediaWidth - 16) ~/ 2).toDouble();
+      dimesion = (mediaWidth - 16) / 2;
     }
 
     return SizedBox.square(
