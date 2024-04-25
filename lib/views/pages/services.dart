@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:cczu_helper/controllers/navigator.dart';
-import 'package:cczu_helper/views/services/grades.dart';
-import 'package:cczu_helper/views/services/icalendar.dart';
+import 'package:cczu_helper/views/services/jwcas/grades.dart';
+import 'package:cczu_helper/views/services/jwcas/icalendar.dart';
+import 'package:cczu_helper/views/services/misc/cmcc_account.dart';
 import 'package:flutter/material.dart';
 
 class ServicePage extends StatefulWidget {
@@ -38,6 +41,15 @@ class ServicePageState extends State<ServicePage>
         image: AssetImage("assets/grade.png"),
       )
     ],
+    "杂项": [
+      Visibility(
+          visible: Platform.isWindows,
+          child: const ServiceItem(
+            text: "生成CMCC宽带拨号账户",
+            service: CMCCAccoutService(),
+            image: AssetImage("assets/cmcc_account.png"),
+          )),
+    ]
   };
 
   @override
@@ -57,10 +69,12 @@ class ServicePageState extends State<ServicePage>
         body: TabBarView(
           children: _services.values
               .map(
-                (items) => Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Wrap(
-                    children: items,
+                (items) => SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Wrap(
+                      children: items,
+                    ),
                   ),
                 ),
               )

@@ -1,2 +1,23 @@
 syntax = "proto3";
 package update;
+
+
+// [RINF:DART-SIGNAL]
+message GetVersionInput {
+
+}
+
+// [RINF:RUST-SIGNAL]
+message GetVersionOutput {
+    bool ok = 1;
+    repeated VersionInfo data = 2;
+    optional string error = 3;
+}
+
+
+message VersionInfo {
+    string tag = 1;
+    string text = 2;
+}
+
+

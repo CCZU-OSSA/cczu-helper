@@ -65,6 +65,7 @@ class AccountLoginPageState extends State<AccountLoginPage> {
   Widget build(BuildContext context) {
     Widget item = AdaptiveView(
       shrinkWrap: true,
+      cardMargin: const EdgeInsets.only(top: 48, bottom: 48),
       child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(24),

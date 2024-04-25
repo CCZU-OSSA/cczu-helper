@@ -1,0 +1,15 @@
+syntax = "proto3";
+package cmcc;
+
+
+// [RINF:DART-SIGNAL]
+message CMCCAccountGenerateInput {
+    string phone = 1;
+}
+
+
+
+// [RINF:RUST-SIGNAL]
+message CMCCAccountGenerateOutput {
+    string account = 1;
+}

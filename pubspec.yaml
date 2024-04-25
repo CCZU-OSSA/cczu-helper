@@ -88,6 +88,7 @@ flutter:
     - assets/cczu_helper_icon.png
     - assets/icalendar.png
     - assets/grade.png
+    - assets/cmcc_account.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

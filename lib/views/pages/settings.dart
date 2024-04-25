@@ -99,7 +99,7 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                   SwitchListTile(
                     secondary: const Icon(Icons.skip_next),
-                    title: const Text("跳过服务退出确认"),
+                    title: const Text("跳过多步退出确认"),
                     subtitle: const Text("Skip Service Exit Confirm"),
                     value: configs.skipServiceExitConfirm.getOr(false),
                     onChanged: (value) {

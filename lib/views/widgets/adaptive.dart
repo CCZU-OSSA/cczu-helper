@@ -12,7 +12,7 @@ class AdaptiveView extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(8),
-    this.cardMargin = const EdgeInsets.only(top: 48, bottom: 48),
+    this.cardMargin = const EdgeInsets.only(bottom: 48),
     this.shrinkWrap = false,
   });
 
