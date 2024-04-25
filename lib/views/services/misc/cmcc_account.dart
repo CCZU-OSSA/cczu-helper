@@ -47,7 +47,7 @@ class CMCCAccountServiceState extends State<CMCCAccoutService> {
         ).then((path) async {
           if (path != null) {
             await File(path).writeAsString(
-                "rasdial \"${_nameTextController.text}\" ${message.account} ${_pwdTextController.text}");
+                "@rasdial \"${_nameTextController.text}\" ${message.account} ${_pwdTextController.text}");
           }
         });
       }
