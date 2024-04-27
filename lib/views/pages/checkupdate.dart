@@ -40,7 +40,7 @@ class CheckUpdatePageState extends State<CheckUpdatePage> {
           duration: Durations.medium4,
           child: _busy
               ? const ProgressIndicatorWidget(
-                  data: ProgressIndicatorWidgetData(text: "你先别急"),
+                  data: ProgressIndicatorWidgetData(text: "还没做..."),
                 )
               : ok
                   ? hasUpdate

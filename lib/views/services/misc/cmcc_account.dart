@@ -30,7 +30,7 @@ class CMCCAccountServiceState extends State<CMCCAccoutService> {
     super.initState();
     _phoneTextController = TextEditingController();
     _pwdTextController = TextEditingController();
-    _nameTextController = TextEditingController(text: "宽带连接");
+    _nameTextController = TextEditingController(text: "Band Connection");
     _streamAccountGenerateOutput =
         CMCCAccountGenerateOutput.rustSignalStream.listen((event) {
       var message = event.message;
@@ -95,6 +95,7 @@ class CMCCAccountServiceState extends State<CMCCAccoutService> {
 如果你想自行连接而不是使用脚本，可以自行搜索`PPPoE宽带连接`的相关教程。
 
 宽带连接名称仅用于显示在本地电脑，因此无论叫`Ciallo～(∠・ω< )⌒★`还是叫`宽带连接`都无所谓，不过请不要留空。
+(据说不使用纯英文可能会出现代理软件失效的情况，所以默认设置为`Band Connection`)
 
 如果你想用于路由器可以参考下方这个文档，账户可以通过这个功能生成，祝你有美好的一天~
 https://cczu-ossa.github.io/home/pdf/cczu-cmcc-router.pdf
