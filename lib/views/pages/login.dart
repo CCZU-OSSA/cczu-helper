@@ -87,10 +87,21 @@ class AccountLoginPageState extends State<AccountLoginPage> {
               ),
               TextField(
                 controller: user,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.person),
                   labelText: "账户",
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      ComplexDialog.instance.text(
+                        content: const SelectableText(
+                            "账户就是学号，密码是 一网通办/校园网登录/... 的密码，如果尚未激活账户请前往 http://sso.cczu.edu.cn/sso/active 进行激活"),
+                        title: const Text("说明"),
+                        context: context,
+                      );
+                    },
+                    icon: const Icon(Icons.help),
+                  ),
                 ),
               ),
               const SizedBox(
