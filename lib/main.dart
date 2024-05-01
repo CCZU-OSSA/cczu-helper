@@ -29,8 +29,8 @@ void main() {
       WidgetsFlutterBinding.ensureInitialized();
 
       var logger = ArcheLogger();
-      var platdir = await platDirectory.getValue();
-      var configPath = platdir.subPath("app.config.json");
+      var platDir = await platDirectory.getValue();
+      var configPath = platDir.subPath("app.config.json");
       var config = ArcheConfig.path(configPath);
       logger.info("Application Config Stored in `$configPath`");
 
