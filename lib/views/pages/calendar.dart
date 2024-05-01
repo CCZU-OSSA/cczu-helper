@@ -3,7 +3,9 @@ import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/config.dart';
+import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
+import 'package:cczu_helper/views/services/jwcas/icalendar.dart';
 import 'package:flutter/material.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:intl/intl.dart';
@@ -58,7 +60,10 @@ class CurriculumPageState extends State<CurriculumPage>
                   child: const Text("刷新"),
                 ),
                 FilledButton(
-                  onPressed: () {},
+                  onPressed: () =>
+                      pushMaterialRoute(builder: (BuildContext context) {
+                    return const ICalendarServicePage();
+                  }),
                   child: const Text("生成"),
                 ),
               ].joinElement(
