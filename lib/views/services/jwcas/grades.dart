@@ -35,13 +35,14 @@ class GradeQueryServicePageState extends State<GradeQueryServicePage> {
     });
 
     readAccount().then((value) {
-      if (value == null) {
+      if (value.user == nullUser) {
         ComplexDialog.instance.text(
           context: context,
           content: const Text("账户为空!"),
         );
+      } else {
+        GradesInput(account: value).sendSignalToRust(null);
       }
-      GradesInput(account: value).sendSignalToRust(null);
     });
   }
 

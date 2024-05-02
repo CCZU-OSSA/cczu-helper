@@ -279,7 +279,7 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
       ],
       onSubmit: () {
         readAccount().then((value) {
-          if (value != null) {
+          if (value.user != nullUser) {
             var date =
                 "${firstweekdate.year}${firstweekdate.month.toString().padLeft(2, "0")}${firstweekdate.day.toString().padLeft(2, "0")}";
 

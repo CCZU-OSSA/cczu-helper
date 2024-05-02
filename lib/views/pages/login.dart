@@ -163,9 +163,7 @@ class AccountLoginPageState extends State<AccountLoginPage> {
                                 "跳过登录可能影响某些功能的使用，跳过后，你仍可在设置页面登录你的账户。注意，将会保存框中的 `${user.text}` 账户密码作为缓存到本地。"))
                         .then((value) {
                       if (value) {
-                        writeAccount(AccountWithCookies(
-                                user: user.text, password: password.text))
-                            .then((value) => widget.loginCallback(context));
+                        widget.loginCallback(context);
                       }
                     });
                   },

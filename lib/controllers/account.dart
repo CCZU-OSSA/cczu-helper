@@ -25,10 +25,16 @@ Future<void> saveAccountLoginCallback(AccountLoginCallback callback) async {
   await writeAccount(callback.account);
 }
 
-Future<AccountWithCookies?> readAccount() async {
+const nullUser = "null";
+
+Future<AccountWithCookies> readAccount() async {
   var account = await platAccountFile();
   if (!await account.exists()) {
-    return null;
+    return AccountWithCookies(
+      user: nullUser,
+      password: "",
+      cookies: "",
+    );
   }
 
   var map = jsonDecode(await account.readAsString());
@@ -41,11 +47,13 @@ Future<AccountWithCookies?> readAccount() async {
 }
 
 Future<Optional<AccountWithCookies>> tryReadAccount() async {
-  var data = await readAccount();
-  if (data == null) {
+  var account = await platAccountFile();
+
+  if (await account.exists()) {
     return Optional.empty();
   }
 
+  var data = await readAccount();
   return Optional(value: data);
 }
 
