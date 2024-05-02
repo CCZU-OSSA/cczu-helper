@@ -59,6 +59,7 @@ jobs:
           cargo install rinf
           rinf message
           dart fix --apply
+          dart run flutter_native_splash:create
 
       - name: Build armAll apk
         run: flutter build apk --release
