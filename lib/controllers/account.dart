@@ -49,7 +49,7 @@ Future<AccountWithCookies> readAccount() async {
 Future<Optional<AccountWithCookies>> tryReadAccount() async {
   var account = await platAccountFile();
 
-  if (await account.exists()) {
+  if (!await account.exists()) {
     return Optional.empty();
   }
 

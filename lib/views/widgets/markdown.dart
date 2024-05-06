@@ -2,6 +2,7 @@ import 'package:arche/arche.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class AssetMarkdown extends StatelessWidget {
   final String resource;
@@ -24,6 +25,7 @@ class AssetMarkdown extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         padding: padding,
+        onTapLink: (text, href, title) => launchUrlString(href.toString()),
       ),
     );
   }
