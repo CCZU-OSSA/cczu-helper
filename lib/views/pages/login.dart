@@ -159,8 +159,8 @@ class AccountLoginPageState extends State<AccountLoginPage> {
                         .confirm(
                             context: context,
                             title: const Text("跳过登录?"),
-                            content: Text(
-                                "跳过登录可能影响某些功能的使用，跳过后，你仍可在设置页面登录你的账户。注意，将会保存框中的 `${user.text}` 账户密码作为缓存到本地。"))
+                            content: const Text(
+                                "跳过登录可能影响某些功能的使用，跳过后，你仍可在设置页面登录你的账户。"))
                         .then((value) {
                       if (value) {
                         widget.loginCallback(context);
