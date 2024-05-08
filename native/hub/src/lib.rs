@@ -7,6 +7,7 @@
 use tokio_with_wasm::tokio;
 
 mod account_implents;
+mod app_implements;
 mod jwcas_implments;
 mod messages;
 mod misc_implements;
@@ -25,4 +26,6 @@ async fn main() {
     if cfg!(windows) {
         tokio::spawn(misc_implements::cmcc_account());
     }
+
+    tokio::spawn(app_implements::get_app_version());
 }

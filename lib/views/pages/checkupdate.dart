@@ -1,8 +1,15 @@
+import 'dart:async';
+
 import 'package:arche/arche.dart';
-import 'package:arche/extensions/iter.dart';
-import 'package:cczu_helper/controllers/platform.dart';
+import 'package:cczu_helper/messages/update.pb.dart';
+import 'package:cczu_helper/messages/update.pbserver.dart';
+import 'package:cczu_helper/models/fields.dart';
+import 'package:cczu_helper/models/version.dart';
+import 'package:cczu_helper/views/widgets/adaptive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:rinf/rinf.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class CheckUpdatePage extends StatefulWidget {
@@ -13,102 +20,150 @@ class CheckUpdatePage extends StatefulWidget {
 }
 
 class CheckUpdatePageState extends State<CheckUpdatePage> {
-  bool _busy = true;
-  String status = "空空如也";
-  bool hasUpdate = false;
-  bool ok = true;
-  Map data = {};
+  late StreamSubscription<RustSignal<GetVersionOutput>> _streamVersionOutput;
+  VersionInfo? data;
 
   @override
   void initState() {
     super.initState();
+    _streamVersionOutput = GetVersionOutput.rustSignalStream.listen((event) {
+      var message = event.message;
+      if (message.ok) {
+        setState(() {
+          data = message.data;
+        });
+      } else {
+        data = null;
+      }
+    });
+    GetVersionInput().sendSignalToRust(null);
   }
 
   @override
   void dispose() {
     super.dispose();
+    _streamVersionOutput.cancel();
   }
 
+  // busy fail ok
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("检查更新"),
-      ),
-      body: Center(
-        child: AnimatedSwitcher(
-          duration: Durations.medium4,
-          child: _busy
-              ? const ProgressIndicatorWidget(
-                  data: ProgressIndicatorWidgetData(text: "还没做..."),
-                )
-              : ok
-                  ? hasUpdate
-                      ? Padding(
+        appBar: AppBar(
+          title: const Text("检查更新"),
+        ),
+        body: Center(
+          child: AnimatedSwitcher(
+            duration: Durations.medium4,
+            child: data == null
+                ? const ProgressIndicatorWidget(
+                    data: ProgressIndicatorWidgetData(text: "正在拉取版本信息..."),
+                  )
+                : AdaptiveView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
                           padding: const EdgeInsets.all(8),
-                          child: Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: SingleChildScrollView(
-                                child: SizedBox(
-                                  width: isWideScreen(context)
-                                      ? MediaQuery.of(context).size.width * 0.6
-                                      : null,
-                                  child: Column(
-                                    children: [
-                                      ListTile(
-                                        title: Text(
-                                          data["name"].toString(),
-                                          style: const TextStyle(fontSize: 24),
-                                        ),
-                                      ),
-                                      Markdown(
-                                        data: data["body"],
-                                        shrinkWrap: true,
-                                        onTapLink: (text, href, title) =>
-                                            launchUrlString(href.toString()),
-                                      ),
-                                    ].addAllThen((data["assets"] as List)
-                                        .map(
-                                          (e) => Padding(
-                                            padding: const EdgeInsets.all(4),
-                                            child: FilledButton.icon(
-                                              onPressed: () => launchUrlString(
-                                                  e["browser_download_url"]),
-                                              icon: const Icon(Icons.download),
-                                              label: Center(
-                                                child: Text(e["name"]),
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                        .toList()),
-                                  ),
-                                ),
+                          child: Tooltip(
+                            message: data!.tagName,
+                            child: Text(
+                              data!.name,
+                              style: const TextStyle(
+                                fontSize: 24,
                               ),
                             ),
                           ),
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                        Card.outlined(
+                          child: Markdown(
+                            data: data!.body,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            onTapLink: (text, href, title) =>
+                                launchUrlString(href.toString()),
+                          ),
+                        ),
+                        Column(
+                          children: data!.assets
+                              .map(
+                                (e) => ListTile(
+                                    leading: const Icon(FontAwesomeIcons.file),
+                                    title: Tooltip(
+                                      message: e.name,
+                                      child: Text(
+                                        e.name,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                        "${(e.size / 1024 / 1024).toStringAsFixed(2)} MB"),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Tooltip(
+                                          message: "下载",
+                                          child: IconButton(
+                                            onPressed: () => launchUrlString(
+                                                e.browserDownloadUrl),
+                                            icon: const Icon(Icons.download),
+                                          ),
+                                        ),
+                                        Tooltip(
+                                          message: "镜像下载",
+                                          child: IconButton(
+                                            onPressed: () => launchUrlString(
+                                                "https://mirror.ghproxy.com/${e.browserDownloadUrl}"),
+                                            icon: const Icon(
+                                                FontAwesomeIcons.server),
+                                          ),
+                                        )
+                                      ],
+                                    )),
+                              )
+                              .toList(),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: getVersionfromString(data!.tagName) !=
+                                    appVersion
+                                ? ActionChip(
+                                    backgroundColor: Colors.amber,
+                                    avatar: Icon(
+                                      Icons.warning,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onBackground,
+                                    ),
+                                    label: Text(
+                                        getVersionfromString(data!.tagName) <
+                                                appVersion
+                                            ? "正在使用测试版本"
+                                            : "有可用更新"),
+                                    onPressed: () => launchUrlString(
+                                        "https://github.com/CCZU-OSSA/cczu-helper/releases/latest"),
+                                  )
+                                : Chip(
+                                    backgroundColor: Colors.green,
+                                    avatar: Icon(
+                                      Icons.check,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onBackground,
+                                    ),
+                                    label: const Text("已是最新版本"),
+                                  ),
+                          ),
                         )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                              const Icon(
-                                Icons.check,
-                                size: 48,
-                              ),
-                              Text(status)
-                            ])
-                  : ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _busy = true;
-                        });
-                      },
-                      label: const Text("重试"),
-                      icon: const Icon(Icons.refresh),
+                      ],
                     ),
-        ),
-      ),
-    );
+                  ),
+          ),
+        ));
   }
 }
