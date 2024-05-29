@@ -182,7 +182,7 @@ https://cczu-ossa.github.io/home/pdf/cczu-cmcc-router.pdf
                       setState(() {});
                     } else {
                       CMCCAccountGenerateInput(phone: _phoneTextController.text)
-                          .sendSignalToRust(null);
+                          .sendSignalToRust();
                     }
                   },
                   child: const Text("生成"),

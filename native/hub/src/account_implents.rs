@@ -16,7 +16,7 @@ pub async fn login() {
                 account: None,
                 error: Some(message),
             }
-            .send_signal_to_dart(None)
+            .send_signal_to_dart()
         } else {
             let client = login_client.unwrap();
             let mut cookies: Cursor<Vec<u8>> = Cursor::default();
@@ -37,7 +37,7 @@ pub async fn login() {
                 }),
                 error: None,
             }
-            .send_signal_to_dart(None)
+            .send_signal_to_dart()
         }
     }
 }

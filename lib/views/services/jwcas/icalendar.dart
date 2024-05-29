@@ -287,7 +287,7 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
               firstweekdate: date,
               reminder: reminder,
               account: value,
-            ).sendSignalToRust(null);
+            ).sendSignalToRust();
             setState(() {
               _underGenerating = true;
             });

@@ -579,9 +579,9 @@ checksum = "4271d37baee1b8c7e4b708028c57d816cf9d2434acb33a549475f78c181f6253"
 
 [[package]]
 name = "guid-create"
-version = "0.3.1"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "523933167d2fe3685898d235d6b84c578b2414c446f865a0c405977ef0345980"
+checksum = "18ba199d9cea511bf640de7be32526d37bafaabce8243dc0547255a71be992ba"
 dependencies = [
  "rand",
  "winapi",
@@ -692,8 +692,7 @@ dependencies = [
  "rinf",
  "serde",
  "serde_json",
- "tokio_with_wasm",
- "wasm-bindgen",
+ "tokio",
  "windows",
 ]
 
@@ -1476,9 +1475,9 @@ dependencies = [
 
 [[package]]
 name = "rinf"
-version = "6.7.0"
+version = "6.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cac0dc63e157673747bd0286a8565762fd34d0890ff7eedb90eba035dfa4c43"
+checksum = "98f1b27aa6162f66d6f2c74561041e2082306dd1f04fcb0e99a5a540bd1b760f"
 dependencies = [
  "allo-isolate",
  "backtrace",
@@ -1950,20 +1949,6 @@ dependencies = [
  "pin-project-lite",
  "tokio",
  "tracing",
-]
-
-[[package]]
-name = "tokio_with_wasm"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9e6a955eb27969f01cdc13784eb46dbadda5f75dee2de887bd538ba987a87b8"
-dependencies = [
- "futures-channel",
- "js-sys",
- "tokio",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
 ]
 
 [[package]]

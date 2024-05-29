@@ -29,14 +29,14 @@ pub async fn get_app_version() {
                 }),
                 error: None,
             }
-            .send_signal_to_dart(None)
+            .send_signal_to_dart()
         } else {
             GetVersionOutput {
                 ok: false,
                 data: None,
                 error: Some("获取失败".into()),
             }
-            .send_signal_to_dart(None)
+            .send_signal_to_dart()
         }
     }
 }

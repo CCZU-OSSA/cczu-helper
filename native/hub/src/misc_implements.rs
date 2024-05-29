@@ -24,6 +24,6 @@ pub async fn cmcc_account() {
         CmccAccountGenerateOutput {
             account: generate_account(&signal.message.phone),
         }
-        .send_signal_to_dart(None)
+        .send_signal_to_dart()
     }
 }

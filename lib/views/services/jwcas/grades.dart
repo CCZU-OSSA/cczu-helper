@@ -41,7 +41,7 @@ class GradeQueryServicePageState extends State<GradeQueryServicePage> {
           content: const Text("账户为空!"),
         );
       } else {
-        GradesInput(account: value).sendSignalToRust(null);
+        GradesInput(account: value).sendSignalToRust();
       }
     });
   }

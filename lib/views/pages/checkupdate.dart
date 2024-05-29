@@ -36,7 +36,7 @@ class CheckUpdatePageState extends State<CheckUpdatePage> {
         data = null;
       }
     });
-    GetVersionInput().sendSignalToRust(null);
+    GetVersionInput().sendSignalToRust();
   }
 
   @override
@@ -138,7 +138,7 @@ class CheckUpdatePageState extends State<CheckUpdatePage> {
                                       Icons.warning,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .onBackground,
+                                          .onSurface,
                                     ),
                                     label: Text(
                                         getVersionfromString(data!.tagName) <
@@ -154,7 +154,7 @@ class CheckUpdatePageState extends State<CheckUpdatePage> {
                                       Icons.check,
                                       color: Theme.of(context)
                                           .colorScheme
-                                          .onBackground,
+                                          .onSurface,
                                     ),
                                     label: const Text("已是最新版本"),
                                   ),

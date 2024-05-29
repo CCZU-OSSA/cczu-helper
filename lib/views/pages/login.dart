@@ -138,7 +138,7 @@ class AccountLoginPageState extends State<AccountLoginPage> {
                       AccountLogin(
                         user: user.text,
                         password: password.text,
-                      ).sendSignalToRust(null);
+                      ).sendSignalToRust();
                     });
                   },
                   child: const Text("登录")),
@@ -197,7 +197,7 @@ class AccountLoginPageState extends State<AccountLoginPage> {
                 AccountLogin(
                   user: data.value!.user,
                   password: data.value!.password,
-                ).sendSignalToRust(null);
+                ).sendSignalToRust();
               }
             }
 

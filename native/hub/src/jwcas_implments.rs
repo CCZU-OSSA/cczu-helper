@@ -22,7 +22,7 @@ pub async fn generate_icalendar() {
                 ok: false,
                 data: messgae,
             }
-            .send_signal_to_dart(None)
+            .send_signal_to_dart()
         } else {
             let client = login_info.unwrap();
             let app: JwcasApplication = client.visit_application();
@@ -35,13 +35,13 @@ pub async fn generate_icalendar() {
                     ok: true,
                     data: calendar.to_string(),
                 }
-                .send_signal_to_dart(None)
+                .send_signal_to_dart()
             } else {
                 ICalendarOutput {
                     ok: false,
                     data: "生成错误".into(),
                 }
-                .send_signal_to_dart(None)
+                .send_signal_to_dart()
             }
         }
     }
@@ -59,7 +59,7 @@ pub async fn get_grades() {
                 data: vec![],
                 error: Some(error),
             }
-            .send_signal_to_dart(None)
+            .send_signal_to_dart()
         } else {
             let client = login_info.unwrap();
             let app: JwcasApplication = client.visit_application();
@@ -71,7 +71,7 @@ pub async fn get_grades() {
                     data: vec![],
                     error: Some(error),
                 }
-                .send_signal_to_dart(None)
+                .send_signal_to_dart()
             } else {
                 GradesOutput {
                     ok: true,
@@ -86,7 +86,7 @@ pub async fn get_grades() {
                         .collect(),
                     error: None,
                 }
-                .send_signal_to_dart(None)
+                .send_signal_to_dart()
             }
         }
     }

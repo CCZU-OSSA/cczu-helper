@@ -4,7 +4,7 @@
 // This `tokio` will be used by Rinf.
 // You can replace it with the original `tokio`
 // if you're not targeting the web.
-use tokio_with_wasm::tokio;
+use tokio;
 
 mod account_implents;
 mod app_implements;
