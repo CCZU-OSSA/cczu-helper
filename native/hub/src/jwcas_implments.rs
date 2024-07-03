@@ -1,4 +1,4 @@
-use cczu_client_api::{
+use cczu_client_api::sso::{
     app::{
         jwcas::JwcasApplication, jwcas_calendar::JwcasApplicationCalendarExt,
         jwcas_calendar_type::Schedule,
@@ -12,7 +12,7 @@ use crate::messages::{
 };
 
 pub async fn generate_icalendar() {
-    let mut rev = ICalendarInput::get_dart_signal_receiver();
+    let mut rev = ICalendarInput::get_dart_signal_receiver().unwrap();
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
         let account = message.account.unwrap();
@@ -24,31 +24,34 @@ pub async fn generate_icalendar() {
             }
             .send_signal_to_dart()
         } else {
-            let client = login_info.unwrap();
-            let app: JwcasApplication = client.visit_application();
-            app.login().await.unwrap();
-            let data = app
-                .generate_icalendar(message.firstweekdate, Schedule::default(), message.reminder)
-                .await;
-            if let Some(calendar) = data {
-                ICalendarOutput {
-                    ok: true,
-                    data: calendar.to_string(),
+            let app: JwcasApplication = login_info.unwrap().visit_application();
+            {
+                let data = app
+                    .generate_icalendar(
+                        message.firstweekdate,
+                        Schedule::default(),
+                        message.reminder,
+                    )
+                    .await;
+                if let Some(calendar) = data {
+                    ICalendarOutput {
+                        ok: true,
+                        data: calendar.to_string(),
+                    }
+                    .send_signal_to_dart()
+                } else {
+                    ICalendarOutput {
+                        ok: false,
+                        data: "生成错误".into(),
+                    }
+                    .send_signal_to_dart()
                 }
-                .send_signal_to_dart()
-            } else {
-                ICalendarOutput {
-                    ok: false,
-                    data: "生成错误".into(),
-                }
-                .send_signal_to_dart()
             }
         }
     }
 }
-
 pub async fn get_grades() {
-    let mut rev = GradesInput::get_dart_signal_receiver();
+    let mut rev = GradesInput::get_dart_signal_receiver().unwrap();
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
         let account = message.account.unwrap();
@@ -61,8 +64,7 @@ pub async fn get_grades() {
             }
             .send_signal_to_dart()
         } else {
-            let client = login_info.unwrap();
-            let app: JwcasApplication = client.visit_application();
+            let app: JwcasApplication = login_info.unwrap().visit_application();
             app.login().await.unwrap();
             let grades = app.get_gradeinfo_vec().await;
             if let Err(error) = grades {

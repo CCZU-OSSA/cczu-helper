@@ -8,6 +8,7 @@ use tokio;
 
 mod account_implents;
 mod app_implements;
+mod fields;
 mod jwcas_implments;
 mod messages;
 mod misc_implements;
@@ -23,6 +24,7 @@ async fn main() {
     tokio::spawn(account_implents::login());
     tokio::spawn(jwcas_implments::generate_icalendar());
     tokio::spawn(jwcas_implments::get_grades());
+
     if cfg!(windows) {
         tokio::spawn(misc_implements::cmcc_account());
     }

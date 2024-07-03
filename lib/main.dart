@@ -19,15 +19,15 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:rinf/rinf.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 void main() {
   runZonedGuarded(
     () async {
-      await initializeRust();
       WidgetsFlutterBinding.ensureInitialized();
-
+      await initializeRust(assignRustSignal);
       var logger = ArcheLogger();
       var platDir = await platDirectory.getValue();
       var configPath = platDir.subPath("app.config.json");
@@ -103,7 +103,7 @@ class MainApplicationState extends State<MainApplication>
 
   final _appLifecycleListener = AppLifecycleListener(
     onExitRequested: () async {
-      await finalizeRust();
+      finalizeRust();
       return AppExitResponse.exit;
     },
   );

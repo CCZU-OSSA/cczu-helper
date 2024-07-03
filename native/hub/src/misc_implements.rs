@@ -19,7 +19,7 @@ fn generate_account(phone: &str) -> String {
 }
 
 pub async fn cmcc_account() {
-    let mut rev = CmccAccountGenerateInput::get_dart_signal_receiver();
+    let mut rev = CmccAccountGenerateInput::get_dart_signal_receiver().unwrap();
     while let Some(signal) = rev.recv().await {
         CmccAccountGenerateOutput {
             account: generate_account(&signal.message.phone),

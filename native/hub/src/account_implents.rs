@@ -1,11 +1,11 @@
 use std::io::Cursor;
 
-use cczu_client_api::{client::UserClient, universal::UniversalClient};
+use cczu_client_api::{base::client::AuthClient, sso::universal::UniversalClient};
 
 use crate::messages::account::{AccountLogin, AccountLoginCallback, AccountWithCookies};
 
 pub async fn login() {
-    let mut rev = AccountLogin::get_dart_signal_receiver();
+    let mut rev = AccountLogin::get_dart_signal_receiver().unwrap();
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
         let login_client =
