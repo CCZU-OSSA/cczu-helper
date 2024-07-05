@@ -48,7 +48,7 @@ class AccountManagePageState extends State<AccountManagePage>
                     builder: (context) => AddAccountPage(
                       account: element,
                       accountType: accountType.first,
-                      callback: () => refreshMounted(),
+                      callback: refreshMounted,
                     ),
                   );
                 },
@@ -91,7 +91,7 @@ class AccountManagePageState extends State<AccountManagePage>
         onPressed: () => pushMaterialRoute(
           builder: (context) => AddAccountPage(
             accountType: accountType.first,
-            callback: () => refreshMounted(),
+            callback: refreshMounted,
           ),
         ),
         child: const Icon(Icons.add),
@@ -222,8 +222,11 @@ class _AddAccountPageState extends State<AddAccountPage> {
               ),
               Align(
                 alignment: Alignment.centerRight,
-                child:
-                    FilledButton(onPressed: () {}, child: const Text("测试登录")),
+                child: FilledButton(
+                    onPressed: () {
+                      //TODO
+                    },
+                    child: const Text("测试登录")),
               )
             ],
           ),

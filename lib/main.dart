@@ -122,6 +122,20 @@ class MainApplicationState extends State<MainApplication>
     _appLifecycleListener.dispose();
   }
 
+  ColorScheme _generateColorScheme(ColorScheme? scheme,
+      [Brightness? brightness]) {
+    ColorScheme newScheme;
+    if (scheme case final scheme?) {
+      newScheme = ColorScheme.fromSeed(
+          seedColor: scheme.primary, brightness: scheme.brightness);
+    } else {
+      newScheme = ColorScheme.fromSeed(
+          seedColor: Colors.blue, brightness: brightness ?? Brightness.light);
+    }
+
+    return newScheme.harmonized();
+  }
+
   @override
   Widget build(BuildContext context) {
     var useSystemFont = configs.useSystemFont.getOr(true);
@@ -159,14 +173,16 @@ class MainApplicationState extends State<MainApplication>
             brightness: Brightness.dark,
             fontFamily: useSystemFont ? null : "Default",
             useMaterial3: true,
-            colorScheme: darkDynamic ?? _defaultDarkColorScheme,
+            colorScheme: _generateColorScheme(
+                darkDynamic ?? _defaultDarkColorScheme, Brightness.dark),
             typography: Typography.material2021(),
           ),
           theme: ThemeData(
             brightness: Brightness.light,
             fontFamily: useSystemFont ? null : "Default",
             useMaterial3: true,
-            colorScheme: lightDynamic ?? _defaultLightColorScheme,
+            colorScheme:
+                _generateColorScheme(lightDynamic ?? _defaultLightColorScheme),
             typography: Typography.material2021(),
           ),
           themeMode: configs.themeMode.getOr(ThemeMode.system),
