@@ -57,21 +57,23 @@ class WeChatGradeQueryServicePageState
                               child: Column(
                                 children: [
                                   ListTile(
-                                    title: Text(course.className),
+                                    title: Text(course.courseName),
                                   ),
                                   const Divider(),
                                   ListTile(
                                     title: const Text("平时成绩"),
-                                    trailing:
-                                        Text(course.usualGrade.toString()),
+                                    trailing: Text(
+                                        course.usualGrade.toStringAsFixed(1)),
                                   ),
                                   ListTile(
                                     title: const Text("期中成绩"),
-                                    trailing: Text(course.midGrade.toString()),
+                                    trailing: Text(
+                                        course.midGrade.toStringAsFixed(1)),
                                   ),
                                   ListTile(
                                     title: const Text("期末成绩"),
-                                    trailing: Text(course.endGrade.toString()),
+                                    trailing: Text(
+                                        course.endGrade.toStringAsFixed(1)),
                                   ),
                                   ListTile(
                                     title: const Text("总评"),
