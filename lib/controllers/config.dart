@@ -22,10 +22,6 @@ class ApplicationConfigs {
   final ConfigEntry<T> Function<T>(String key) generator;
   const ApplicationConfigs(this.generator);
 
-  ConfigEntry<String> get currentAccountName =>
-      generator<String>("currentaccount");
-  ConfigEntry<String> get termid => generator("termid");
-  ConfigEntry<String> get termname => generator("termname");
   ConfigEntry<bool> get useSystemFont => generator("usesystemfont");
   ConfigEntry<bool> get showBar => generator("showbar");
   ConfigEntryConverter<int, ThemeMode> get themeMode => ConfigEntryConverter(
@@ -44,7 +40,6 @@ class ApplicationConfigs {
         },
       );
   ConfigEntry<bool> get autosavelog => generator("autosavelog");
-  ConfigEntry<bool> get skipLoginPage => generator("skiploginpage");
   ConfigEntry<bool> get skipServiceExitConfirm =>
       generator("skipserviceexitconfirm");
   ConfigEntry<bool> get notificationsEnable =>

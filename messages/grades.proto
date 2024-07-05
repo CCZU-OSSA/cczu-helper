@@ -6,7 +6,7 @@ import "account.proto";
 
 // [RINF:DART-SIGNAL]
 message GradesInput {
-    account.AccountWithCookies account = 3;
+    account.AccountData account = 3;
 }
 
 message GradeData {
@@ -19,5 +19,28 @@ message GradeData {
 message GradesOutput {
     bool ok = 1;
     repeated GradeData data = 2;
+    optional string error = 3;
+}
+
+// [RINF:DART-SIGNAL]
+message WeChatGradesInput {
+    account.AccountData account = 3;
+}
+
+message WeChatGradeData {
+    string class_name = 1;
+    string course_name = 2;
+    int32 term = 3;
+    float credits = 4;
+    float usual_grade = 5;
+    float mid_grade = 6;
+    float end_grade = 7;
+    string exam_grade = 8;
+}
+
+// [RINF:RUST-SIGNAL]
+message WeChatGradesOutput {
+    bool ok = 1;
+    repeated WeChatGradeData data = 2;
     optional string error = 3;
 }

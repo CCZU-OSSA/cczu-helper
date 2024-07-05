@@ -73,7 +73,7 @@ pub async fn get_grades() {
                     data: vec![],
                     error: Some(error),
                 }
-                .send_signal_to_dart()
+                .send_signal_to_dart();
             } else {
                 GradesOutput {
                     ok: true,
@@ -88,7 +88,8 @@ pub async fn get_grades() {
                         .collect(),
                     error: None,
                 }
-                .send_signal_to_dart()
+                .send_signal_to_dart();
+                
             }
         }
     }

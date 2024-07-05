@@ -1,11 +1,9 @@
-use std::io::Cursor;
+use cczu_client_api::sso::universal::UniversalClient;
 
-use cczu_client_api::{base::client::AuthClient, sso::universal::UniversalClient};
+use crate::messages::account::{AccountData, AccountLoginCallback};
 
-use crate::messages::account::{AccountLogin, AccountLoginCallback, AccountWithCookies};
-
-pub async fn login() {
-    let mut rev = AccountLogin::get_dart_signal_receiver().unwrap();
+pub async fn ssologin() {
+    let mut rev = AccountData::get_dart_signal_receiver().unwrap();
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
         let login_client =
@@ -18,22 +16,11 @@ pub async fn login() {
             }
             .send_signal_to_dart()
         } else {
-            let client = login_client.unwrap();
-            let mut cookies: Cursor<Vec<u8>> = Cursor::default();
-
-            client
-                .get_cookies()
-                .lock()
-                .unwrap()
-                .save_json(&mut cookies)
-                .unwrap();
-
             AccountLoginCallback {
                 ok: true,
-                account: Some(AccountWithCookies {
+                account: Some(AccountData {
                     user: message.user,
                     password: message.password,
-                    cookies: String::from_utf8(cookies.into_inner()).unwrap(),
                 }),
                 error: None,
             }

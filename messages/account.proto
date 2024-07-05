@@ -3,20 +3,14 @@ package account;
 
 
 // [RINF:DART-SIGNAL]
-message AccountLogin {
+message AccountData {
     string user = 1;
     string password = 2;
-}
-
-message AccountWithCookies {
-    string user = 1;
-    string password = 2;
-    string cookies = 3;
 }
 
 // [RINF:RUST-SIGNAL]
 message AccountLoginCallback {
     bool ok = 1;
-    optional AccountWithCookies account = 2;
+    optional AccountData account = 2;
     optional string error = 3;
 }

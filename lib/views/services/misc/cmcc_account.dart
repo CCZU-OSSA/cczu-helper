@@ -85,7 +85,7 @@ class CMCCAccountServiceState extends State<CMCCAccoutService> {
                       ComplexDialog.instance.text(
                         title: const Text("说明"),
                         content: const SelectableText("""
-此功能受GUID所限制，仅适用于Windows端，如果你是Mac/Linux相必你早已向客服说明将账户改为你的手机号。
+此功能受GUID所限制，仅适用于Windows端，如果你是Mac/Linux用户想必你早已向客服说明将账户改为你的手机号。
 
 这个功能是用来取代移动的上网助手的，上网助手的通过加密账户(PPPoE拨号账户)创建宽带连接，而这个功能将会直接给你PPPoE拨号账户进行取舍。
 

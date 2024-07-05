@@ -6,10 +6,11 @@
 // if you're not targeting the web.
 use tokio;
 
-mod account_implents;
+mod account_implments;
 mod app_implements;
 mod fields;
 mod jwcas_implments;
+mod jwqywx_implement;
 mod messages;
 mod misc_implements;
 rinf::write_interface!();
@@ -21,9 +22,10 @@ rinf::write_interface!();
 async fn main() {
     // Repeat `tokio::spawn` anywhere in your code
     // if more concurrent tasks are needed.
-    tokio::spawn(account_implents::login());
+    tokio::spawn(account_implments::ssologin());
     tokio::spawn(jwcas_implments::generate_icalendar());
     tokio::spawn(jwcas_implments::get_grades());
+    tokio::spawn(jwqywx_implement::get_grades());
 
     if cfg!(windows) {
         tokio::spawn(misc_implements::cmcc_account());

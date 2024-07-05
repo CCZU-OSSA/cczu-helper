@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
-import 'package:cczu_helper/controllers/account.dart';
+import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/messages/icalendar.pb.dart';
 import 'package:cczu_helper/views/widgets/adaptive.dart';
@@ -278,23 +278,17 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
         ),
       ],
       onSubmit: () {
-        readAccount().then((value) {
-          if (value.user != nullUser) {
-            var date =
-                "${firstweekdate.year}${firstweekdate.month.toString().padLeft(2, "0")}${firstweekdate.day.toString().padLeft(2, "0")}";
+        var date =
+            "${firstweekdate.year}${firstweekdate.month.toString().padLeft(2, "0")}${firstweekdate.day.toString().padLeft(2, "0")}";
 
-            ICalendarInput(
-              firstweekdate: date,
-              reminder: reminder,
-              account: value,
-            ).sendSignalToRust();
-            setState(() {
-              _underGenerating = true;
-            });
-          } else {
-            ComplexDialog.instance
-                .text(context: context, title: const Text("账户读取错误"));
-          }
+        ICalendarInput(
+          firstweekdate: date,
+          reminder: reminder,
+          account: ArcheBus.bus.of<MultiAccoutData>().getCurrentSSOAccount(),
+        ).sendSignalToRust();
+
+        setState(() {
+          _underGenerating = true;
         });
       },
     );

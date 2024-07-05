@@ -6,13 +6,14 @@ import 'dart:ui';
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
+import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/calendar.dart';
-import 'package:cczu_helper/views/pages/login.dart';
+import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/services.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -45,6 +46,13 @@ void main() {
       }
 
       logger.info("Run Application in `main`...");
+      logger.info("Try to load `MultiAccountData`");
+
+      if (await MultiAccoutData.hasAccountsFile()) {
+        bus.provide((await MultiAccoutData.readAccounts())!);
+      } else {
+        logger.warn("Can't find `accounts.json`");
+      }
 
       runApp(
         MainApplication(key: rootKey),
@@ -177,8 +185,8 @@ class MainView extends StatefulWidget {
 }
 
 class MainViewState extends State<MainView> with RefreshMountedStateMixin {
-  bool _loginReady = false;
   int currentIndex = 0;
+
   var viewItems = [
     NavigationItem(
       icon: const Icon(Icons.calendar_month),
@@ -201,7 +209,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     ),
   ];
   late ApplicationConfigs configs;
-
+  bool skipAccountsCheck = false;
   @override
   void initState() {
     super.initState();
@@ -267,14 +275,14 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     bool isDark = themeMode == ThemeMode.system
         ? MediaQuery.of(context).platformBrightness == Brightness.dark
         : themeMode == ThemeMode.dark;
-
-    if (!_loginReady && !configs.skipLoginPage.getOr(false)) {
-      return AccountLoginPage(
-        loginCallback: (context) {
-          _loginReady = true;
-          refreshMounted();
+    if (!skipAccountsCheck && !ArcheBus.bus.has<MultiAccoutData>()) {
+      return AccountManagePage(backButton: BackButton(
+        onPressed: () {
+          setState(() {
+            skipAccountsCheck = true;
+          });
         },
-      );
+      ));
     }
 
     return Scaffold(

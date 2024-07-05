@@ -8,7 +8,7 @@ import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/models/version.dart';
 import 'package:cczu_helper/views/pages/checkupdate.dart';
 import 'package:cczu_helper/views/pages/log.dart';
-import 'package:cczu_helper/views/pages/login.dart';
+import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/notifications.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
@@ -52,28 +52,8 @@ class SettingsPageState extends State<SettingsPage> {
                     trailing: const Icon(Icons.arrow_right),
                     onTap: () {
                       pushMaterialRoute(
-                        builder: (context) => Scaffold(
-                          appBar: AppBar(
-                            title: const Text("账户"),
-                          ),
-                          body: AccountLoginPage(
-                            autoLogin: false,
-                            loginCallback: (context) =>
-                                Navigator.of(context).pop(),
-                          ),
-                        ),
+                        builder: (context) => const AccountManagePage(),
                       );
-                    },
-                  ),
-                  SwitchListTile(
-                    secondary: const Icon(Icons.login),
-                    title: const Text("跳过登录页"),
-                    subtitle: const Text("Skip Login"),
-                    value: configs.skipLoginPage.getOr(false),
-                    onChanged: (value) {
-                      setState(() {
-                        configs.skipLoginPage.write(value);
-                      });
                     },
                   ),
                   Visibility(
@@ -99,7 +79,7 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                   SwitchListTile(
                     secondary: const Icon(Icons.skip_next),
-                    title: const Text("跳过多步退出确认"),
+                    title: const Text("跳过退出确认"),
                     subtitle: const Text("Skip Service Exit Confirm"),
                     value: configs.skipServiceExitConfirm.getOr(false),
                     onChanged: (value) {
