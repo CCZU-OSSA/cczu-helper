@@ -167,14 +167,15 @@ class _AddAccountPageState extends State<AddAccountPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           var data = ArcheBus.bus.provideof(instance: MultiAccoutData.template);
-          data.addAccount(
-              AccountData(
-                user: user.text,
-                password: password.text,
-              ),
-              widget.accountType);
+          var account = AccountData(
+            user: user.text,
+            password: password.text,
+          );
+          data.addAccount(account, widget.accountType);
           if (widget.account != null) {
             data.deleteAccount(widget.account!, widget.accountType);
+          } else {
+            data.current[widget.accountType.name] = account;
           }
           data.writeAccounts().then((_) {
             Navigator.of(context).pop();

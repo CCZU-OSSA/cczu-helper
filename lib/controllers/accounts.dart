@@ -59,6 +59,7 @@ class MultiAccoutData {
   AccountData getCurrentSSOAccount() => current[AccountType.sso.name] ?? _empty;
   AccountData getCurrentEduAccount() => current[AccountType.edu.name] ?? _empty;
 
+
   List<AccountData> getSSOAccounts() => getAccounts(AccountType.sso);
   List<AccountData> getEduAccounts() => getAccounts(AccountType.edu);
 

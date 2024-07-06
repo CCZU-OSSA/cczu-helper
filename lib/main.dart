@@ -142,54 +142,55 @@ class MainApplicationState extends State<MainApplication>
     var useSystemFont = configs.useSystemFont.getOr(true);
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) => MaterialApp(
-          scaffoldMessengerKey: messagerKey,
-          localizationsDelegates: const [
-            GlobalWidgetsLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            SfGlobalLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale.fromSubtags(languageCode: 'zh'), // generic Chinese 'zh'
-            Locale.fromSubtags(
-                languageCode: 'zh',
-                scriptCode: 'Hans'), // generic simplified Chinese 'zh_Hans'
-            Locale.fromSubtags(
-                languageCode: 'zh',
-                scriptCode: 'Hant'), // generic traditional Chinese 'zh_Hant'
-            Locale.fromSubtags(
-                languageCode: 'zh',
-                scriptCode: 'Hans',
-                countryCode: 'CN'), // 'zh_Hans_CN'
-            Locale.fromSubtags(
-                languageCode: 'zh',
-                scriptCode: 'Hant',
-                countryCode: 'TW'), // 'zh_Hant_TW'
-            Locale.fromSubtags(
-                languageCode: 'zh',
-                scriptCode: 'Hant',
-                countryCode: 'HK'), // 'zh_Hant_HK'
-          ],
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            fontFamily: useSystemFont ? null : "Default",
-            useMaterial3: true,
-            colorScheme: _generateColorScheme(
-                darkDynamic ?? _defaultDarkColorScheme, Brightness.dark),
-            typography: Typography.material2021(),
-          ),
-          theme: ThemeData(
-            brightness: Brightness.light,
-            fontFamily: useSystemFont ? null : "Default",
-            useMaterial3: true,
-            colorScheme:
-                _generateColorScheme(lightDynamic ?? _defaultLightColorScheme),
-            typography: Typography.material2021(),
-          ),
-          themeMode: configs.themeMode.getOr(ThemeMode.system),
-          home: MainView(
-            key: viewKey,
-          )),
+        scaffoldMessengerKey: messagerKey,
+        localizationsDelegates: const [
+          GlobalWidgetsLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          SfGlobalLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale.fromSubtags(languageCode: 'zh'), // generic Chinese 'zh'
+          Locale.fromSubtags(
+              languageCode: 'zh',
+              scriptCode: 'Hans'), // generic simplified Chinese 'zh_Hans'
+          Locale.fromSubtags(
+              languageCode: 'zh',
+              scriptCode: 'Hant'), // generic traditional Chinese 'zh_Hant'
+          Locale.fromSubtags(
+              languageCode: 'zh',
+              scriptCode: 'Hans',
+              countryCode: 'CN'), // 'zh_Hans_CN'
+          Locale.fromSubtags(
+              languageCode: 'zh',
+              scriptCode: 'Hant',
+              countryCode: 'TW'), // 'zh_Hant_TW'
+          Locale.fromSubtags(
+              languageCode: 'zh',
+              scriptCode: 'Hant',
+              countryCode: 'HK'), // 'zh_Hant_HK'
+        ],
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          fontFamily: useSystemFont ? null : "Default",
+          useMaterial3: true,
+          colorScheme: _generateColorScheme(
+              darkDynamic ?? _defaultDarkColorScheme, Brightness.dark),
+          typography: Typography.material2021(),
+        ),
+        theme: ThemeData(
+          brightness: Brightness.light,
+          fontFamily: useSystemFont ? null : "Default",
+          useMaterial3: true,
+          colorScheme:
+              _generateColorScheme(lightDynamic ?? _defaultLightColorScheme),
+          typography: Typography.material2021(),
+        ),
+        themeMode: configs.themeMode.getOr(ThemeMode.system),
+        home: MainView(
+          key: viewKey,
+        ),
+      ),
     );
   }
 }

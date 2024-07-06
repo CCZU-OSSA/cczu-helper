@@ -61,23 +61,14 @@ class GradeQueryServicePageState extends State<GradeQueryServicePage> {
                       ));
             },
           ),
-          body: RefreshIndicator(
-            child: ListView(
-              children: message.data
-                  .map((e) => ListTile(
-                        title: Text(e.name),
-                        subtitle: Text(e.point),
-                        trailing: Text(e.grade.trim().isEmpty ? "暂无" : e.grade),
-                      ))
-                  .toList(),
-            ),
-            onRefresh: () async {
-              GradesInput(
-                      account: ArcheBus.bus
-                          .of<MultiAccoutData>()
-                          .getCurrentSSOAccount())
-                  .sendSignalToRust();
-            },
+          body: ListView(
+            children: message.data
+                .map((e) => ListTile(
+                      title: Text(e.name),
+                      subtitle: Text(e.point),
+                      trailing: Text(e.grade.trim().isEmpty ? "暂无" : e.grade),
+                    ))
+                .toList(),
           ),
         );
       },

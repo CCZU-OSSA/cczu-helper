@@ -12,7 +12,7 @@ class WeChatGradeQueryServicePage extends StatefulWidget {
 
 class WeChatGradeQueryServicePageState
     extends State<WeChatGradeQueryServicePage> {
-  List<bool> showTerm = [true, true, true, true, true, true, true, true];
+  List<bool> showTerm = List.filled(8, false);
   bool onlyResit = false;
   bool onlyRebuild = false;
   @override
@@ -38,12 +38,17 @@ class WeChatGradeQueryServicePageState
           );
         }
         var message = signal.message;
+        int curTerm = message.data.fold(
+            0, (term, element) => term < element.term ? element.term : term);
+
+        showTerm[curTerm - 1] = true;
+
         List<Widget> items = message.data.map((course) {
           var examGrade = double.tryParse(course.examGrade) ?? 100;
           var resit = examGrade < 60;
           var rebuild = examGrade < 45;
           bool visible = showTerm[course.term - 1];
-
+          curTerm = curTerm < course.term ? course.term : curTerm;
           Color? examColor;
           if (rebuild) {
             examColor = Colors.red;
@@ -110,7 +115,7 @@ class WeChatGradeQueryServicePageState
               padding: const EdgeInsets.all(8),
               child: Wrap(
                 spacing: 8,
-                runSpacing: 8,
+                runSpacing: 6,
                 children: [
                   FilterChip(
                     label: const Text("大一上"),
@@ -185,7 +190,7 @@ class WeChatGradeQueryServicePageState
                     },
                   ),
                   FilterChip.elevated(
-                    label: const Text("补考"),
+                    label: const Text("仅补考"),
                     selected: onlyResit,
                     onSelected: (bool value) {
                       setState(() {
@@ -194,7 +199,7 @@ class WeChatGradeQueryServicePageState
                     },
                   ),
                   FilterChip.elevated(
-                    label: const Text("重修"),
+                    label: const Text("仅重修"),
                     selected: onlyRebuild,
                     onSelected: (bool value) {
                       setState(() {
@@ -213,45 +218,37 @@ class WeChatGradeQueryServicePageState
           height: 80,
         ));
         return Scaffold(
-            appBar: AppBar(),
-            floatingActionButton: SearchAnchor(
-              builder: (context, controller) => FloatingActionButton(
-                onPressed: () {
-                  controller.openView();
-                },
-                child: const Icon(Icons.search),
-              ),
-              suggestionsBuilder:
-                  (BuildContext context, SearchController controller) {
-                return message.data
-                    .where((element) => element.courseName
-                        .toLowerCase()
-                        .contains(controller.text.toLowerCase()))
-                    .map(
-                      (e) => ListTile(
-                        title: Text(e.courseName),
-                        subtitle: Text(e.credits.toStringAsFixed(1)),
-                        trailing: Text(e.examGrade),
-                      ),
-                    );
+          appBar: AppBar(),
+          floatingActionButton: SearchAnchor(
+            builder: (context, controller) => FloatingActionButton(
+              onPressed: () {
+                controller.openView();
               },
+              child: const Icon(Icons.search),
             ),
-            body: RefreshIndicator(
-              child: !message.ok
-                  ? Center(
-                      child: Text(message.error.toString()),
-                    )
-                  : ListView(
-                      children: children,
+            suggestionsBuilder:
+                (BuildContext context, SearchController controller) {
+              return message.data
+                  .where((element) => element.courseName
+                      .toLowerCase()
+                      .contains(controller.text.toLowerCase()))
+                  .map(
+                    (e) => ListTile(
+                      title: Text(e.courseName),
+                      subtitle: Text(e.credits.toStringAsFixed(1)),
+                      trailing: Text(e.examGrade),
                     ),
-              onRefresh: () async {
-                WeChatGradesInput(
-                        account: ArcheBus.bus
-                            .of<MultiAccoutData>()
-                            .getCurrentEduAccount())
-                    .sendSignalToRust();
-              },
-            ));
+                  );
+            },
+          ),
+          body: !message.ok
+              ? Center(
+                  child: Text(message.error.toString()),
+                )
+              : ListView(
+                  children: children,
+                ),
+        );
       },
     );
   }
