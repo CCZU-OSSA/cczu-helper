@@ -71,7 +71,7 @@ void main() {
     },
     (error, stack) async {
       var bus = ArcheBus();
-      var logger = ArcheBus.logger;
+      var logger = ArcheBus.bus.provideof<ArcheLogger>(instance: ArcheLogger());
       logger.error(error);
       logger.error(stack);
 
@@ -103,19 +103,19 @@ class MainApplication extends StatefulWidget {
 class MainApplicationState extends State<MainApplication>
     with RefreshMountedStateMixin {
   late ApplicationConfigs configs;
+  late final AppLifecycleListener _appLifecycleListener;
 
   @override
   void initState() {
     super.initState();
     configs = ArcheBus().of();
+    _appLifecycleListener = AppLifecycleListener(
+      onExitRequested: () async {
+        finalizeRust();
+        return AppExitResponse.exit;
+      },
+    );
   }
-
-  final _appLifecycleListener = AppLifecycleListener(
-    onExitRequested: () async {
-      finalizeRust();
-      return AppExitResponse.exit;
-    },
-  );
 
   @override
   void dispose() {
