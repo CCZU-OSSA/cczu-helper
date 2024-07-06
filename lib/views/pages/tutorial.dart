@@ -12,24 +12,23 @@ class TutorialPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProgressiveView(showAppBar: false, onSubmit: onSubmit, children: [
+    return ProgressiveView(appBar: AppBar(), onSubmit: onSubmit, children: [
       AdaptiveView(
-          cardMargin: const EdgeInsets.only(bottom: 40, top: 40),
           child: Column(
-            children: [
-              const AssetMarkdown(resource: "assets/README_TUTORIAL.md"),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: FilledButton(
-                    onPressed: () {
-                      pushMaterialRoute(
-                        builder: (context) => const AccountManagePage(),
-                      );
-                    },
-                    child: const Text("打开账户管理")),
-              ),
-            ],
-          ))
+        children: [
+          const AssetMarkdown(resource: "assets/README_TUTORIAL.md"),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: FilledButton(
+                onPressed: () {
+                  pushMaterialRoute(
+                    builder: (context) => const AccountManagePage(),
+                  );
+                },
+                child: const Text("打开账户管理")),
+          ),
+        ],
+      ))
     ]);
   }
 }

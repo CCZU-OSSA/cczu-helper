@@ -1,5 +1,5 @@
 <div align=center>
-  <img width=200 src="android\app\src\main\res\playstore-icon.png"  alt="图标"/>
+  <img width=200 src="assets\cczu_helper_icon.png"  alt="图标"/>
   <h1 align="center">吊大助手</h1>
 </div>
 
