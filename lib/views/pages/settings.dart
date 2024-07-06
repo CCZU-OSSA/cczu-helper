@@ -10,6 +10,7 @@ import 'package:cczu_helper/views/pages/checkupdate.dart';
 import 'package:cczu_helper/views/pages/log.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/notifications.dart';
+import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -79,8 +80,8 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                   SwitchListTile(
                     secondary: const Icon(Icons.skip_next),
-                    title: const Text("跳过退出确认"),
-                    subtitle: const Text("Skip Service Exit Confirm"),
+                    title: const Text("跳过多步确认"),
+                    subtitle: const Text("Skip Multi Confirm"),
                     value: configs.skipServiceExitConfirm.getOr(false),
                     onChanged: (value) {
                       setState(() {
@@ -206,6 +207,16 @@ class SettingsPageState extends State<SettingsPage> {
                         const Text("https://github.com/CCZU-OSSA/cczu-helper"),
                     onTap: () => launchUrlString(
                         "https://github.com/CCZU-OSSA/cczu-helper"),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.book),
+                    title: const Text("账户使用指南"),
+                    subtitle: const Text("Account Use Tutorial"),
+                    onTap: () => pushMaterialRoute(
+                      context: context,
+                      builder: (context) =>
+                          TutorialPage(onSubmit: Navigator.of(context).pop),
+                    ),
                   ),
                   ListTile(
                     leading: const Icon(Icons.chat),

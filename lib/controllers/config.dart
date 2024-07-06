@@ -47,4 +47,5 @@ class ApplicationConfigs {
   ConfigEntry<int> get notificationsReminder =>
       generator("notifications_reminder");
   ConfigEntry<bool> get notificationsDay => generator("notifications_day");
+  ConfigEntry<bool> get firstUse => generator("");
 }

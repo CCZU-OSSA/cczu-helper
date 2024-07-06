@@ -6,8 +6,12 @@ import 'package:flutter/material.dart';
 class ProgressiveView extends StatefulWidget {
   final List<Widget> children;
   final Function() onSubmit;
+  final bool showAppBar;
   const ProgressiveView(
-      {super.key, required this.onSubmit, required this.children});
+      {super.key,
+      required this.onSubmit,
+      required this.children,
+      this.showAppBar = true});
 
   @override
   State<StatefulWidget> createState() => ProgressiveViewState();
@@ -38,30 +42,32 @@ class ProgressiveViewState extends State<ProgressiveView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(
-          onPressed: () {
-            if (ArcheBus.bus
-                .of<ApplicationConfigs>()
-                .skipServiceExitConfirm
-                .getOr(false)) {
-              Navigator.of(context).pop();
-              return;
-            }
+      appBar: widget.showAppBar
+          ? AppBar(
+              leading: BackButton(
+                onPressed: () {
+                  if (ArcheBus.bus
+                      .of<ApplicationConfigs>()
+                      .skipServiceExitConfirm
+                      .getOr(false)) {
+                    Navigator.of(context).pop();
+                    return;
+                  }
 
-            ComplexDialog.instance
-                .confirm(
-                    context: context,
-                    title: const Text("返回?"),
-                    content: const Text("未保存的内容将会丢失"))
-                .then((value) {
-              if (value) {
-                Navigator.of(context).pop();
-              }
-            });
-          },
-        ),
-      ),
+                  ComplexDialog.instance
+                      .confirm(
+                          context: context,
+                          title: const Text("返回?"),
+                          content: const Text("未保存的内容将会丢失"))
+                      .then((value) {
+                    if (value) {
+                      Navigator.of(context).pop();
+                    }
+                  });
+                },
+              ),
+            )
+          : null,
       floatingActionButton: AnimatedSwitcher(
         duration: Durations.medium4,
         child: _canSubmit

@@ -86,6 +86,7 @@ flutter:
     - assets/README_ICALENDAR_START.md
     - assets/README_ICALENDAR_DATE.md
     - assets/README_ICALENDAR_REMINDER.md
+    - assets/README_TUTORIAL.md
     - assets/cczu_helper_icon.png
     - assets/icalendar.png
     - assets/grade.png

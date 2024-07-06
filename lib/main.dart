@@ -13,9 +13,9 @@ import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/messages/generated.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/calendar.dart';
-import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/services.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
+import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,6 +57,7 @@ void main() {
       runApp(
         MainApplication(key: rootKey),
       );
+
       if (Platform.isAndroid) {
         SystemChrome.setSystemUIOverlayStyle(
           const SystemUiOverlayStyle(
@@ -225,7 +226,6 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     ),
   ];
   late ApplicationConfigs configs;
-  bool skipAccountsCheck = false;
   @override
   void initState() {
     super.initState();
@@ -291,14 +291,13 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     bool isDark = themeMode == ThemeMode.system
         ? MediaQuery.of(context).platformBrightness == Brightness.dark
         : themeMode == ThemeMode.dark;
-    if (!skipAccountsCheck && !ArcheBus.bus.has<MultiAccoutData>()) {
-      return AccountManagePage(backButton: BackButton(
-        onPressed: () {
-          setState(() {
-            skipAccountsCheck = true;
-          });
-        },
-      ));
+
+    if (configs.firstUse.getOr(true)) {
+      return TutorialPage(onSubmit: () {
+        setState(() {
+          configs.firstUse.write(false);
+        });
+      });
     }
 
     return Scaffold(

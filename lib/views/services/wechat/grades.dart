@@ -12,6 +12,9 @@ class WeChatGradeQueryServicePage extends StatefulWidget {
 
 class WeChatGradeQueryServicePageState
     extends State<WeChatGradeQueryServicePage> {
+  List<bool> showTerm = [true, true, true, true, true, true, true, true];
+  bool onlyResit = false;
+  bool onlyRebuild = false;
   @override
   void initState() {
     super.initState();
@@ -35,12 +38,203 @@ class WeChatGradeQueryServicePageState
           );
         }
         var message = signal.message;
+        List<Widget> items = message.data.map((course) {
+          var examGrade = double.tryParse(course.examGrade) ?? 100;
+          var resit = examGrade < 60;
+          var rebuild = examGrade < 45;
+          bool visible = showTerm[course.term - 1];
 
+          Color? examColor;
+          if (rebuild) {
+            examColor = Colors.red;
+          } else if (resit) {
+            examColor = Colors.amber;
+          }
+
+          if (visible && onlyRebuild && onlyResit) {
+            visible = visible && (resit || rebuild);
+          } else if (visible && onlyResit) {
+            visible = visible && resit;
+          } else if (visible && onlyRebuild) {
+            visible = visible && rebuild;
+          }
+          return Visibility(
+            visible: visible,
+            child: Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text(course.courseName),
+                    trailing: Chip(label: Text(course.term.toString())),
+                  ),
+                  const Divider(),
+                  Visibility(
+                    visible: course.usualGrade != 0,
+                    child: ListTile(
+                      title: const Text("平时成绩"),
+                      trailing: Text(course.usualGrade.toStringAsFixed(1)),
+                    ),
+                  ),
+                  Visibility(
+                    visible: course.midGrade != 0,
+                    child: ListTile(
+                      title: const Text("期中成绩"),
+                      trailing: Text(course.midGrade.toStringAsFixed(1)),
+                    ),
+                  ),
+                  Visibility(
+                    visible: course.endGrade != 0,
+                    child: ListTile(
+                      title: const Text("期末成绩"),
+                      trailing: Text(
+                        course.endGrade.toStringAsFixed(1),
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    title: const Text("总评"),
+                    trailing: Text(
+                      course.examGrade,
+                      style: TextStyle(color: examColor),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList();
+        List<Widget> children = [];
+        if (items.isNotEmpty) {
+          children.add(
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  FilterChip(
+                    label: const Text("大一上"),
+                    selected: showTerm[0],
+                    onSelected: (bool value) {
+                      setState(() {
+                        showTerm[0] = value;
+                      });
+                    },
+                  ),
+                  FilterChip(
+                    label: const Text("大一下"),
+                    selected: showTerm[1],
+                    onSelected: (bool value) {
+                      setState(() {
+                        showTerm[1] = value;
+                      });
+                    },
+                  ),
+                  FilterChip(
+                    label: const Text("大二上"),
+                    selected: showTerm[2],
+                    onSelected: (bool value) {
+                      setState(() {
+                        showTerm[2] = value;
+                      });
+                    },
+                  ),
+                  FilterChip(
+                    label: const Text("大二下"),
+                    selected: showTerm[3],
+                    onSelected: (bool value) {
+                      setState(() {
+                        showTerm[3] = value;
+                      });
+                    },
+                  ),
+                  FilterChip(
+                    label: const Text("大三上"),
+                    selected: showTerm[4],
+                    onSelected: (bool value) {
+                      setState(() {
+                        showTerm[4] = value;
+                      });
+                    },
+                  ),
+                  FilterChip(
+                    label: const Text("大三下"),
+                    selected: showTerm[5],
+                    onSelected: (bool value) {
+                      setState(() {
+                        showTerm[5] = value;
+                      });
+                    },
+                  ),
+                  FilterChip(
+                    label: const Text("大四上"),
+                    selected: showTerm[6],
+                    onSelected: (bool value) {
+                      setState(() {
+                        showTerm[6] = value;
+                      });
+                    },
+                  ),
+                  FilterChip(
+                    label: const Text("大四下"),
+                    selected: showTerm[7],
+                    onSelected: (bool value) {
+                      setState(() {
+                        showTerm[7] = value;
+                      });
+                    },
+                  ),
+                  FilterChip.elevated(
+                    label: const Text("补考"),
+                    selected: onlyResit,
+                    onSelected: (bool value) {
+                      setState(() {
+                        onlyResit = value;
+                      });
+                    },
+                  ),
+                  FilterChip.elevated(
+                    label: const Text("重修"),
+                    selected: onlyRebuild,
+                    onSelected: (bool value) {
+                      setState(() {
+                        onlyRebuild = value;
+                      });
+                    },
+                  )
+                ],
+              ),
+            ),
+          );
+        }
+
+        children.addAll(items);
+        children.add(const SizedBox(
+          height: 80,
+        ));
         return Scaffold(
             appBar: AppBar(),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {},
-              child: const Icon(Icons.search),
+            floatingActionButton: SearchAnchor(
+              builder: (context, controller) => FloatingActionButton(
+                onPressed: () {
+                  controller.openView();
+                },
+                child: const Icon(Icons.search),
+              ),
+              suggestionsBuilder:
+                  (BuildContext context, SearchController controller) {
+                return message.data
+                    .where((element) => element.courseName
+                        .toLowerCase()
+                        .contains(controller.text.toLowerCase()))
+                    .map(
+                      (e) => ListTile(
+                        title: Text(e.courseName),
+                        subtitle: Text(e.credits.toStringAsFixed(1)),
+                        trailing: Text(e.examGrade),
+                      ),
+                    );
+              },
             ),
             body: RefreshIndicator(
               child: !message.ok
@@ -48,42 +242,7 @@ class WeChatGradeQueryServicePageState
                       child: Text(message.error.toString()),
                     )
                   : ListView(
-                      children: message.data
-                          .map(
-                            (course) => Card(
-                                child: InkWell(
-                              borderRadius: BorderRadius.circular(10),
-                              onLongPress: () {},
-                              child: Column(
-                                children: [
-                                  ListTile(
-                                    title: Text(course.courseName),
-                                  ),
-                                  const Divider(),
-                                  ListTile(
-                                    title: const Text("平时成绩"),
-                                    trailing: Text(
-                                        course.usualGrade.toStringAsFixed(1)),
-                                  ),
-                                  ListTile(
-                                    title: const Text("期中成绩"),
-                                    trailing: Text(
-                                        course.midGrade.toStringAsFixed(1)),
-                                  ),
-                                  ListTile(
-                                    title: const Text("期末成绩"),
-                                    trailing: Text(
-                                        course.endGrade.toStringAsFixed(1)),
-                                  ),
-                                  ListTile(
-                                    title: const Text("总评"),
-                                    trailing: Text(course.examGrade),
-                                  ),
-                                ],
-                              ),
-                            )),
-                          )
-                          .toList(),
+                      children: children,
                     ),
               onRefresh: () async {
                 WeChatGradesInput(

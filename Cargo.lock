@@ -196,7 +196,7 @@ checksum = "74b6a57f98764a267ff415d50a25e6e166f3831a5071af4995296ea97d210490"
 [[package]]
 name = "cczu-client-api"
 version = "0.1.0"
-source = "git+https://github.com/CCZU-OSSA/cczu-client-api.git#695a82192cdb608582b7c7172bbb2206e540863b"
+source = "git+https://github.com/CCZU-OSSA/cczu-client-api.git#fbf71d16cf5dbcc3eb23df8f05680770d11947f3"
 dependencies = [
  "aes",
  "async-recursion",
@@ -1906,9 +1906,9 @@ dependencies = [
 
 [[package]]
 name = "tinyvec"
-version = "1.6.1"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c55115c6fbe2d2bef26eb09ad74bde02d8255476fc0c7b515ef09fbb35742d82"
+checksum = "ce6b6a2fb3a985e99cebfaefa9faa3024743da73304ca1c683a36429613d3d22"
 dependencies = [
  "tinyvec_macros",
 ]

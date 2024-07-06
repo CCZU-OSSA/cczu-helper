@@ -5,10 +5,8 @@ import 'package:cczu_helper/messages/account.pb.dart';
 import 'package:flutter/material.dart';
 
 class AccountManagePage extends StatefulWidget {
-  final Widget backButton;
   const AccountManagePage({
     super.key,
-    this.backButton = const BackButton(),
   });
 
   @override
@@ -61,7 +59,6 @@ class AccountManagePageState extends State<AccountManagePage>
 
     return Scaffold(
       appBar: AppBar(
-        leading: widget.backButton,
         title: const Text("账号管理"),
         actions: [
           SegmentedButton(
@@ -224,9 +221,9 @@ class _AddAccountPageState extends State<AddAccountPage> {
                 alignment: Alignment.centerRight,
                 child: FilledButton(
                     onPressed: () {
-                      //TODO
+                      //TODO The test login is not ready to use
                     },
-                    child: const Text("测试登录")),
+                    child: const Text("测试登录(TODO)")),
               )
             ],
           ),
