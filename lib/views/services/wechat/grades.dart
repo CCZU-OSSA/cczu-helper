@@ -214,32 +214,32 @@ class WeChatGradeQueryServicePageState
         }
 
         children.addAll(items);
-        children.add(const SizedBox(
-          height: 80,
-        ));
         return Scaffold(
-          appBar: AppBar(),
-          floatingActionButton: SearchAnchor(
-            builder: (context, controller) => FloatingActionButton(
-              onPressed: () {
-                controller.openView();
-              },
-              child: const Icon(Icons.search),
-            ),
-            suggestionsBuilder:
-                (BuildContext context, SearchController controller) {
-              return message.data
-                  .where((element) => element.courseName
-                      .toLowerCase()
-                      .contains(controller.text.toLowerCase()))
-                  .map(
-                    (e) => ListTile(
-                      title: Text(e.courseName),
-                      subtitle: Text(e.credits.toStringAsFixed(1)),
-                      trailing: Text(e.examGrade),
-                    ),
-                  );
-            },
+          appBar: AppBar(
+            actions: [
+              SearchAnchor(
+                builder: (context, controller) => IconButton(
+                  onPressed: () {
+                    controller.openView();
+                  },
+                  icon: const Icon(Icons.search),
+                ),
+                suggestionsBuilder:
+                    (BuildContext context, SearchController controller) {
+                  return message.data
+                      .where((element) => element.courseName
+                          .toLowerCase()
+                          .contains(controller.text.toLowerCase()))
+                      .map(
+                        (e) => ListTile(
+                          title: Text(e.courseName),
+                          subtitle: Text(e.credits.toStringAsFixed(1)),
+                          trailing: Text(e.examGrade),
+                        ),
+                      );
+                },
+              ),
+            ],
           ),
           body: !message.ok
               ? Center(
