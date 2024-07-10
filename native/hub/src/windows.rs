@@ -1,5 +1,4 @@
 use crate::messages::cmcc::{CmccAccountGenerateInput, CmccAccountGenerateOutput};
-
 fn win_guid() -> String {
     use guid_create::GUID;
     use windows::Win32::System::Com::CoCreateGuid;

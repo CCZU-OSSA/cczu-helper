@@ -12,7 +12,10 @@ mod fields;
 mod jwcas_implments;
 mod jwqywx_implement;
 mod messages;
-mod misc_implements;
+#[cfg(windows)]
+mod windows;
+
+
 rinf::write_interface!();
 
 // Always use non-blocking async functions
@@ -29,7 +32,7 @@ async fn main() {
     tokio::spawn(jwqywx_implement::get_grades());
 
     if cfg!(windows) {
-        tokio::spawn(misc_implements::cmcc_account());
+        tokio::spawn(windows::cmcc_account());
     }
 
     tokio::spawn(app_implements::get_app_version());
