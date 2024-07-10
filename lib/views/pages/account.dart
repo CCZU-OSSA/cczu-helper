@@ -222,14 +222,69 @@ class _AddAccountPageState extends State<AddAccountPage> {
                 alignment: Alignment.centerRight,
                 child: FilledButton(
                     onPressed: () {
-                      //TODO The test login is not ready to use
+                      showDialog(
+                        context: context,
+                        builder: (context) => Dialog(
+                          child: _LoginWidget(
+                              widget.accountType,
+                              AccountData(
+                                  user: user.text, password: password.text)),
+                        ),
+                      );
                     },
-                    child: const Text("测试登录(TODO)")),
+                    child: const Text("测试登录")),
               )
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _LoginWidget extends StatefulWidget {
+  final AccountType type;
+  final AccountData account;
+  const _LoginWidget(this.type, this.account);
+
+  @override
+  State<StatefulWidget> createState() => _LoginWidgetState();
+}
+
+class _LoginWidgetState extends State<_LoginWidget> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.type == AccountType.edu) {
+      EDUAccountLoginInput(account: widget.account).sendSignalToRust();
+    } else if (widget.type == AccountType.sso) {
+      SSOAccountLoginInput(account: widget.account).sendSignalToRust();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: AccountLoginCallback.rustSignalStream,
+      builder: (context, snapshot) {
+        var signal = snapshot.data;
+        if (signal == null) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        var message = signal.message;
+        if (message.ok) {
+          return const Center(
+            child: Icon(Icons.check),
+          );
+        }
+
+        return Center(
+          child: Text(message.error),
+        );
+      },
     );
   }
 }

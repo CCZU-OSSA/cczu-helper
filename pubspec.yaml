@@ -43,7 +43,7 @@ dependencies:
     sdk: flutter
   intl: any
   protobuf: ^3.1.0
-  rinf: ^6.14.1
+  rinf: ^6.14.2
   share_plus: ^8.0.2
   file_picker: ^8.0.0
   flutter_markdown: ^0.6.19

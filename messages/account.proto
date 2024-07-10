@@ -2,15 +2,25 @@ syntax = "proto3";
 package account;
 
 
-// [RINF:DART-SIGNAL]
+
 message AccountData {
     string user = 1;
     string password = 2;
 }
 
+// [RINF:DART-SIGNAL]
+message SSOAccountLoginInput {
+    AccountData account = 1;
+}
+
+
+// [RINF:DART-SIGNAL]
+message EDUAccountLoginInput {
+    AccountData account = 1;
+}
+
 // [RINF:RUST-SIGNAL]
 message AccountLoginCallback {
     bool ok = 1;
-    optional AccountData account = 2;
     optional string error = 3;
 }

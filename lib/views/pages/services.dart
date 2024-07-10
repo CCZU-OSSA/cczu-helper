@@ -4,7 +4,7 @@ import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/views/services/sso/grades.dart';
 import 'package:cczu_helper/views/services/sso/icalendar.dart';
 import 'package:cczu_helper/views/services/misc/cmcc_account.dart';
-import 'package:cczu_helper/views/services/wechat/grades.dart';
+import 'package:cczu_helper/views/services/edu/wechat/grades.dart';
 import 'package:flutter/material.dart';
 
 class ServicePage extends StatefulWidget {
