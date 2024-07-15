@@ -42,9 +42,9 @@ https://github.com/CCZU-OSSA/cczu-helper/issues
     - views 存放页面文件
     - controllers 存放配置文件的读取、页面更换等相关代码
     - messages 由rinf生成
-  - message 存放用于生成沟通Rust与Flutter的proto文件
-  - assets 存放应用资源文件
-  - native 存放Rust代码(RINF)
+ - messages 存放用于生成沟通Rust与Flutter的proto文件
+ - assets 存放应用资源文件
+ - native 存放Rust代码(Powered by `CCZU-Client-API`)
 
 ### 如何编译
 
