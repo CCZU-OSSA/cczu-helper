@@ -15,6 +15,8 @@ class WeChatGradeQueryServicePageState
   List<bool> showTerm = List.filled(8, false);
   bool onlyResit = false;
   bool onlyRebuild = false;
+  bool init = true;
+
   @override
   void initState() {
     super.initState();
@@ -41,7 +43,10 @@ class WeChatGradeQueryServicePageState
         int curTerm = message.data.fold(
             0, (term, element) => term < element.term ? element.term : term);
 
-        showTerm[curTerm - 1] = true;
+        if (init) {
+          showTerm[curTerm - 1] = true;
+          init = true;
+        }
 
         List<Widget> items = message.data.map((course) {
           var examGrade = double.tryParse(course.examGrade) ?? 100;
