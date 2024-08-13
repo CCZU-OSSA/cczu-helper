@@ -28,7 +28,13 @@ pub async fn generate_icalendar() {
             .send_signal_to_dart()
         } else {
             let app = client.visit::<JwcasApplication<_>>().await;
-            {
+            if let Err(err) = app.login().await {
+                ICalendarOutput {
+                    ok: false,
+                    data: err.into(),
+                }
+                .send_signal_to_dart()
+            } else {
                 let data = app
                     .generate_icalendar(
                         message.firstweekdate,
