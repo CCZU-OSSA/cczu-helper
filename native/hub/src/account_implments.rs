@@ -1,7 +1,9 @@
-use cczu_client_api::{
-    base::client::{SimpleClient, Visitor},
-    sso::universal::UniversalClient,
-    wechat::app::jwqywx::JwqywxApplication,
+use cczuni::{
+    base::{app::AppVisitor, client::Account},
+    impls::{
+        apps::wechat::jwqywx::JwqywxApplication, client::DefaultClient,
+        login::sso::SSOUniversalLogin,
+    },
 };
 
 use crate::messages::account::{AccountLoginCallback, EduAccountLoginInput, SsoAccountLoginInput};
@@ -11,11 +13,13 @@ pub async fn sso_login() {
     while let Some(signal) = rev.recv().await {
         let account = signal.message.account.unwrap();
         let login_client =
-            UniversalClient::auto_login(account.user.clone(), account.password.clone()).await;
+            DefaultClient::new(Account::new(account.user.clone(), account.password.clone()))
+                .sso_universal_login()
+                .await;
         if let Err(message) = login_client {
             AccountLoginCallback {
                 ok: false,
-                error: Some(message),
+                error: Some(message.to_string()),
             }
             .send_signal_to_dart()
         } else {
@@ -32,8 +36,9 @@ pub async fn edu_login() {
     let mut rev = EduAccountLoginInput::get_dart_signal_receiver().unwrap();
     while let Some(signal) = rev.recv().await {
         let account = signal.message.account.unwrap();
-        let app = SimpleClient::new(account.user.clone(), account.password.clone())
-            .visit_application::<JwqywxApplication>();
+        let app = DefaultClient::new(Account::new(account.user.clone(), account.password.clone()))
+            .visit::<JwqywxApplication<_>>()
+            .await;
 
         let login_info = app.login().await;
         if let Some(message) = login_info {

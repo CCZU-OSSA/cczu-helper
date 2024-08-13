@@ -1,6 +1,6 @@
-use cczu_client_api::{
-    base::client::{SimpleClient, Visitor},
-    wechat::app::jwqywx::JwqywxApplication,
+use cczuni::{
+    base::{app::AppVisitor, client::Account},
+    impls::{apps::wechat::jwqywx::JwqywxApplication, client::DefaultClient},
 };
 
 use crate::messages::grades::{WeChatGradeData, WeChatGradesInput, WeChatGradesOutput};
@@ -12,9 +12,10 @@ pub async fn get_grades() {
         let message = signal.message;
         let account = message.account.unwrap();
 
-        let client = SimpleClient::new(account.user, account.password);
+        let client =
+            DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
 
-        let app = client.visit_application::<JwqywxApplication>();
+        let app = client.visit::<JwqywxApplication<_>>().await;
         if let Some(_) = app.login().await {
             if let Some(data) = app.get_grades().await {
                 WeChatGradesOutput {

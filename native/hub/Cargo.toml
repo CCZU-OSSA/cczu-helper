@@ -15,11 +15,13 @@ crate-type = ["lib", "cdylib", "staticlib"]
 rinf = "6.14.2"
 prost = "0.13.1"
 tokio = { version = "1", features = ["rt-multi-thread", "sync", "macros"] }
-cczu-client-api = { git = "https://github.com/CCZU-OSSA/cczu-client-api.git" }
+cczuni = { git = "https://github.com/CCZU-OSSA/cczuni.git", features = [
+    "calendar",
+    "internals",
+] }
 serde = "*"
 serde_json = "*"
 reqwest = "*"
-once_cell = { version = "1.19.0" }
 
 [target.'cfg(windows)'.dependencies]
 guid-create = "0.4.1"

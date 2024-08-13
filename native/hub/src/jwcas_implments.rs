@@ -1,9 +1,9 @@
-use cczu_client_api::sso::{
-    app::{
-        jwcas::JwcasApplication, jwcas_calendar::JwcasApplicationCalendarExt,
-        jwcas_calendar_type::Schedule,
+use cczuni::{
+    base::{app::AppVisitor, client::Account},
+    extension::calendar::{ApplicationCalendarExt, Schedule},
+    impls::{
+        apps::sso::jwcas::JwcasApplication, client::DefaultClient, login::sso::SSOUniversalLogin,
     },
-    universal::UniversalClient,
 };
 
 use crate::messages::{
@@ -16,15 +16,18 @@ pub async fn generate_icalendar() {
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
         let account = message.account.unwrap();
-        let login_info = UniversalClient::auto_login(account.user, account.password).await;
-        if let Err(messgae) = login_info {
+        let client =
+            DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
+        let login = client.sso_universal_login().await;
+
+        if let Err(messgae) = login {
             ICalendarOutput {
                 ok: false,
-                data: messgae,
+                data: messgae.to_string(),
             }
             .send_signal_to_dart()
         } else {
-            let app: JwcasApplication = login_info.unwrap().visit_application();
+            let app = client.visit::<JwcasApplication<_>>().await;
             {
                 let data = app
                     .generate_icalendar(
@@ -55,16 +58,18 @@ pub async fn get_grades() {
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
         let account = message.account.unwrap();
-        let login_info = UniversalClient::auto_login(account.user, account.password).await;
-        if let Err(error) = login_info {
+        let client =
+            DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
+        let login = client.sso_universal_login().await;
+        if let Err(error) = login {
             GradesOutput {
                 ok: false,
                 data: vec![],
-                error: Some(error),
+                error: Some(error.to_string()),
             }
             .send_signal_to_dart()
         } else {
-            let app: JwcasApplication = login_info.unwrap().visit_application();
+            let app = client.visit::<JwcasApplication<_>>().await;
             app.login().await.unwrap();
             let grades = app.get_gradeinfo_vec().await;
             if let Err(error) = grades {
@@ -89,7 +94,6 @@ pub async fn get_grades() {
                     error: None,
                 }
                 .send_signal_to_dart();
-                
             }
         }
     }

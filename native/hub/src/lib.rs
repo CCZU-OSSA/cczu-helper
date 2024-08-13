@@ -8,7 +8,6 @@ use tokio;
 
 mod account_implments;
 mod app_implements;
-mod fields;
 mod jwcas_implments;
 mod jwqywx_implement;
 mod messages;
