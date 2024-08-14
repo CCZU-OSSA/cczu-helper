@@ -23,6 +23,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rinf/rinf.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_localizations/syncfusion_localizations.dart';
+import 'package:system_fonts/system_fonts.dart';
 
 void main() {
   runZonedGuarded(
@@ -36,10 +37,19 @@ void main() {
       logger.info("Application Config Stored in `$configPath`");
 
       FlutterError.onError = logger.error;
+
       var bus = ArcheBus();
       var configs =
           ApplicationConfigs(ConfigEntry.withConfig(config, generateMap: true));
       bus.provide(ArcheLogger()).provide(config).provide(configs);
+
+      // Load SystemFont
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+        var font = configs.font.tryGet();
+        if (font != null) {
+          await SystemFonts().loadFont(font);
+        }
+      }
 
       if (Platform.isAndroid) {
         await Scheduler.init();
@@ -139,7 +149,6 @@ class MainApplicationState extends State<MainApplication>
 
   @override
   Widget build(BuildContext context) {
-    var useSystemFont = configs.useSystemFont.getOr(true);
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) => MaterialApp(
         scaffoldMessengerKey: messagerKey,
@@ -151,28 +160,10 @@ class MainApplicationState extends State<MainApplication>
         ],
         supportedLocales: const [
           Locale.fromSubtags(languageCode: 'zh'), // generic Chinese 'zh'
-          Locale.fromSubtags(
-              languageCode: 'zh',
-              scriptCode: 'Hans'), // generic simplified Chinese 'zh_Hans'
-          Locale.fromSubtags(
-              languageCode: 'zh',
-              scriptCode: 'Hant'), // generic traditional Chinese 'zh_Hant'
-          Locale.fromSubtags(
-              languageCode: 'zh',
-              scriptCode: 'Hans',
-              countryCode: 'CN'), // 'zh_Hans_CN'
-          Locale.fromSubtags(
-              languageCode: 'zh',
-              scriptCode: 'Hant',
-              countryCode: 'TW'), // 'zh_Hant_TW'
-          Locale.fromSubtags(
-              languageCode: 'zh',
-              scriptCode: 'Hant',
-              countryCode: 'HK'), // 'zh_Hant_HK'
         ],
         darkTheme: ThemeData(
           brightness: Brightness.dark,
-          fontFamily: useSystemFont ? null : "Default",
+          fontFamily: configs.font.tryGet(),
           useMaterial3: true,
           colorScheme: _generateColorScheme(
               darkDynamic ?? _defaultDarkColorScheme, Brightness.dark),
@@ -180,7 +171,7 @@ class MainApplicationState extends State<MainApplication>
         ),
         theme: ThemeData(
           brightness: Brightness.light,
-          fontFamily: useSystemFont ? null : "Default",
+          fontFamily: configs.font.tryGet(),
           useMaterial3: true,
           colorScheme:
               _generateColorScheme(lightDynamic ?? _defaultLightColorScheme),

@@ -54,6 +54,7 @@ dependencies:
   timezone: ^0.9.2
   syncfusion_flutter_core: ^25.1.39
   flutter_native_splash: ^2.4.0
+  system_fonts: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -97,10 +98,7 @@ flutter:
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
-  fonts:
-    - family: Default
-      fonts:
-        - asset: assets/ResourceHanRoundedCN-Medium.ttf
+
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a

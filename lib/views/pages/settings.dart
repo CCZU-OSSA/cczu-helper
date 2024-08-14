@@ -14,6 +14,7 @@ import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:system_fonts/system_fonts.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -131,18 +132,50 @@ class SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  SwitchListTile(
-                      title: const Text("使用系统字体"),
-                      subtitle: const Text("System Font"),
-                      secondary: const Icon(Icons.font_download),
-                      value: configs.useSystemFont.getOr(true),
-                      onChanged: (value) {
-                        setState(() {
-                          configs.useSystemFont.write(value);
-                        });
+                  Visibility(
+                    visible: Platform.isWindows ||
+                        Platform.isLinux ||
+                        Platform.isMacOS,
+                    child: ListTile(
+                      leading: const Icon(FontAwesomeIcons.font),
+                      title: const Text("字体"),
+                      subtitle: Text(configs.font.tryGet() ?? "Default"),
+                      trailing: PopupMenuButton(
+                        initialValue: configs.font.tryGet(),
+                        onSelected: (value) async {
+                          await SystemFonts().loadFont(value);
+                          configs.font.write(value);
+                          setState(() {});
+                          rootKey.currentState?.refreshMounted();
+                        },
+                        itemBuilder: (BuildContext context) {
+                          var fonts = SystemFonts().getFontList();
+                          fonts.sort();
+                          return fonts
+                              .map(
+                                (fontName) => PopupMenuItem(
+                                    value: fontName,
+                                    child: FutureBuilder(
+                                      future: SystemFonts().loadFont(fontName),
+                                      builder: (context, snapshot) {
+                                        var data = snapshot.data;
 
-                        rootKey.currentState?.refreshMounted();
-                      }),
+                                        if (data == null) {
+                                          return Text(fontName);
+                                        }
+                                        return Text(
+                                          data,
+                                          style:
+                                              TextStyle(fontFamily: fontName),
+                                        );
+                                      },
+                                    )),
+                              )
+                              .toList();
+                        },
+                      ),
+                    ),
+                  ),
                   SwitchListTile(
                     title: const Text("显示导航栏"),
                     subtitle: const Text("Navigation Bar"),
