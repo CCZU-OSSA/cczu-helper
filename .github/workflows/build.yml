@@ -11,76 +11,89 @@ on:
   pull_request:
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  build:
+    name: ${{ matrix.runner }} ( ${{ matrix.target }} )
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            target: android
+          - runner: windows-latest
+            target: windows
+          - runner: ubuntu-latest
+            target: linux
     steps:
       - uses: actions/checkout@v4
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-      - name: Install Rust & Prepare Complie
-        run: |
-          rustup update stable
-          cargo install rinf
-          rinf message
-          dart fix --apply
-      - name: Build
-        run: flutter build windows --release
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-x64
-          path: build/windows/x64/runner/Release/*
 
-  build-android:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
+      - name: Set up JDK 17 (Android)
+        if: matrix.target == 'android'
         uses: actions/setup-java@v4
         with:
           distribution: "zulu"
           java-version: 17
 
-      - name: Decode Signing
-        run: echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
-        env:
-          ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-
       - name: Install Rust & Prepare Complie
         run: |
           rustup update stable
           cargo install rinf
           rinf message
           dart fix --apply
+
+      - name: Prepare Build (Android)
+        if: matrix.target == 'android'
+        run: |
           dart run flutter_native_splash:create
+      # Windows
+      - name: Build windows (Windows)
+        if: matrix.target == 'windows'
+        run: flutter build windows --release
+      - name: Upload Artifact (Windows)
+        if: matrix.target == 'windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64
+          path: build/windows/x64/runner/Release/*
+      # Android
+      - name: Decode Signing (Android)
+        if: matrix.target == 'android'
+        run: echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
 
       - name: Build armAll apk
+        if: matrix.target == 'android'
         run: flutter build apk --release
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-      - name: Upload Artifact
+      - name: Upload ArmALL Artifact (Android)
+        if: matrix.target == 'android'
         uses: actions/upload-artifact@v4
         with:
           name: armAll
           path: build/app/outputs/apk/release/*
 
       - name: Build Split apks
+        if: matrix.target == 'android'
         run: flutter build apk --split-per-abi --release
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-      - name: Upload Artifact
+      - name: Upload Artifact (Android)
+        if: matrix.target == 'android'
         uses: actions/upload-artifact@v4
         with:
           name: apks
           path: build/app/outputs/apk/release/*
+
+      # linux
+      - name: Build (Linux)
+        run: |
+          flutter build linux --release --verbose
