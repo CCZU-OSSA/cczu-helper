@@ -95,5 +95,6 @@ jobs:
 
       # linux
       - name: Build (Linux)
+        if: matrix.target == "linux"
         run: |
           flutter build linux --release --verbose
