@@ -10,7 +10,7 @@ FutureLazyDynamicCan<Directory> platDirectory =
     FutureLazyDynamicCan(builder: getPlatDirectory);
 
 Future<Directory> getPlatDirectory() async {
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     return Directory.current.absolute;
   }
 

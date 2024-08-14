@@ -158,7 +158,7 @@ checksum = "e9e8aabfac534be767c909e0690571677d49f41bd8465ae876fe043d52ba5292"
 [[package]]
 name = "cczuni"
 version = "0.1.0"
-source = "git+https://github.com/CCZU-OSSA/cczuni.git#90c0a3c4724ad1a3cf7666d6e75dd0759627ad45"
+source = "git+https://github.com/CCZU-OSSA/cczuni.git#3460dd450fa116978de22bcb69c928fe5672cbe8"
 dependencies = [
  "async-recursion",
  "base64",
@@ -726,9 +726,9 @@ dependencies = [
 
 [[package]]
 name = "icalendar"
-version = "0.16.2"
+version = "0.16.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "292907754aa6a75fade69fcd77f36fdd0d0d7029d401f2f1bfc0ee8606f04626"
+checksum = "31982fe3df5ba5d30cbdcdd0516819e67a515c64d718ce7ee86f98717e116f6a"
 dependencies = [
  "chrono",
  "iso8601",
@@ -758,9 +758,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.3.0"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de3fc2e30ba82dd1b3911c8de1ffc143c74a914a14e99514d7637e3099df5ea0"
+checksum = "93ead53efc7ea8ed3cfb0c79fc8023fbb782a5432b52830b6518941cebe6505c"
 dependencies = [
  "equivalent",
  "hashbrown",
@@ -1867,15 +1867,15 @@ dependencies = [
 
 [[package]]
 name = "tower-layer"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c20c8dbed6283a09604c3e69b4b7eeb54e298b8a600d4d5ecb5ad39de609f1d0"
+checksum = "121c2a6cda46980bb0fcd1647ffaf6cd3fc79a013de288782836f6df9c48780e"
 
 [[package]]
 name = "tower-service"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6bc1c9ce2b5135ac7f93c72918fc37feb872bdc6a5533a8b85eb4b86bfdae52"
+checksum = "8df9b6e13f2d32c91b9bd719c00d1958837bc7dec474d94952798cc8e69eeec3"
 
 [[package]]
 name = "tracing"
