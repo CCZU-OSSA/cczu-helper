@@ -11,8 +11,8 @@ mod app_implements;
 mod jwcas_implments;
 mod jwqywx_implement;
 mod messages;
+#[cfg(windows)]
 mod windows;
-
 
 rinf::write_interface!();
 
@@ -29,7 +29,8 @@ async fn main() {
     tokio::spawn(jwcas_implments::get_grades());
     tokio::spawn(jwqywx_implement::get_grades());
 
-    if cfg!(windows) {
+    #[cfg(windows)]
+    {
         tokio::spawn(windows::cmcc_account());
     }
 
