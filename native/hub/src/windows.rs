@@ -1,5 +1,5 @@
 use crate::messages::cmcc::{CmccAccountGenerateInput, CmccAccountGenerateOutput};
-#[cfg(windows)]
+
 fn win_guid() -> String {
     use guid_create::GUID;
     use windows::Win32::System::Com::CoCreateGuid;
@@ -7,7 +7,7 @@ fn win_guid() -> String {
     let guid = unsafe { CoCreateGuid() }.unwrap();
     GUID::build_from_components(guid.data1, guid.data2, guid.data3, &guid.data4).to_string()
 }
-#[cfg(windows)]
+
 fn generate_account(phone: &str) -> String {
     let guid = win_guid().replace("-", "");
     let mut check = 0;
@@ -17,7 +17,7 @@ fn generate_account(phone: &str) -> String {
     }
     format!("{}{:0<4}01{}", guid, check, phone).to_ascii_lowercase()
 }
-#[cfg(windows)]
+
 pub async fn cmcc_account() {
     let mut rev = CmccAccountGenerateInput::get_dart_signal_receiver().unwrap();
     while let Some(signal) = rev.recv().await {
@@ -27,6 +27,3 @@ pub async fn cmcc_account() {
         .send_signal_to_dart()
     }
 }
-
-#[cfg(not(windows))]
-pub async fn cmcc_account() {}
