@@ -82,7 +82,7 @@ pub async fn get_grades() {
                 GradesOutput {
                     ok: false,
                     data: vec![],
-                    error: Some(error),
+                    error: Some(error.to_string()),
                 }
                 .send_signal_to_dart();
             } else {
