@@ -1,0 +1,13 @@
+syntax = "proto3";
+import "account.proto";
+
+// [RINF:DART-SIGNAL]
+message VPNServiceUserInput {
+    account.AccountData account = 1;
+}
+
+// [RINF:RUST-SIGNAL]
+message VPNServiceUserOutput {
+    String token = 1;
+    String dns = 2;
+}
