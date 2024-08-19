@@ -1,4 +1,5 @@
 syntax = "proto3";
+package vpn;
 import "account.proto";
 
 // [RINF:DART-SIGNAL]
@@ -8,6 +9,6 @@ message VPNServiceUserInput {
 
 // [RINF:RUST-SIGNAL]
 message VPNServiceUserOutput {
-    String token = 1;
-    String dns = 2;
+    string token = 1;
+    string dns = 2;
 }

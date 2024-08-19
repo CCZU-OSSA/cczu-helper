@@ -16,3 +16,20 @@ message ICalendarOutput {
     bool ok = 1;
     string data = 2;
 }
+
+
+// [RINF:DART-SIGNAL]
+message ICalendarWxInput {
+    string firstweekdate = 1;
+    optional int32 reminder = 2;
+    account.AccountData account = 3;
+    optional string term = 4;
+}
+
+// [RINF:DART-SIGNAL]
+message TermsInput {}
+
+// [RINF:RUST-SIGNAL]
+message TermsOutput {
+    repeated string terms = 2;
+}
