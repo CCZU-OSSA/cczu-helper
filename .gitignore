@@ -52,3 +52,4 @@ target/
 
 *.jks
 *.ics
+/customfont
