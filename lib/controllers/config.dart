@@ -21,9 +21,9 @@ Future<Directory> getPlatDirectory() async {
 class ApplicationConfigs {
   final ConfigEntry<T> Function<T>(String key) generator;
   const ApplicationConfigs(this.generator);
-  ConfigEntry<String> get font => generator("font");
+  ConfigEntry<String> get sysfont => generator("sysfont");
+  ConfigEntry<String> get customfont => generator("customfont");
 
-  ConfigEntry<bool> get useSystemFont => generator("usesystemfont");
   ConfigEntry<bool> get showBar => generator("showbar");
   ConfigEntryConverter<int, ThemeMode> get themeMode => ConfigEntryConverter(
         generator("thememode"),

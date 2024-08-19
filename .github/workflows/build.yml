@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.runner }} ( ${{ matrix.target }} )
+    name: ${{ matrix.runner }} (${{ matrix.target }})
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:

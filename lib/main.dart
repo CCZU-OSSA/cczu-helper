@@ -42,10 +42,30 @@ void main() {
       var configs =
           ApplicationConfigs(ConfigEntry.withConfig(config, generateMap: true));
       bus.provide(ArcheLogger()).provide(config).provide(configs);
+      // Custom Font
+      var customfont = configs.customfont.tryGet();
+      if (customfont != null) {
+        // Check File existing
+        var file = File(customfont);
+
+        if (await file.exists()) {
+          var loader = FontLoader("Custom Font")
+            ..addFont(
+              Future(() async {
+                var data = await File(customfont).readAsBytes();
+
+                return data.buffer.asByteData();
+              }),
+            );
+          await loader.load();
+        } else {
+          configs.customfont.delete();
+        }
+      }
 
       // Load SystemFont
       if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-        var font = configs.font.tryGet();
+        var font = configs.sysfont.tryGet();
         if (font != null) {
           await SystemFonts().loadFont(font);
         }
@@ -163,7 +183,9 @@ class MainApplicationState extends State<MainApplication>
         ],
         darkTheme: ThemeData(
           brightness: Brightness.dark,
-          fontFamily: configs.font.tryGet(),
+          fontFamily: configs.customfont.tryGet() != null
+              ? "Custom Font"
+              : configs.sysfont.tryGet(),
           useMaterial3: true,
           colorScheme: _generateColorScheme(
               darkDynamic ?? _defaultDarkColorScheme, Brightness.dark),
@@ -171,7 +193,9 @@ class MainApplicationState extends State<MainApplication>
         ),
         theme: ThemeData(
           brightness: Brightness.light,
-          fontFamily: configs.font.tryGet(),
+          fontFamily: configs.customfont.tryGet() != null
+              ? "Custom Font"
+              : configs.sysfont.tryGet(),
           useMaterial3: true,
           colorScheme:
               _generateColorScheme(lightDynamic ?? _defaultLightColorScheme),

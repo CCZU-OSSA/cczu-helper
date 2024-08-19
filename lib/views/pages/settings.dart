@@ -6,13 +6,15 @@ import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/models/version.dart';
-import 'package:cczu_helper/views/pages/checkupdate.dart';
+import 'package:cczu_helper/views/pages/update.dart';
 import 'package:cczu_helper/views/pages/log.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/notifications.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:system_fonts/system_fonts.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -132,19 +134,49 @@ class SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
+                  ListTile(
+                    leading: const Icon(FontAwesomeIcons.font),
+                    title: const Text("自定义字体"),
+                    subtitle: Text(configs.customfont.getOr("未启用")),
+                    trailing: IconButton(
+                        onPressed: () async {
+                          var result = await FilePicker.platform
+                              .pickFiles(allowedExtensions: ["otf", "ttf"]);
+                          if (result != null) {
+                            var path = result.paths.first;
+
+                            if (path != null) {
+                              var loader = FontLoader("Custom Font")
+                                ..addFont(
+                                  Future(() async {
+                                    var data = await File(path).readAsBytes();
+
+                                    return data.buffer.asByteData();
+                                  }),
+                                );
+                              await loader.load();
+                              configs.customfont.write(path);
+                              setState(() {});
+                              rootKey.currentState?.refreshMounted();
+                            }
+                          }
+                        },
+                        icon: const Icon(Icons.file_open)),
+                  ),
                   Visibility(
                     visible: Platform.isWindows ||
                         Platform.isLinux ||
                         Platform.isMacOS,
                     child: ListTile(
                       leading: const Icon(FontAwesomeIcons.font),
-                      title: const Text("字体"),
-                      subtitle: Text(configs.font.tryGet() ?? "Default"),
+                      title: const Text("系统字体"),
+                      subtitle: Text(configs.sysfont.tryGet() ?? "Default"),
                       trailing: PopupMenuButton(
-                        initialValue: configs.font.tryGet(),
+                        initialValue: configs.sysfont.tryGet(),
                         onSelected: (value) async {
+                          configs.customfont.delete();
                           await SystemFonts().loadFont(value);
-                          configs.font.write(value);
+                          configs.sysfont.write(value);
                           setState(() {});
                           rootKey.currentState?.refreshMounted();
                         },
