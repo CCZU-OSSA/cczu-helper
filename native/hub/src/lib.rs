@@ -25,9 +25,13 @@ async fn main() {
     // if more concurrent tasks are needed.
     tokio::spawn(account_implments::sso_login());
     tokio::spawn(account_implments::edu_login());
+
     tokio::spawn(jwcas_implments::generate_icalendar());
     tokio::spawn(jwcas_implments::get_grades());
+
     tokio::spawn(jwqywx_implement::get_grades());
+    tokio::spawn(jwqywx_implement::get_terms());
+    tokio::spawn(jwqywx_implement::generate_icalendar());
 
     #[cfg(windows)]
     {

@@ -1,12 +1,12 @@
 use cczuni::{
     base::{app::AppVisitor, client::Account},
-    extension::calendar::{ApplicationCalendarExt, TermCalendarParser},
+    extension::calendar::{ApplicationCalendarExt, Schedule, TermCalendarParser},
     impls::{apps::wechat::jwqywx::JwqywxApplication, client::DefaultClient},
 };
 
 use crate::messages::{
     grades::{WeChatGradeData, WeChatGradesInput, WeChatGradesOutput},
-    icalendar::ICalendarWxInput,
+    icalendar::{ICalendarOutput, ICalendarWxInput, WxTermsInput, WxTermsOutput},
 };
 
 pub async fn get_grades() {
@@ -71,7 +71,86 @@ pub async fn generate_icalendar() {
             DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
 
         let app = client.visit::<JwqywxApplication<_>>().await;
-        if let Some(term) = message.term {
+        let login = app.login().await;
+
+        if let None = login {
+            ICalendarOutput {
+                ok: false,
+                data: "登录失败".into(),
+            }
+            .send_signal_to_dart();
+            continue;
+        }
+
+        let calendar = if let Some(term) = message.term {
+            let result = app.get_term_classinfo_week_matrix(term).await;
+
+            if let Ok(matrix) = result {
+                let result = app.row_matrix_to_classinfo(matrix);
+                if let Ok(classlist) = result {
+                    app.generate_icalendar_from_classlist(
+                        classlist,
+                        message.firstweekdate,
+                        Schedule::default(),
+                        message.reminder,
+                    )
+                } else {
+                    ICalendarOutput {
+                        ok: false,
+                        data: result.unwrap_err().to_string(),
+                    }
+                    .send_signal_to_dart();
+                    continue;
+                }
+            } else {
+                ICalendarOutput {
+                    ok: false,
+                    data: result.unwrap_err().to_string(),
+                }
+                .send_signal_to_dart();
+                continue;
+            }
+        } else {
+            app.generate_icalendar(message.firstweekdate, Schedule::default(), message.reminder)
+                .await
+        };
+
+        if let Ok(data) = calendar {
+            ICalendarOutput {
+                ok: true,
+                data: data.to_string(),
+            }
+            .send_signal_to_dart()
+        } else if let Err(message) = calendar {
+            ICalendarOutput {
+                ok: false,
+                data: message.to_string(),
+            }
+            .send_signal_to_dart()
+        }
+    }
+}
+
+pub async fn get_terms() {
+    let mut rev = WxTermsInput::get_dart_signal_receiver().unwrap();
+
+    while let Some(_) = rev.recv().await {
+        let client = DefaultClient::default();
+
+        let app = client.visit::<JwqywxApplication<_>>().await;
+
+        if let Some(terms) = app.terms().await {
+            WxTermsOutput {
+                ok: true,
+                terms: terms.message.into_iter().map(|t| t.term).collect(),
+            }
+            .send_signal_to_dart()
+        } else {
+            WxTermsOutput {
+                ok: false,
+                terms: vec![],
+            }
+            .send_signal_to_dart()
         }
     }
 }

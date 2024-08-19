@@ -4,9 +4,12 @@ import 'dart:convert';
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
+import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/config.dart';
+import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/messages/icalendar.pb.dart';
+import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/widgets/adaptive.dart';
 import 'package:cczu_helper/views/widgets/markdown.dart';
 import 'package:cczu_helper/views/widgets/progressive.dart';
@@ -33,6 +36,8 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
   late DateTime firstweekdate;
   int? reminder;
   bool _underGenerating = false;
+  String? term;
+  List<String>? terms;
 
   @override
   void initState() {
@@ -120,6 +125,7 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
 
   @override
   Widget build(BuildContext context) {
+    GlobalKey<PopupMenuButtonState> termPopMenuKey = GlobalKey();
     if (_underGenerating) {
       return const Scaffold(
         body: Center(
@@ -129,7 +135,47 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
     }
 
     if (api == null) {
-      return const Scaffold();
+      return Scaffold(
+        appBar: AppBar(),
+        body: AdaptiveView(
+          cardMargin: const EdgeInsets.only(bottom: 48),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  "选择数据源 (将会使用不同账户)",
+                  style: TextStyle(fontSize: 24),
+                ),
+              ),
+              FilledButton(
+                  onPressed: () {
+                    pushMaterialRoute(
+                      builder: (context) => const AccountManagePage(),
+                    );
+                  },
+                  child: const Text("打开账户管理")),
+              FilledButton(
+                  onPressed: () {
+                    setState(() {
+                      api = ICalendarAPIType.jwcas;
+                    });
+                  },
+                  child: const Text("使用一网通办数据源")),
+              FilledButton(
+                  onPressed: () {
+                    setState(() {
+                      api = ICalendarAPIType.wechat;
+                    });
+                  },
+                  child: const Text("使用企业微信数据源 (推荐) (使用教务系统账户)"))
+            ].joinElement(const SizedBox(
+              height: 8,
+            )),
+          ),
+        ),
+      );
     }
 
     var displayDate =
@@ -143,25 +189,6 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
           cardMargin: EdgeInsets.only(bottom: 48),
           child: AssetMarkdown(resource: "assets/README_ICALENDAR_START.md"),
         ),
-        if (widget.api == ICalendarAPIType.wechat)
-          const AdaptiveView(
-            cardMargin: EdgeInsets.only(bottom: 48),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Text(
-                    "选择学期",
-                    style: TextStyle(fontSize: 24),
-                  ),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-              ],
-            ),
-          ),
         AdaptiveView(
             cardMargin: const EdgeInsets.only(bottom: 48),
             child: Column(
@@ -272,6 +299,57 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
             )
           ]),
         ),
+        if (api == ICalendarAPIType.wechat)
+          AdaptiveView(
+            cardMargin: const EdgeInsets.only(bottom: 48),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text(
+                    "选择学期",
+                    style: TextStyle(fontSize: 24),
+                  ),
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
+                const Card.outlined(
+                  child: AssetMarkdown(
+                      resource: "assets/README_ICALENDAR_TERM.md"),
+                ),
+                Card.outlined(
+                  child: ListTile(
+                    title: Text(term ?? "默认"),
+                    trailing: PopupMenuButton(
+                      key: termPopMenuKey,
+                      onSelected: (value) => setState(() {
+                        term = value;
+                      }),
+                      itemBuilder: (context) {
+                        if (terms == null || terms!.isEmpty) {
+                          WxTermsOutput.rustSignalStream.listen((data) {
+                            terms = (data.message.terms);
+                            termPopMenuKey.currentState?.showButtonMenu();
+                          });
+
+                          WxTermsInput().sendSignalToRust();
+                          terms = [];
+                        }
+
+                        return terms!
+                            .map((term) =>
+                                PopupMenuItem(value: term, child: Text(term)))
+                            .toList();
+                      },
+                      icon: Icon(Icons.adaptive.more),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
         AdaptiveView(
           cardMargin: const EdgeInsets.only(bottom: 48),
           child:
@@ -298,10 +376,17 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
                 label: Text(displayDate),
               ),
               ActionChip(
+                onPressed: () => _progressiveKey.currentState!.animateToPage(2),
+                avatar: const Icon(Icons.alarm),
+                label: Text(displayReminder),
+              ),
+              if (api == ICalendarAPIType.wechat)
+                ActionChip(
                   onPressed: () =>
-                      _progressiveKey.currentState!.animateToPage(2),
-                  avatar: const Icon(Icons.alarm),
-                  label: Text(displayReminder)),
+                      _progressiveKey.currentState!.animateToPage(3),
+                  avatar: const Icon(Icons.school),
+                  label: Text(term ?? "默认"),
+                ),
             ]),
           ]),
         ),
@@ -309,12 +394,20 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
       onSubmit: () {
         var date =
             "${firstweekdate.year}${firstweekdate.month.toString().padLeft(2, "0")}${firstweekdate.day.toString().padLeft(2, "0")}";
-
-        ICalendarInput(
-          firstweekdate: date,
-          reminder: reminder,
-          account: ArcheBus.bus.of<MultiAccoutData>().getCurrentSSOAccount(),
-        ).sendSignalToRust();
+        if (api == ICalendarAPIType.wechat) {
+          ICalendarWxInput(
+            firstweekdate: date,
+            reminder: reminder,
+            account: ArcheBus.bus.of<MultiAccoutData>().getCurrentEduAccount(),
+            term: term,
+          ).sendSignalToRust();
+        } else {
+          ICalendarInput(
+            firstweekdate: date,
+            reminder: reminder,
+            account: ArcheBus.bus.of<MultiAccoutData>().getCurrentSSOAccount(),
+          ).sendSignalToRust();
+        }
 
         setState(() {
           _underGenerating = true;

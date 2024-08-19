@@ -27,9 +27,10 @@ message ICalendarWxInput {
 }
 
 // [RINF:DART-SIGNAL]
-message TermsInput {}
+message WxTermsInput {}
 
 // [RINF:RUST-SIGNAL]
-message TermsOutput {
+message WxTermsOutput {
+    bool ok = 1;
     repeated string terms = 2;
 }
