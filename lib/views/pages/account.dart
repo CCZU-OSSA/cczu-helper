@@ -221,18 +221,29 @@ class _AddAccountPageState extends State<AddAccountPage> {
               Align(
                 alignment: Alignment.centerRight,
                 child: FilledButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => Dialog(
-                          child: _LoginWidget(
-                              widget.accountType,
-                              AccountData(
-                                  user: user.text, password: password.text)),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("测试登录"),
+                        content: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _LoginWidget(
+                                  widget.accountType,
+                                  AccountData(
+                                      user: user.text,
+                                      password: password.text)),
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                    child: const Text("测试登录")),
+                      ),
+                    );
+                  },
+                  child: const Text("测试登录"),
+                ),
               )
             ],
           ),
@@ -264,27 +275,23 @@ class _LoginWidgetState extends State<_LoginWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: AccountLoginCallback.rustSignalStream,
-      builder: (context, snapshot) {
-        var signal = snapshot.data;
-        if (signal == null) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
+    return Center(
+      child: StreamBuilder(
+        stream: AccountLoginCallback.rustSignalStream,
+        builder: (context, snapshot) {
+          var signal = snapshot.data;
+          if (signal == null) {
+            return const CircularProgressIndicator();
+          }
 
-        var message = signal.message;
-        if (message.ok) {
-          return const Center(
-            child: Icon(Icons.check),
-          );
-        }
+          var message = signal.message;
+          if (message.ok) {
+            return const Icon(Icons.check);
+          }
 
-        return Center(
-          child: Text(message.error),
-        );
-      },
+          return Text("${message.error} (可能由于网络问题导致，请多尝试)");
+        },
+      ),
     );
   }
 }

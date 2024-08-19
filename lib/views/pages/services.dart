@@ -1,6 +1,11 @@
 import 'dart:io';
 
+import 'package:arche/arche.dart';
+import 'package:arche/extensions/dialogs.dart';
+import 'package:arche/extensions/functions.dart';
+import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
+import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/services/sso/grades.dart';
 import 'package:cczu_helper/views/services/sso/icalendar.dart';
 import 'package:cczu_helper/views/services/misc/cmcc_account.dart';
@@ -29,7 +34,73 @@ class ServicePageState extends State<ServicePage>
     _tabController.dispose();
   }
 
+  static void accountCheckOnTap(Predicate<MultiAccoutData> predicate,
+      BuildContext context, ServiceItem item) {
+    if (predicate.test(ArcheBus().of())) {
+      var service = item.service;
+      if (service != null) {
+        pushMaterialRoute(
+          builder: (context) => service,
+        );
+      }
+    } else {
+      ComplexDialog.instance
+          .confirm(
+              context: context,
+              title: const Text("账户未填写!"),
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text("还未填写或选中账户，确认使用此功能？"),
+                  const SizedBox(
+                    height: 4,
+                  ),
+                  FilledButton(
+                      onPressed: () => pushMaterialRoute(
+                            builder: (context) => const AccountManagePage(),
+                          ),
+                      child: const Text("打开账户设置"))
+                ],
+              ))
+          .then((confirmed) {
+        if (confirmed) {
+          var service = item.service;
+          if (service != null) {
+            pushMaterialRoute(
+              builder: (context) => service,
+            );
+          }
+        }
+      });
+    }
+  }
+
+  static void eduCheckOnTap(BuildContext context, ServiceItem item) async =>
+      accountCheckOnTap(
+          (account) => account.hasCurrentEduAccount(), context, item);
+
+  static void ssoCheckOnTap(BuildContext context, ServiceItem item) async =>
+      accountCheckOnTap(
+          (account) => account.hasCurrentSSOAccount(), context, item);
+
   final _services = {
+    "教务系统": [
+      const ServiceItem(
+        text: "生成课程表(企微)",
+        service: ICalendarServicePage(
+          api: ICalendarAPIType.wechat,
+        ),
+        image: AssetImage("assets/icalendar.png"),
+        onTap: eduCheckOnTap,
+      ),
+      const ServiceItem(
+        text: "查询成绩(企微)",
+        service: WeChatGradeQueryServicePage(),
+        image: AssetImage("assets/grade.png"),
+        onTap: eduCheckOnTap,
+      ),
+    ],
     "一网通办": [
       const ServiceItem(
         text: "生成课程表",
@@ -37,26 +108,14 @@ class ServicePageState extends State<ServicePage>
           api: ICalendarAPIType.jwcas,
         ),
         image: AssetImage("assets/icalendar.png"),
+        onTap: ssoCheckOnTap,
       ),
       const ServiceItem(
         text: "查询成绩",
         service: GradeQueryServicePage(),
         image: AssetImage("assets/grade.png"),
+        onTap: ssoCheckOnTap,
       )
-    ],
-    "教务系统": [
-      const ServiceItem(
-        text: "查询成绩(企微)",
-        service: WeChatGradeQueryServicePage(),
-        image: AssetImage("assets/grade.png"),
-      ),
-      const ServiceItem(
-        text: "生成课程表(企微)",
-        service: ICalendarServicePage(
-          api: ICalendarAPIType.wechat,
-        ),
-        image: AssetImage("assets/icalendar.png"),
-      ),
     ],
     if (Platform.isWindows)
       "杂项": [
@@ -77,14 +136,15 @@ class ServicePageState extends State<ServicePage>
       length: _services.length,
       child: Scaffold(
         appBar: TabBar(
-            tabAlignment: TabAlignment.start,
-            isScrollable: true,
-            splashBorderRadius: BorderRadius.circular(8),
-            tabs: _services.keys
-                .map((e) => Tab(
-                      text: e,
-                    ))
-                .toList()),
+          tabAlignment: TabAlignment.start,
+          isScrollable: true,
+          splashBorderRadius: BorderRadius.circular(8),
+          tabs: _services.keys
+              .map((e) => Tab(
+                    text: e,
+                  ))
+              .toList(),
+        ),
         body: TabBarView(
           children: _services.values
               .map(
@@ -108,11 +168,13 @@ class ServiceItem extends StatelessWidget {
   final String text;
   final Widget? service;
   final ImageProvider image;
+  final Function(BuildContext context, ServiceItem item)? onTap;
   const ServiceItem({
     super.key,
     this.text = "",
     this.image = const AssetImage("assets/cczu_helper_icon.png"),
     this.service,
+    this.onTap,
   });
 
   @override
@@ -129,6 +191,10 @@ class ServiceItem extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
           onTap: () {
+            if (onTap != null) {
+              onTap!(context, this);
+              return;
+            }
             if (service != null) {
               pushMaterialRoute(
                 builder: (context) => service!,
