@@ -66,6 +66,13 @@ class CurriculumPageState extends State<CurriculumPage>
                   }),
                   child: const Text("生成"),
                 ),
+                FilledButton(
+                  onPressed: () =>
+                      pushMaterialRoute(builder: (BuildContext context) {
+                    return const ICalendarServicePage();
+                  }),
+                  child: const Text("生成(企微)"),
+                ),
               ].joinElement(
                 const SizedBox(
                   height: 8,

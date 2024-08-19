@@ -1,9 +1,13 @@
 use cczuni::{
     base::{app::AppVisitor, client::Account},
+    extension::calendar::{ApplicationCalendarExt, TermCalendarParser},
     impls::{apps::wechat::jwqywx::JwqywxApplication, client::DefaultClient},
 };
 
-use crate::messages::grades::{WeChatGradeData, WeChatGradesInput, WeChatGradesOutput};
+use crate::messages::{
+    grades::{WeChatGradeData, WeChatGradesInput, WeChatGradesOutput},
+    icalendar::ICalendarWxInput,
+};
 
 pub async fn get_grades() {
     let mut rev = WeChatGradesInput::get_dart_signal_receiver().unwrap();
@@ -52,6 +56,22 @@ pub async fn get_grades() {
                 error: Some("登陆失败".to_owned()),
             }
             .send_signal_to_dart()
+        }
+    }
+}
+
+pub async fn generate_icalendar() {
+    let mut rev = ICalendarWxInput::get_dart_signal_receiver().unwrap();
+
+    while let Some(signal) = rev.recv().await {
+        let message = signal.message;
+        let account = message.account.unwrap();
+
+        let client =
+            DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
+
+        let app = client.visit::<JwqywxApplication<_>>().await;
+        if let Some(term) = message.term {
         }
     }
 }

@@ -35,7 +35,7 @@ class CMCCAccountServiceState extends State<CMCCAccoutService> {
         CMCCAccountGenerateOutput.rustSignalStream.listen((event) {
       var message = event.message;
       ComplexDialog.instance.text(
-        title: const Text("成功!请复制保存!"),
+        title: const Text("成功! 请复制保存!"),
         context: context,
         content: SelectableText(message.account),
       );

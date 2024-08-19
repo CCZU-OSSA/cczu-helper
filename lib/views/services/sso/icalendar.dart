@@ -15,8 +15,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:rinf/rinf.dart';
 import 'package:share_plus/share_plus.dart';
 
+enum ICalendarAPIType { wechat, jwcas }
+
 class ICalendarServicePage extends StatefulWidget {
-  const ICalendarServicePage({super.key});
+  final ICalendarAPIType? api;
+
+  const ICalendarServicePage({super.key, this.api});
 
   @override
   State<StatefulWidget> createState() => ICalendarServicePageState();
@@ -24,7 +28,7 @@ class ICalendarServicePage extends StatefulWidget {
 
 class ICalendarServicePageState extends State<ICalendarServicePage> {
   final GlobalKey<ProgressiveViewState> _progressiveKey = GlobalKey();
-
+  ICalendarAPIType? api;
   late StreamSubscription<RustSignal<ICalendarOutput>> _streamICalendarOutput;
   late DateTime firstweekdate;
   int? reminder;
@@ -33,6 +37,7 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
   @override
   void initState() {
     super.initState();
+    api = widget.api;
     firstweekdate = DateTime.now();
     _streamICalendarOutput = ICalendarOutput.rustSignalStream.listen(
       (event) {
@@ -123,6 +128,10 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
       );
     }
 
+    if (api == null) {
+      return const Scaffold();
+    }
+
     var displayDate =
         "${firstweekdate.year} 年 ${firstweekdate.month} 月 ${firstweekdate.day} 日";
     var displayReminder =
@@ -131,8 +140,28 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
       key: _progressiveKey,
       children: [
         const AdaptiveView(
+          cardMargin: EdgeInsets.only(bottom: 48),
+          child: AssetMarkdown(resource: "assets/README_ICALENDAR_START.md"),
+        ),
+        if (widget.api == ICalendarAPIType.wechat)
+          const AdaptiveView(
             cardMargin: EdgeInsets.only(bottom: 48),
-            child: AssetMarkdown(resource: "assets/README_ICALENDAR_START.md")),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text(
+                    "选择学期",
+                    style: TextStyle(fontSize: 24),
+                  ),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+              ],
+            ),
+          ),
         AdaptiveView(
             cardMargin: const EdgeInsets.only(bottom: 48),
             child: Column(

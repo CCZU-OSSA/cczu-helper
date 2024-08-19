@@ -33,7 +33,9 @@ class ServicePageState extends State<ServicePage>
     "一网通办": [
       const ServiceItem(
         text: "生成课程表",
-        service: ICalendarServicePage(),
+        service: ICalendarServicePage(
+          api: ICalendarAPIType.jwcas,
+        ),
         image: AssetImage("assets/icalendar.png"),
       ),
       const ServiceItem(
@@ -47,18 +49,26 @@ class ServicePageState extends State<ServicePage>
         text: "查询成绩(企微)",
         service: WeChatGradeQueryServicePage(),
         image: AssetImage("assets/grade.png"),
-      )
-    ],
-    "杂项": [
-      Visibility(
-        visible: Platform.isWindows,
-        child: const ServiceItem(
-          text: "生成CMCC宽带拨号账户",
-          service: CMCCAccoutService(),
-          image: AssetImage("assets/cmcc_account.png"),
-        ),
       ),
-    ]
+      const ServiceItem(
+        text: "生成课程表(企微)",
+        service: ICalendarServicePage(
+          api: ICalendarAPIType.wechat,
+        ),
+        image: AssetImage("assets/icalendar.png"),
+      ),
+    ],
+    if (Platform.isWindows)
+      "杂项": [
+        Visibility(
+          visible: Platform.isWindows,
+          child: const ServiceItem(
+            text: "生成CMCC宽带拨号账户",
+            service: CMCCAccoutService(),
+            image: AssetImage("assets/cmcc_account.png"),
+          ),
+        ),
+      ]
   };
 
   @override

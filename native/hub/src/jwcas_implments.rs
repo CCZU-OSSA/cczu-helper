@@ -31,7 +31,7 @@ pub async fn generate_icalendar() {
             if let Err(err) = app.login().await {
                 ICalendarOutput {
                     ok: false,
-                    data: err.into(),
+                    data: err.to_string(),
                 }
                 .send_signal_to_dart()
             } else {
@@ -42,16 +42,16 @@ pub async fn generate_icalendar() {
                         message.reminder,
                     )
                     .await;
-                if let Some(calendar) = data {
+                if let Ok(calendar) = data {
                     ICalendarOutput {
                         ok: true,
                         data: calendar.to_string(),
                     }
                     .send_signal_to_dart()
-                } else {
+                } else if let Err(message) = data {
                     ICalendarOutput {
                         ok: false,
-                        data: "生成错误".into(),
+                        data: message.to_string(),
                     }
                     .send_signal_to_dart()
                 }
