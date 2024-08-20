@@ -301,13 +301,9 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
         : themeMode == ThemeMode.dark;
 
     if (configs.firstUse.getOr(true)) {
-      return SafeArea(
+      return const SafeArea(
         top: true,
-        child: TutorialPage(onSubmit: () {
-          setState(() {
-            configs.firstUse.write(false);
-          });
-        }),
+        child: TutorialPage(),
       );
     }
     var barBehavior = configs.barBehavior.getOr(BarBehavior.both);

@@ -226,8 +226,9 @@ class SettingsPageState extends State<SettingsPage> {
                     subtitle: const Text("Account Use Tutorial"),
                     onTap: () => pushMaterialRoute(
                       context: context,
-                      builder: (context) =>
-                          TutorialPage(onSubmit: Navigator.of(context).pop),
+                      builder: (context) => const TutorialPage(
+                        showFAB: false,
+                      ),
                     ),
                   ),
                   ListTile(
