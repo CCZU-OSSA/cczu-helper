@@ -241,7 +241,8 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
       ArcheBus.logger.info("try to `reScheduleAll` Notifications");
       Scheduler.reScheduleAll(context);
     }
-    platDirectory.getValue().then((subdir) {
+
+    platDirectory.then((subdir) {
       var subfile = subdir.subFile("error.log");
       if (subfile.existsSync()) {
         var data = subfile.readAsStringSync();
@@ -356,6 +357,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
       ),
       body: NavigationView(
         key: navKey,
+        backgroundColor: Colors.transparent,
         transitionBuilder: (child, animation) => FadeTransition(
           key: ValueKey(child),
           opacity: animation,

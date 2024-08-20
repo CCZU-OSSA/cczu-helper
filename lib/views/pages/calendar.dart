@@ -34,7 +34,7 @@ class CurriculumPageState extends State<CurriculumPage>
               value: ICalendarParser(await datafile.readAsString()));
         }
 
-        return Optional.empty();
+        return const Optional.none();
       }),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -219,7 +219,7 @@ class CurriculumPageState extends State<CurriculumPage>
                     ),
                   );
                 },
-                dataSource: CurriculumDataSource(snapshot.data!.value!.data),
+                dataSource: CurriculumDataSource(snapshot.data!.get().data),
               ),
             ),
           ),

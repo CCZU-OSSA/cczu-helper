@@ -7,4 +7,3 @@
  - [ ] Android/Windows 外其他平台相关功能支持与编译分发
    - [ ] iOS
    - [ ] MacOS
-   - [ ] Linux

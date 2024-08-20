@@ -131,7 +131,7 @@ class MultiAccoutData {
   static Future<Optional<MultiAccoutData>> tryReadAccounts() async {
     var data = await readAccounts();
     if (data == null) {
-      return Optional.empty();
+      return const Optional.none();
     }
 
     return Optional(value: data);

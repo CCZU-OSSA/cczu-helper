@@ -39,7 +39,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     value: configs.notificationsEnable.getOr(false),
                     onChanged: (bool value) async {
                       if (value) {
-                        Scheduler.requestAndroidPermission().then((value) {
+                        Scheduler.requestAndroidPermission()
+                            .then((value) async {
                           if (!value) {
                             showSnackBar(
                               context: context,
@@ -48,24 +49,22 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
                             return;
                           }
-
-                          platDirectory.getValue().then((platdir) {
-                            platdir
-                                .subFile("_curriculum.ics")
-                                .exists()
-                                .then((value) {
-                              if (value) {
-                                Scheduler.scheduleAll(context);
-                                setState(() {
-                                  configs.notificationsEnable.write(true);
-                                });
-                              } else {
-                                showSnackBar(
-                                  context: context,
-                                  content: const Text("尚未生成课表"),
-                                );
-                              }
-                            });
+                          var platdir = await platDirectory.getValue();
+                          platdir
+                              .subFile("_curriculum.ics")
+                              .exists()
+                              .then((value) {
+                            if (value) {
+                              Scheduler.scheduleAll(context);
+                              setState(() {
+                                configs.notificationsEnable.write(true);
+                              });
+                            } else {
+                              showSnackBar(
+                                context: context,
+                                content: const Text("尚未生成课表"),
+                              );
+                            }
                           });
                         });
 

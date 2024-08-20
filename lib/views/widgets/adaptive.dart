@@ -99,7 +99,7 @@ class AdaptiveListViewState extends State<AdaptiveListView> {
             flex: 1,
             child: ListView(
               children: widget.items
-                  .mapEnumerate(
+                  .enumerate(
                     (index, e) => AnimatedSwitcher(
                       duration: Durations.medium4,
                       child: ListTile(
