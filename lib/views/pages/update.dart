@@ -108,7 +108,10 @@ class CheckUpdatePageState extends State<CheckUpdatePage> {
                                           message: "下载",
                                           child: IconButton(
                                             onPressed: () => launchUrlString(
-                                                e.browserDownloadUrl),
+                                              e.browserDownloadUrl,
+                                              mode: LaunchMode
+                                                  .externalApplication,
+                                            ),
                                             icon: const Icon(Icons.download),
                                           ),
                                         ),
@@ -116,7 +119,10 @@ class CheckUpdatePageState extends State<CheckUpdatePage> {
                                           message: "镜像下载",
                                           child: IconButton(
                                             onPressed: () => launchUrlString(
-                                                "https://mirror.ghproxy.com/${e.browserDownloadUrl}"),
+                                              "https://mirror.ghproxy.com/${e.browserDownloadUrl}",
+                                              mode: LaunchMode
+                                                  .externalApplication,
+                                            ),
                                             icon: const Icon(
                                                 FontAwesomeIcons.server),
                                           ),
