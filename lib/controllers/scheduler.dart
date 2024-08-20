@@ -2,6 +2,7 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:arche/modules/application.dart';
 import 'package:cczu_helper/controllers/config.dart';
+import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -43,13 +44,11 @@ class Scheduler {
     }
   }
 
-  static void scheduleCalendar(
-      int id, CalendarData data, Duration add, BuildContext context) async {
+  static void scheduleCalendar(int id, CalendarData data, Duration add) async {
     var start = data.start.toDateTime()!;
-    var time =
-        DateFormat('a hh:mm', Localizations.localeOf(context).languageCode)
-            .format(start);
-
+    var time = DateFormat('a hh:mm',
+            Localizations.localeOf(viewKey.currentContext!).languageCode)
+        .format(start);
     await plugin.zonedSchedule(
       id,
       data.summary,
@@ -85,11 +84,11 @@ class Scheduler {
     return await plugin.pendingNotificationRequests();
   }
 
-  static void reScheduleAll(BuildContext context) {
-    cancelAll().then((value) async => await scheduleAll(context));
+  static void reScheduleAll() {
+    cancelAll().then((value) async => await scheduleAll());
   }
 
-  static Future<void> scheduleAll(BuildContext context) async {
+  static Future<void> scheduleAll() async {
     var now = DateTime.now();
     var configs = ArcheBus().of<ApplicationConfigs>();
 
@@ -114,8 +113,7 @@ class Scheduler {
                       : true),
             )
             .indexed
-            .forEach((data) =>
-                scheduleCalendar(data.$1, data.$2, reminder, context));
+            .forEach((data) => scheduleCalendar(data.$1, data.$2, reminder));
       }
     }
   }

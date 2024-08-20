@@ -240,7 +240,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     if (configs.notificationsEnable.getOr(false) &&
         configs.notificationsDay.getOr(true)) {
       ArcheBus.logger.info("try to `reScheduleAll` Notifications");
-      Scheduler.reScheduleAll(context);
+      Scheduler.reScheduleAll();
     }
 
     platDirectory.then((subdir) {

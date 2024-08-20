@@ -42,10 +42,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         Scheduler.requestAndroidPermission()
                             .then((value) async {
                           if (!value) {
-                            showSnackBar(
-                              context: context,
-                              content: const Text("尚未生成课表"),
-                            );
+                            if (mounted) {
+                              showSnackBar(
+                                context: this.context,
+                                content: const Text("尚未生成课表"),
+                              );
+                            }
 
                             return;
                           }
@@ -55,15 +57,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
                               .exists()
                               .then((value) {
                             if (value) {
-                              Scheduler.scheduleAll(context);
+                              Scheduler.scheduleAll();
                               setState(() {
                                 configs.notificationsEnable.write(true);
                               });
                             } else {
-                              showSnackBar(
-                                context: context,
-                                content: const Text("尚未生成课表"),
-                              );
+                              if (mounted) {
+                                showSnackBar(
+                                  context: this.context,
+                                  content: const Text("尚未生成课表"),
+                                );
+                              }
                             }
                           });
                         });
@@ -89,7 +93,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           configs.notificationsDay.write(value);
                         });
 
-                        Scheduler.reScheduleAll(context);
+                        Scheduler.reScheduleAll();
                       },
                     ),
                   ),
@@ -100,7 +104,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       title: const Text("重新计划通知"),
                       subtitle: const Text("reSchedule"),
                       onTap: () {
-                        Scheduler.reScheduleAll(context);
+                        Scheduler.reScheduleAll();
                         showSnackBar(
                             context: context, content: const Text("重新计划完成"));
                       },
@@ -130,18 +134,20 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         var reminder = int.tryParse(value);
 
                         if (reminder == null) {
-                          showSnackBar(
-                            context: context,
-                            content: Text("\"$value\" 不是一个整数"),
-                          );
+                          if (mounted) {
+                            showSnackBar(
+                              context: this.context,
+                              content: Text("\"$value\" 不是一个整数"),
+                            );
+                          }
+
                           return;
                         }
 
                         setState(() {
                           configs.notificationsReminder.write(reminder);
                         });
-
-                        Scheduler.reScheduleAll(context);
+                        Scheduler.reScheduleAll();
                       },
                     ),
                   ),
@@ -149,50 +155,59 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     leading: const Icon(Icons.schedule),
                     title: const Text("查看计划中的通知"),
                     subtitle: const Text("Notifications"),
-                    onTap: () => Scheduler.getScheduleNotifications().then(
-                      (value) => value.isNotEmpty
-                          ? showModalBottomSheet(
-                              context: context,
-                              builder: (context) {
-                                return Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: ListView(
-                                    children: value
-                                        .map(
-                                          (e) => Card(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .outlineVariant,
-                                            child: ListTile(
-                                              title: Text(e.title.toString()),
-                                              subtitle: Text(e.body.toString()),
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
-                                );
-                              },
-                            )
-                          : showSnackBar(
-                              context: context,
-                              content: const Text("暂无计划中的通知"),
-                            ),
-                    ),
+                    onTap: () =>
+                        Scheduler.getScheduleNotifications().then((value) {
+                      if (!mounted) {
+                        return;
+                      }
+
+                      if (value.isNotEmpty) {
+                        showModalBottomSheet(
+                          context: this.context,
+                          builder: (context) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: ListView(
+                                children: value
+                                    .map(
+                                      (e) => Card(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outlineVariant,
+                                        child: ListTile(
+                                          title: Text(e.title.toString()),
+                                          subtitle: Text(e.body.toString()),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            );
+                          },
+                        );
+                      } else {
+                        showSnackBar(
+                          context: this.context,
+                          content: const Text("暂无计划中的通知"),
+                        );
+                      }
+                    }),
                   ),
                   ListTile(
                     leading: const Icon(Icons.admin_panel_settings),
                     title: const Text("通知权限"),
                     subtitle: const Text("Notification Permission"),
                     onTap: () {
-                      Scheduler.requestAndroidPermission().then(
-                        (value) => ComplexDialog.instance.text(
-                          context: context,
-                          title: const Text("权限状态"),
-                          content:
-                              Text("权限 $value\n如果关闭应用无通知，请查询如何让你的手机系统允许应用后台行为"),
-                        ),
-                      );
+                      Scheduler.requestAndroidPermission().then((value) {
+                        if (mounted) {
+                          ComplexDialog.instance.text(
+                            context: this.context,
+                            title: const Text("权限状态"),
+                            content: Text(
+                                "权限 $value\n如果关闭应用无通知，请查询如何让你的手机系统允许应用后台行为"),
+                          );
+                        }
+                      });
                     },
                   ),
                   ListTile(

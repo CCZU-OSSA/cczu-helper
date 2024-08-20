@@ -46,6 +46,10 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
     firstweekdate = DateTime.now();
     _streamICalendarOutput = ICalendarOutput.rustSignalStream.listen(
       (event) {
+        if (!mounted) {
+          return;
+        }
+
         setState(() {
           _underGenerating = false;
         });
@@ -96,9 +100,13 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
                           await dir
                               .subFile("_curriculum.ics")
                               .writeAsString(data)
-                              .then((value) => ComplexDialog.instance.text(
-                                  context: context,
-                                  content: const Text("导入成功")));
+                              .then((value) {
+                            if (mounted) {
+                              ComplexDialog.instance.text(
+                                  context: this.context,
+                                  content: const Text("导入成功"));
+                            }
+                          });
                         },
                         icon: const Icon(FontAwesomeIcons.fileImport),
                         label: const SizedBox(

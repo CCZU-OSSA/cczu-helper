@@ -42,6 +42,7 @@ class ProgressiveViewState extends State<ProgressiveView> {
 
   @override
   Widget build(BuildContext context) {
+    var nav = Navigator.of(context);
     return Scaffold(
       appBar: widget.appBar ??
           AppBar(
@@ -62,7 +63,7 @@ class ProgressiveViewState extends State<ProgressiveView> {
                         content: const Text("未保存的内容将会丢失"))
                     .then((value) {
                   if (value) {
-                    Navigator.of(context).pop();
+                    nav.pop();
                   }
                 });
               },

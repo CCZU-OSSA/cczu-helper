@@ -144,6 +144,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    var nav = Navigator.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.account != null ? "编辑账户" : "添加账户"),
@@ -155,7 +156,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
                 var data = ArcheBus.bus.of<MultiAccoutData>();
                 data.deleteAccount(widget.account!, widget.accountType);
                 data.writeAccounts().then((_) {
-                  Navigator.of(context).pop();
+                  nav.pop();
                   widget.callback();
                 });
               },
@@ -178,7 +179,7 @@ class _AddAccountPageState extends State<AddAccountPage> {
             data.current[widget.accountType.name] = account;
           }
           data.writeAccounts().then((_) {
-            Navigator.of(context).pop();
+            nav.pop();
             widget.callback();
           });
         },
