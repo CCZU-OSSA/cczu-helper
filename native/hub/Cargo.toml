@@ -21,7 +21,7 @@ cczuni = { git = "https://github.com/CCZU-OSSA/cczuni.git", features = [
 ] }
 serde = "*"
 serde_json = "*"
-reqwest = "*"
+reqwest = { version = "*", default-features = false }
 
 [target.'cfg(windows)'.dependencies]
 guid-create = "0.4.1"
