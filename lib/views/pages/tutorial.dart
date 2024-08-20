@@ -12,7 +12,7 @@ class TutorialPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProgressiveView(appBar: AppBar(), onSubmit: onSubmit, children: [
+    return ProgressiveView(onSubmit: onSubmit, children: [
       AdaptiveView(
           child: Column(
         children: [

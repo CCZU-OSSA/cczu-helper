@@ -301,84 +301,89 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
         : themeMode == ThemeMode.dark;
 
     if (configs.firstUse.getOr(true)) {
-      return TutorialPage(onSubmit: () {
-        setState(() {
-          configs.firstUse.write(false);
-        });
-      });
+      return SafeArea(
+        top: true,
+        child: TutorialPage(onSubmit: () {
+          setState(() {
+            configs.firstUse.write(false);
+          });
+        }),
+      );
     }
     var barBehavior = configs.barBehavior.getOr(BarBehavior.both);
     var showTop =
         barBehavior == BarBehavior.top || barBehavior == BarBehavior.both;
     return Scaffold(
-      appBar: showTop
-          ? AppBar(
-              title: Text(viewItems[currentIndex].label),
-              forceMaterialTransparency: true,
-            )
-          : null,
-      drawer: showTop
-          ? NavigationDrawer(
-              selectedIndex: currentIndex,
-              onDestinationSelected: navKey.currentState?.pushIndex,
-              children: <Widget>[
-                    ListTile(
-                      leading: IconButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          icon: const Icon(Icons.arrow_back)),
-                      title: const Text("常大助手"),
-                      subtitle: const Text("CCZU HELPER"),
-                      trailing: InkWell(
-                        customBorder: const CircleBorder(),
-                        onTap: () => setState(() {
-                          configs.themeMode
-                              .write(isDark ? ThemeMode.light : ThemeMode.dark);
-                          rootKey.currentState?.refreshMounted();
-                          settingKey.currentState?.refresh();
-                        }),
-                        onLongPress: () => setState(() {
-                          configs.themeMode.write(ThemeMode.system);
-                          rootKey.currentState?.refreshMounted();
-                          settingKey.currentState?.refresh();
-                        }),
-                        child: AnimatedRotation(
-                          turns: isDark ? 0 : 1,
-                          duration: Durations.medium4,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Icon(
-                                isDark ? Icons.light_mode : Icons.dark_mode),
+        appBar: showTop
+            ? AppBar(
+                title: Text(viewItems[currentIndex].label),
+                forceMaterialTransparency: true,
+              )
+            : null,
+        drawer: showTop
+            ? NavigationDrawer(
+                selectedIndex: currentIndex,
+                onDestinationSelected: navKey.currentState?.pushIndex,
+                children: <Widget>[
+                      ListTile(
+                        leading: IconButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            icon: const Icon(Icons.arrow_back)),
+                        title: const Text("常大助手"),
+                        subtitle: const Text("CCZU HELPER"),
+                        trailing: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => setState(() {
+                            configs.themeMode.write(
+                                isDark ? ThemeMode.light : ThemeMode.dark);
+                            rootKey.currentState?.refreshMounted();
+                            settingKey.currentState?.refresh();
+                          }),
+                          onLongPress: () => setState(() {
+                            configs.themeMode.write(ThemeMode.system);
+                            rootKey.currentState?.refreshMounted();
+                            settingKey.currentState?.refresh();
+                          }),
+                          child: AnimatedRotation(
+                            turns: isDark ? 0 : 1,
+                            duration: Durations.medium4,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Icon(
+                                  isDark ? Icons.light_mode : Icons.dark_mode),
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  ] +
-                  viewItems
-                      .map(
-                        (e) => NavigationDrawerDestination(
-                          icon: e.icon,
-                          label: Text(e.label),
-                        ),
                       )
-                      .toList(),
-            )
-          : null,
-      body: NavigationView(
-        key: navKey,
-        backgroundColor: Colors.transparent,
-        transitionBuilder: (child, animation) => FadeTransition(
-          key: ValueKey(child),
-          opacity: animation,
-          child: child,
-        ),
-        showBar: barBehavior == BarBehavior.bottom ||
-            barBehavior == BarBehavior.both,
-        direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
-        pageViewCurve: Curves.fastLinearToSlowEaseIn,
-        onPageChanged: (value) => setState(() => currentIndex = value),
-        items: viewItems,
-        labelType: NavigationLabelType.selected,
-      ),
-    );
+                    ] +
+                    viewItems
+                        .map(
+                          (e) => NavigationDrawerDestination(
+                            icon: e.icon,
+                            label: Text(e.label),
+                          ),
+                        )
+                        .toList(),
+              )
+            : null,
+        body: SafeArea(
+          top: true,
+          child: NavigationView(
+            key: navKey,
+            backgroundColor: Colors.transparent,
+            transitionBuilder: (child, animation) => FadeTransition(
+              key: ValueKey(child),
+              opacity: animation,
+              child: child,
+            ),
+            showBar: barBehavior == BarBehavior.bottom ||
+                barBehavior == BarBehavior.both,
+            direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
+            pageViewCurve: Curves.fastLinearToSlowEaseIn,
+            onPageChanged: (value) => setState(() => currentIndex = value),
+            items: viewItems,
+            labelType: NavigationLabelType.selected,
+          ),
+        ));
   }
 }
