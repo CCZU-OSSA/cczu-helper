@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:arche/arche.dart';
+import 'package:cczu_helper/models/barbehavior.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -23,10 +24,16 @@ class ApplicationConfigs {
   const ApplicationConfigs(this.generator);
   ConfigEntry<String> get sysfont => generator("sysfont");
 
-  ConfigEntry<bool> get showBar => generator("showbar");
   ConfigEntryConverter<int, ThemeMode> get themeMode => ConfigEntryConverter(
         generator("thememode"),
         forward: (value) => ThemeMode.values[value],
+        reverse: (value) => value.index,
+      );
+
+  ConfigEntryConverter<int, BarBehavior> get barBehavior =>
+      ConfigEntryConverter(
+        generator("barbehavior"),
+        forward: (value) => BarBehavior.values[value],
         reverse: (value) => value.index,
       );
   ConfigEntryConverter<int, CalendarView> get calendarView =>

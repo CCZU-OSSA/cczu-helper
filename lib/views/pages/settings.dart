@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
+import 'package:cczu_helper/models/barbehavior.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/models/version.dart';
@@ -12,6 +13,7 @@ import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/notifications.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
+import 'package:cczu_helper/views/widgets/seletor.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:system_fonts/system_fonts.dart';
@@ -30,8 +32,6 @@ class SettingsPageState extends State<SettingsPage> {
       setState(() {});
     }
   }
-
-  final GlobalKey<PopupMenuButtonState> _themeModeMenuKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -106,30 +106,14 @@ class SettingsPageState extends State<SettingsPage> {
                     leading: const Icon(Icons.color_lens),
                     title: const Text("主题"),
                     subtitle: const Text("Theme"),
-                    onTap: () =>
-                        _themeModeMenuKey.currentState?.showButtonMenu(),
-                    trailing: IgnorePointer(
-                      child: PopupMenuButton(
-                        key: _themeModeMenuKey,
-                        child: Text(thememodeTr
-                            .translation(
-                                configs.themeMode.getOr(ThemeMode.system))
-                            .toString()),
-                        itemBuilder: (context) => ThemeMode.values
-                            .map(
-                              (e) => PopupMenuItem(
-                                child:
-                                    Text(thememodeTr.translation(e).toString()),
-                                onTap: () {
-                                  setState(() {
-                                    configs.themeMode.write(e);
-                                  });
-                                  rootKey.currentState?.refreshMounted();
-                                },
-                              ),
-                            )
-                            .toList(),
-                      ),
+                    trailing: Seletor(
+                      itemBuilder: (context) => ThemeMode.values,
+                      translator: thememodeTr,
+                      value: configs.themeMode.getOr(ThemeMode.system),
+                      onSelected: (value) {
+                        configs.themeMode.write(value);
+                        rootKey.currentState?.refreshMounted();
+                      },
                     ),
                   ),
                   Visibility(
@@ -138,57 +122,52 @@ class SettingsPageState extends State<SettingsPage> {
                         Platform.isMacOS,
                     child: ListTile(
                       leading: const Icon(FontAwesomeIcons.font),
-                      title: const Text("系统字体"),
-                      subtitle: Text(configs.sysfont.tryGet() ?? "Default"),
-                      trailing: PopupMenuButton(
-                        initialValue: configs.sysfont.tryGet(),
+                      title: const Text("字体"),
+                      subtitle: const Text("Font"),
+                      trailing: Seletor(
+                        itemBuilder: (context) {
+                          var fonts = SystemFonts().getFontList();
+                          fonts.sort();
+                          return fonts;
+                        },
+                        tileBuilder: (context, value) {
+                          return FutureBuilder(
+                            future: SystemFonts().loadFont(value),
+                            builder: (context, snapshot) {
+                              var data = snapshot.data;
+                              if (data == null) {
+                                return Text(value);
+                              }
+
+                              return Text(
+                                data,
+                                style: TextStyle(fontFamily: data),
+                              );
+                            },
+                          );
+                        },
+                        value: configs.sysfont.getOr("System Default"),
                         onSelected: (value) async {
                           await SystemFonts().loadFont(value);
                           configs.sysfont.write(value);
-                          setState(() {});
                           rootKey.currentState?.refreshMounted();
-                        },
-                        itemBuilder: (BuildContext context) {
-                          var fonts = SystemFonts().getFontList();
-                          fonts.sort();
-                          return fonts
-                              .map(
-                                (fontName) => PopupMenuItem(
-                                    value: fontName,
-                                    child: FutureBuilder(
-                                      future: SystemFonts().loadFont(fontName),
-                                      builder: (context, snapshot) {
-                                        var data = snapshot.data;
-
-                                        if (data == null) {
-                                          return Text(fontName);
-                                        }
-                                        return Text(
-                                          data,
-                                          style:
-                                              TextStyle(fontFamily: fontName),
-                                        );
-                                      },
-                                    )),
-                              )
-                              .toList();
                         },
                       ),
                     ),
                   ),
-                  SwitchListTile(
-                    title: const Text("显示导航栏"),
-                    subtitle: const Text("Navigation Bar"),
-                    secondary: const Icon(Icons.visibility),
-                    value: configs.showBar.getOr(true),
-                    onChanged: (value) {
-                      setState(() {
-                        configs.showBar.write(value);
-                      });
-
-                      viewKey.currentState?.refreshMounted();
-                    },
-                  ),
+                  ListTile(
+                      leading: const Icon(Icons.visibility),
+                      title: const Text("导航样式"),
+                      subtitle: const Text("Navigation Style"),
+                      trailing: Seletor(
+                        itemBuilder: (context) => BarBehavior.values,
+                        translator: barBehaviorTr,
+                        value: configs.barBehavior.getOr(BarBehavior.both),
+                        onSelected: (value) {
+                          configs.barBehavior.write(value);
+                          viewKey.currentState?.refreshMounted();
+                        },
+                      )),
                 ],
               ),
             ),

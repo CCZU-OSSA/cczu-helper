@@ -11,6 +11,7 @@ import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/messages/generated.dart';
+import 'package:cczu_helper/models/barbehavior.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/calendar.dart';
 import 'package:cczu_helper/views/pages/services.dart';
@@ -306,55 +307,62 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
         });
       });
     }
-
+    var barBehavior = configs.barBehavior.getOr(BarBehavior.both);
+    var showTop =
+        barBehavior == BarBehavior.top || barBehavior == BarBehavior.both;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(viewItems[currentIndex].label),
-        forceMaterialTransparency: true,
-      ),
-      drawer: NavigationDrawer(
-        selectedIndex: currentIndex,
-        onDestinationSelected: navKey.currentState?.pushIndex,
-        children: <Widget>[
-              ListTile(
-                leading: IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.arrow_back)),
-                title: const Text("常大助手"),
-                subtitle: const Text("CCZU HELPER"),
-                trailing: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () => setState(() {
-                    configs.themeMode
-                        .write(isDark ? ThemeMode.light : ThemeMode.dark);
-                    rootKey.currentState?.refreshMounted();
-                    settingKey.currentState?.refresh();
-                  }),
-                  onLongPress: () => setState(() {
-                    configs.themeMode.write(ThemeMode.system);
-                    rootKey.currentState?.refreshMounted();
-                    settingKey.currentState?.refresh();
-                  }),
-                  child: AnimatedRotation(
-                    turns: isDark ? 0 : 1,
-                    duration: Durations.medium4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
-                    ),
-                  ),
-                ),
-              )
-            ] +
-            viewItems
-                .map(
-                  (e) => NavigationDrawerDestination(
-                    icon: e.icon,
-                    label: Text(e.label),
-                  ),
-                )
-                .toList(),
-      ),
+      appBar: showTop
+          ? AppBar(
+              title: Text(viewItems[currentIndex].label),
+              forceMaterialTransparency: true,
+            )
+          : null,
+      drawer: showTop
+          ? NavigationDrawer(
+              selectedIndex: currentIndex,
+              onDestinationSelected: navKey.currentState?.pushIndex,
+              children: <Widget>[
+                    ListTile(
+                      leading: IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.arrow_back)),
+                      title: const Text("常大助手"),
+                      subtitle: const Text("CCZU HELPER"),
+                      trailing: InkWell(
+                        customBorder: const CircleBorder(),
+                        onTap: () => setState(() {
+                          configs.themeMode
+                              .write(isDark ? ThemeMode.light : ThemeMode.dark);
+                          rootKey.currentState?.refreshMounted();
+                          settingKey.currentState?.refresh();
+                        }),
+                        onLongPress: () => setState(() {
+                          configs.themeMode.write(ThemeMode.system);
+                          rootKey.currentState?.refreshMounted();
+                          settingKey.currentState?.refresh();
+                        }),
+                        child: AnimatedRotation(
+                          turns: isDark ? 0 : 1,
+                          duration: Durations.medium4,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Icon(
+                                isDark ? Icons.light_mode : Icons.dark_mode),
+                          ),
+                        ),
+                      ),
+                    )
+                  ] +
+                  viewItems
+                      .map(
+                        (e) => NavigationDrawerDestination(
+                          icon: e.icon,
+                          label: Text(e.label),
+                        ),
+                      )
+                      .toList(),
+            )
+          : null,
       body: NavigationView(
         key: navKey,
         backgroundColor: Colors.transparent,
@@ -363,7 +371,8 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
           opacity: animation,
           child: child,
         ),
-        showBar: configs.showBar.getOr(true),
+        showBar: barBehavior == BarBehavior.bottom ||
+            barBehavior == BarBehavior.both,
         direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
         pageViewCurve: Curves.fastLinearToSlowEaseIn,
         onPageChanged: (value) => setState(() => currentIndex = value),
