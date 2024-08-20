@@ -49,7 +49,7 @@ void main() {
         var loader = FontLoader("Custom Font")
           ..addFont(
             Future(() async {
-              var data = await File("customfont").readAsBytes();
+              var data = await customfont.readAsBytes();
 
               return data.buffer.asByteData();
             }),
@@ -274,7 +274,8 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
                 ),
               ),
               Visibility(
-                visible: !Platform.isAndroid,
+                visible:
+                    Platform.isLinux || Platform.isMacOS || Platform.isWindows,
                 child: Padding(
                   padding: const EdgeInsets.all(8),
                   child: FilledButton.icon(
