@@ -226,8 +226,11 @@ class SettingsPageState extends State<SettingsPage> {
                     subtitle: const Text("Account Use Tutorial"),
                     onTap: () => pushMaterialRoute(
                       context: context,
-                      builder: (context) => const TutorialPage(
-                        showFAB: false,
+                      builder: (context) => Scaffold(
+                        appBar: AppBar(),
+                        body: const TutorialPage(
+                          showFAB: false,
+                        ),
                       ),
                     ),
                   ),
