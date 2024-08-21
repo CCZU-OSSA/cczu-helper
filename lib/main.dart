@@ -11,7 +11,7 @@ import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/messages/generated.dart';
-import 'package:cczu_helper/models/barbehavior.dart';
+import 'package:cczu_helper/models/navstyle.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/calendar.dart';
 import 'package:cczu_helper/views/pages/services.dart';
@@ -23,7 +23,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:rinf/rinf.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 import 'package:system_fonts/system_fonts.dart';
 
 void main() {
@@ -171,7 +170,6 @@ class MainApplicationState extends State<MainApplication>
           GlobalWidgetsLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
-          SfGlobalLocalizations.delegate,
         ],
         supportedLocales: const [
           Locale.fromSubtags(languageCode: 'zh'), // generic Chinese 'zh'
@@ -304,14 +302,18 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     if (configs.firstUse.getOr(true)) {
       return const TutorialPage();
     }
-    var barBehavior = configs.barBehavior.getOr(BarBehavior.both);
+    var theme = Theme.of(context);
+    var colorScheme = theme.colorScheme;
+    var navStyle = configs.navStyle.getOr(NavigationStyle.both);
     var showTop =
-        barBehavior == BarBehavior.top || barBehavior == BarBehavior.both;
+        navStyle == NavigationStyle.top || navStyle == NavigationStyle.both;
     return Scaffold(
         appBar: showTop
             ? AppBar(
                 title: Text(viewItems[currentIndex].label),
-                forceMaterialTransparency: true,
+                surfaceTintColor: Colors.transparent,
+                backgroundColor: colorScheme.surfaceContainer,
+                forceMaterialTransparency: configs.forceTransparent.getOr(true),
               )
             : null,
         drawer: showTop
@@ -364,14 +366,28 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
           top: true,
           child: NavigationView(
             key: navKey,
+            transitionBuilder: (child, animation) {
+              if (configs.weakAnimation.getOr(true)) {
+                return AnimatedSwitcher.defaultTransitionBuilder(
+                    child, animation);
+              }
+
+              const begin = Offset(1, 0);
+              const end = Offset.zero;
+              final tween = Tween(begin: begin, end: end)
+                  .chain(CurveTween(curve: Curves.fastEaseInToSlowEaseOut));
+              final offsetAnimation = animation.drive(tween);
+              return SlideTransition(
+                position: offsetAnimation,
+                child: Container(
+                  color: theme.scaffoldBackgroundColor,
+                  child: child,
+                ),
+              );
+            },
             backgroundColor: Colors.transparent,
-            transitionBuilder: (child, animation) => FadeTransition(
-              key: ValueKey(child),
-              opacity: animation,
-              child: child,
-            ),
-            showBar: barBehavior == BarBehavior.bottom ||
-                barBehavior == BarBehavior.both,
+            showBar: navStyle == NavigationStyle.bottom ||
+                navStyle == NavigationStyle.both,
             direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
             pageViewCurve: Curves.fastLinearToSlowEaseIn,
             onPageChanged: (value) => setState(() => currentIndex = value),

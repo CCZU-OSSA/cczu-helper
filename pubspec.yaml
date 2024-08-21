@@ -37,7 +37,7 @@ dependencies:
   dynamic_color: ^1.7.0
   path_provider: ^2.1.4
   url_launcher: ^6.3.0
-  arche: ^1.1.5
+  arche: ^1.1.6
   font_awesome_flutter: ^10.7.0
   flutter_localizations:
     sdk: flutter
@@ -49,10 +49,8 @@ dependencies:
   flutter_markdown: ^0.6.19
   syncfusion_flutter_calendar: ^26.2.10
   icalendar_parser: ^2.0.0
-  syncfusion_localizations: ^26.2.10
   flutter_local_notifications: ^17.2.2
   timezone: ^0.9.3
-  syncfusion_flutter_core: ^26.2.10
   flutter_native_splash: ^2.4.1
   system_fonts: ^1.0.1
 

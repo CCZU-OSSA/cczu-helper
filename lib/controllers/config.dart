@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:arche/arche.dart';
-import 'package:cczu_helper/models/barbehavior.dart';
+import 'package:cczu_helper/models/navstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -30,10 +30,10 @@ class ApplicationConfigs {
         reverse: (value) => value.index,
       );
 
-  ConfigEntryConverter<int, BarBehavior> get barBehavior =>
+  ConfigEntryConverter<int, NavigationStyle> get navStyle =>
       ConfigEntryConverter(
-        generator("barbehavior"),
-        forward: (value) => BarBehavior.values[value],
+        generator("navigation_style"),
+        forward: (value) => NavigationStyle.values[value],
         reverse: (value) => value.index,
       );
   ConfigEntryConverter<int, CalendarView> get calendarView =>
@@ -55,4 +55,6 @@ class ApplicationConfigs {
       generator("notifications_reminder");
   ConfigEntry<bool> get notificationsDay => generator("notifications_day");
   ConfigEntry<bool> get firstUse => generator("first_use");
+  ConfigEntry<bool> get weakAnimation => generator("weak_animation");
+  ConfigEntry<bool> get forceTransparent => generator("force_transparent");
 }

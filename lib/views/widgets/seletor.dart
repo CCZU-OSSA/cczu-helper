@@ -38,8 +38,11 @@ class EnumSeletorState<T> extends State<Seletor<T>> {
     var translator = widget.translator;
     var labelBuilder = widget.labelBuilder;
     var tileBuilder = widget.tileBuilder;
+    GlobalKey<PopupMenuButtonState> key = GlobalKey();
     return PopupMenuButton<T>(
+      key: key,
       initialValue: value,
+      position: PopupMenuPosition.under,
       onSelected: (value) {
         setState(() {
           this.value = value;
@@ -63,7 +66,10 @@ class EnumSeletorState<T> extends State<Seletor<T>> {
             ),
           )
           .toList(),
-      child: Chip(
+      child: ActionChip(
+        onPressed: () {
+          key.currentState?.showButtonMenu();
+        },
         label: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

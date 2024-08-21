@@ -154,3 +154,14 @@ class AdaptiveListViewState extends State<AdaptiveListView> {
     );
   }
 }
+
+class AdaptiveWidget extends StatelessWidget {
+  final Widget wide;
+  final Widget short;
+  const AdaptiveWidget({super.key, required this.wide, required this.short});
+
+  @override
+  Widget build(BuildContext context) {
+    return isWideScreen(context) ? wide : short;
+  }
+}

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
-import 'package:cczu_helper/models/barbehavior.dart';
+import 'package:cczu_helper/models/navstyle.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/models/version.dart';
@@ -73,7 +73,7 @@ class SettingsPageState extends State<SettingsPage> {
                   ListTile(
                     leading: const Icon(Icons.update),
                     title: const Text("检查更新"),
-                    subtitle: const Text("Check Update"),
+                    subtitle: const Text("Update"),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: () => pushMaterialRoute(
                       builder: (context) => const CheckUpdatePage(),
@@ -82,7 +82,7 @@ class SettingsPageState extends State<SettingsPage> {
                   SwitchListTile(
                     secondary: const Icon(Icons.skip_next),
                     title: const Text("跳过多步确认"),
-                    subtitle: const Text("Skip Multi Confirm"),
+                    subtitle: const Text("Skip Confirm"),
                     value: configs.skipServiceExitConfirm.getOr(false),
                     onChanged: (value) {
                       setState(() {
@@ -108,7 +108,7 @@ class SettingsPageState extends State<SettingsPage> {
                     subtitle: const Text("Theme"),
                     trailing: Seletor(
                       itemBuilder: (context) => ThemeMode.values,
-                      translator: thememodeTr,
+                      translator: themeModeTr,
                       value: configs.themeMode.getOr(ThemeMode.system),
                       onSelected: (value) {
                         configs.themeMode.write(value);
@@ -156,18 +156,42 @@ class SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                   ListTile(
-                      leading: const Icon(Icons.visibility),
-                      title: const Text("导航样式"),
-                      subtitle: const Text("Navigation Style"),
-                      trailing: Seletor(
-                        itemBuilder: (context) => BarBehavior.values,
-                        translator: barBehaviorTr,
-                        value: configs.barBehavior.getOr(BarBehavior.both),
-                        onSelected: (value) {
-                          configs.barBehavior.write(value);
-                          viewKey.currentState?.refreshMounted();
-                        },
-                      )),
+                    leading: const Icon(Icons.visibility),
+                    title: const Text("导航样式"),
+                    subtitle: const Text("Navigation"),
+                    trailing: Seletor(
+                      itemBuilder: (context) => NavigationStyle.values,
+                      translator: navStyleTr,
+                      value: configs.navStyle.getOr(NavigationStyle.both),
+                      onSelected: (value) {
+                        configs.navStyle.write(value);
+                        viewKey.currentState?.refreshMounted();
+                      },
+                    ),
+                  ),
+                  SwitchListTile(
+                    value: configs.forceTransparent.getOr(true),
+                    secondary: const Icon(Icons.invert_colors_off),
+                    title: const Text("顶栏透明"),
+                    subtitle: const Text("Transparent"),
+                    onChanged: (value) {
+                      setState(() {
+                        configs.forceTransparent.write(value);
+                      });
+                      viewKey.currentState?.refreshMounted();
+                    },
+                  ),
+                  SwitchListTile(
+                    value: configs.weakAnimation.getOr(false),
+                    secondary: const Icon(Icons.animation),
+                    title: const Text("使用弱动画"),
+                    subtitle: const Text("Weak Animation"),
+                    onChanged: (value) {
+                      setState(() {
+                        configs.weakAnimation.write(value);
+                      });
+                    },
+                  ),
                 ],
               ),
             ),
@@ -193,8 +217,8 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                   ListTile(
                     leading: const Icon(Icons.book),
-                    title: const Text("当前日志"),
-                    subtitle: const Text("Current Logs"),
+                    title: const Text("日志"),
+                    subtitle: const Text("Logs"),
                     trailing: const Icon(Icons.arrow_right),
                     onTap: () => pushMaterialRoute(
                       builder: (context) => const LogPage(),
@@ -223,7 +247,7 @@ class SettingsPageState extends State<SettingsPage> {
                   ListTile(
                     leading: const Icon(Icons.book),
                     title: const Text("账户使用指南"),
-                    subtitle: const Text("Account Use Tutorial"),
+                    subtitle: const Text("Account Usage"),
                     onTap: () => pushMaterialRoute(
                       context: context,
                       builder: (context) => Scaffold(
@@ -232,6 +256,15 @@ class SettingsPageState extends State<SettingsPage> {
                           showFAB: false,
                         ),
                       ),
+                    ),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.home),
+                    title: const Text("官方网站"),
+                    subtitle: const Text("源神.常州大学.com"),
+                    onTap: () => launchUrlString(
+                      "https://cczu-ossa.github.io/home",
+                      mode: LaunchMode.externalApplication,
                     ),
                   ),
                   ListTile(
