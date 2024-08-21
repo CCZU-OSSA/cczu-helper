@@ -8,7 +8,6 @@ import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/views/services/sso/icalendar.dart';
-import 'package:cczu_helper/views/widgets/adaptive.dart';
 import 'package:flutter/material.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:intl/intl.dart';
@@ -50,9 +49,6 @@ class CalendarHeaderState extends State<CalendarHeader> {
           },
           icon: const Icon(Icons.arrow_left_rounded),
         ),
-        const SizedBox(
-          width: 4,
-        ),
         IconButton(
           onPressed: () {
             controller.forward!();
@@ -87,19 +83,11 @@ class CalendarHeaderState extends State<CalendarHeader> {
           ),
           Row(
             children: [
-              AdaptiveWidget(
-                wide: ActionChip(
-                  label: const Text("今天"),
-                  onPressed: () {
-                    controller.displayDate = DateTime.now();
-                  },
-                ),
-                short: IconButton(
-                  icon: const Icon(Icons.today),
-                  onPressed: () {
-                    controller.displayDate = DateTime.now();
-                  },
-                ),
+              IconButton(
+                icon: const Icon(Icons.today),
+                onPressed: () {
+                  controller.displayDate = DateTime.now();
+                },
               ),
               PopupMenuButton(
                 initialValue: configs.calendarView.getOr(CalendarView.week),
