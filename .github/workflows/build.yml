@@ -19,6 +19,8 @@ jobs:
         include:
           - runner: ubuntu-latest
             target: android
+          - runner: ubuntu-latest
+            target: android-impeller
           - runner: windows-latest
             target: windows
           - runner: ubuntu-latest
@@ -48,6 +50,7 @@ jobs:
         if: matrix.target == 'android'
         run: |
           dart run flutter_native_splash:create
+
       # Windows
       - name: Build windows (Windows)
         if: matrix.target == 'windows'
@@ -72,8 +75,24 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
       - name: Upload ArmALL Artifact (Android)
         if: matrix.target == 'android'
+        uses: actions/upload-artifact@v4
+        with:
+          name: armAll
+          path: build/app/outputs/apk/release/*
+
+      - name: Build armAll apk (Impeller)
+        if: matrix.target == 'android-impeller'
+        run: flutter build apk --release
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload ArmALL Artifact (Android-Impeller)
+        if: matrix.target == 'android-impeller'
         uses: actions/upload-artifact@v4
         with:
           name: armAll
@@ -86,8 +105,24 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
       - name: Upload Artifact (Android)
         if: matrix.target == 'android'
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: build/app/outputs/apk/release/*
+
+      - name: Build Split apks (Impeller)
+        if: matrix.target == 'android-impller'
+        run: flutter build apk --split-per-abi --release --enable-impeller
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload Artifact (Android Impeller)
+        if: matrix.target == 'android-impller'
         uses: actions/upload-artifact@v4
         with:
           name: apks

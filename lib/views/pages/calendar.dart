@@ -51,8 +51,9 @@ class CalendarHeaderState extends State<CalendarHeader> {
         ),
         IconButton(
           onPressed: () {
-            controller.forward!();
-            setState(() {});
+            setState(() {
+              controller.forward!();
+            });
           },
           icon: const Icon(Icons.arrow_right_rounded),
         ),
@@ -70,12 +71,15 @@ class CalendarHeaderState extends State<CalendarHeader> {
                 onPressed: () async {
                   var now = DateTime.now();
                   var date = await showDatePicker(
+                      initialDate: controller.displayDate ?? now,
                       context: context,
                       firstDate: now.add(const Duration(days: -365)),
                       lastDate: now.add(const Duration(days: 365)));
                   if (date != null) {
                     controller.displayDate = date;
                   }
+
+                  setState(() {});
                 },
                 child: Text(formatter.format(date)),
               ),
