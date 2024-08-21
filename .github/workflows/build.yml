@@ -32,7 +32,7 @@ jobs:
         with:
           channel: "stable"
 
-      - name: Set up JDK 17 (Android)
+      - name: Set up JDK 17 (Android - ALL)
         if: matrix.target == 'android' || matrix.target == 'android-impeller'
         uses: actions/setup-java@v4
         with:
@@ -46,8 +46,8 @@ jobs:
           rinf message
           dart fix --apply
 
-      - name: Prepare Build (Android)
-        if: matrix.target == 'android'
+      - name: Prepare Build (Android - ALL)
+        if: matrix.target == 'android' || matrix.target == 'android-impeller'
         run: |
           dart run flutter_native_splash:create
 
@@ -61,14 +61,15 @@ jobs:
         with:
           name: windows-x64
           path: build/windows/x64/runner/Release/*
+
       # Android
-      - name: Decode Signing (Android)
-        if: matrix.target == 'android'
+      - name: Decode Signing (Android - ALL)
+        if: matrix.target == 'android' || matrix.target == 'android-impeller'
         run: echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
         env:
           ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
 
-      - name: Build armAll apk
+      - name: Build armAll apk (Android)
         if: matrix.target == 'android'
         run: flutter build apk --release
         env:
@@ -83,7 +84,7 @@ jobs:
           name: armAll
           path: build/app/outputs/apk/release/*
 
-      - name: Build armAll apk (Impeller)
+      - name: Build armAll apk (Android Impeller)
         if: matrix.target == 'android-impeller'
         run: flutter build apk --release --enable-impeller
         env:
@@ -91,14 +92,14 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload ArmALL Artifact (Android-Impeller)
+      - name: Upload ArmALL Artifact (Android Impeller)
         if: matrix.target == 'android-impeller'
         uses: actions/upload-artifact@v4
         with:
-          name: armAll
+          name: armAll-impeller
           path: build/app/outputs/apk/release/*
 
-      - name: Build Split apks
+      - name: Build Split apks (Android)
         if: matrix.target == 'android'
         run: flutter build apk --split-per-abi --release
         env:
@@ -110,10 +111,10 @@ jobs:
         if: matrix.target == 'android'
         uses: actions/upload-artifact@v4
         with:
-          name: apks
+          name: apks-impeller
           path: build/app/outputs/apk/release/*
 
-      - name: Build Split apks (Impeller)
+      - name: Build Split apks (Android Impeller)
         if: matrix.target == 'android-impller'
         run: flutter build apk --split-per-abi --release --enable-impeller
         env:
