@@ -40,6 +40,16 @@ class WeChatGradeQueryServicePageState
           );
         }
         var message = signal.message;
+
+        if (!message.ok) {
+          return Scaffold(
+            appBar: AppBar(),
+            body: Center(
+              child: Text(message.error),
+            ),
+          );
+        }
+
         int curTerm = message.data.fold(
             0, (term, element) => term < element.term ? element.term : term);
 

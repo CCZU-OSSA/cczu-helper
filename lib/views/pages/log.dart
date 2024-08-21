@@ -88,7 +88,7 @@ class _LogPageState extends State<LogPage> with TickerProviderStateMixin {
           children: logs
               .map(
                 (e) => Padding(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(4),
                   child: Card(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
