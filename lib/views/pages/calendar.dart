@@ -33,6 +33,26 @@ class CalendarHeaderState extends State<CalendarHeader> {
   CalendarController get controller => widget.controller;
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.addPropertyChangedListener(_listener);
+    });
+  }
+
+  void _listener(String data) {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    controller.removePropertyChangedListener(_listener);
+  }
+
+  @override
   Widget build(BuildContext context) {
     var formatter = DateFormat.yMMM(
         Localizations.localeOf(viewKey.currentContext!).languageCode);
@@ -43,17 +63,13 @@ class CalendarHeaderState extends State<CalendarHeader> {
       children: [
         IconButton(
           onPressed: () {
-            setState(() {
-              controller.backward!();
-            });
+            controller.backward!();
           },
           icon: const Icon(Icons.arrow_left_rounded),
         ),
         IconButton(
           onPressed: () {
-            setState(() {
-              controller.forward!();
-            });
+            controller.forward!();
           },
           icon: const Icon(Icons.arrow_right_rounded),
         ),
@@ -78,8 +94,6 @@ class CalendarHeaderState extends State<CalendarHeader> {
                   if (date != null) {
                     controller.displayDate = date;
                   }
-
-                  setState(() {});
                 },
                 child: Text(formatter.format(date)),
               ),
@@ -100,10 +114,8 @@ class CalendarHeaderState extends State<CalendarHeader> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 onSelected: (value) {
-                  setState(() {
-                    configs.calendarView.write(value);
-                    controller.view = value;
-                  });
+                  configs.calendarView.write(value);
+                  controller.view = value;
                 },
                 itemBuilder: (context) => [
                   CalendarView.day,
@@ -131,6 +143,8 @@ class CalendarHeaderState extends State<CalendarHeader> {
 
 class CurriculumPageState extends State<CurriculumPage>
     with RefreshMountedStateMixin {
+  late CalendarController calendarController;
+
   Widget buildHeader(
     CalendarController controller,
     Widget child,
@@ -141,6 +155,18 @@ class CurriculumPageState extends State<CurriculumPage>
         Expanded(child: child)
       ],
     );
+  }
+
+  @override
+  void initState() {
+    calendarController = CalendarController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    calendarController.dispose();
   }
 
   @override
@@ -198,9 +224,8 @@ class CurriculumPageState extends State<CurriculumPage>
         }
         var theme = Theme.of(context);
         var configs = ArcheBus().of<ApplicationConfigs>();
-        var controller = CalendarController();
         var calendar = SfCalendar(
-          controller: controller,
+          controller: calendarController,
           view: configs.calendarView.getOr(CalendarView.week),
           firstDayOfWeek: 1,
           headerHeight: 0,
@@ -271,7 +296,7 @@ class CurriculumPageState extends State<CurriculumPage>
                     : Padding(
                         padding: const EdgeInsets.all(4),
                         child: Visibility(
-                          visible: controller.view != CalendarView.week,
+                          visible: calendarController.view != CalendarView.week,
                           replacement: Text(
                             "${appointment.summary} | ${appointment.location}",
                             overflow: TextOverflow.fade,
@@ -318,7 +343,7 @@ class CurriculumPageState extends State<CurriculumPage>
           dataSource: CurriculumDataSource(snapshot.data!.get().data),
         );
 
-        return buildHeader(controller, calendar);
+        return buildHeader(calendarController, calendar);
       },
     );
   }
