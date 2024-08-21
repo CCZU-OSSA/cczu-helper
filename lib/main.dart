@@ -375,7 +375,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
               const begin = Offset(1, 0);
               const end = Offset.zero;
               final tween = Tween(begin: begin, end: end)
-                  .chain(CurveTween(curve: Curves.fastEaseInToSlowEaseOut));
+                  .chain(CurveTween(curve: Curves.fastLinearToSlowEaseIn));
               final offsetAnimation = animation.drive(tween);
               return SlideTransition(
                 position: offsetAnimation,
@@ -386,7 +386,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
               );
             },
             backgroundColor: Colors.transparent,
-            showBar: navStyle == NavigationStyle.bottom ||
+            showBar: navStyle == NavigationStyle.nav ||
                 navStyle == NavigationStyle.both,
             direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
             pageViewCurve: Curves.fastLinearToSlowEaseIn,

@@ -1,1 +1,1 @@
-enum NavigationStyle { bottom, top, both }
+enum NavigationStyle { nav, top, both }

@@ -59,7 +59,7 @@ class CalendarHeaderState extends State<CalendarHeader> {
       ],
     );
     return Padding(
-      padding: const EdgeInsets.only(left: 4, right: 4, top: 2, bottom: 2),
+      padding: const EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -8,7 +8,7 @@ var themeModeTr = StringTranslator(ThemeMode.values)
     .translate(ThemeMode.light, "浅色")
     .translate(ThemeMode.system, "跟随系统");
 var navStyleTr = StringTranslator(NavigationStyle.values)
-    .translate(NavigationStyle.bottom, "仅底部栏")
+    .translate(NavigationStyle.nav, "仅导航栏")
     .translate(NavigationStyle.top, "仅顶部栏")
     .translate(NavigationStyle.both, "显示所有");
 var calendarViewTr = StringTranslator(
