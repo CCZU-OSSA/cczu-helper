@@ -112,7 +112,11 @@ class CalendarHeaderState extends State<CalendarHeader> {
                             Text(calendarViewTr.translation(view).toString())))
                     .toList(),
               ),
-              Visibility(visible: !isWide, child: arrow),
+              Visibility(
+                  visible: !isWide &&
+                      configs.calendarView.getOr(CalendarView.week) !=
+                          CalendarView.schedule,
+                  child: arrow),
             ],
           ),
         ],

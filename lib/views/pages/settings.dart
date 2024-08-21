@@ -182,7 +182,7 @@ class SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SwitchListTile(
-                    value: configs.weakAnimation.getOr(false),
+                    value: configs.weakAnimation.getOr(true),
                     secondary: const Icon(Icons.animation),
                     title: const Text("使用弱动画"),
                     subtitle: const Text("Weak Animation"),
