@@ -69,6 +69,10 @@ jobs:
         env:
           ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
 
+      - name: Enable Impeller (Android Impeller)
+        if: matrix.target == 'android-impeller'
+        run: sed -i 's/<!--Impeller-->/<meta-data android:name="io.flutter.embedding.android.EnableImpeller" android:value="true" \/>/g' android/app/src/main/AndroidManifest.xml
+
       - name: Build armAll apk (Android)
         if: matrix.target == 'android'
         run: flutter build apk --release
@@ -86,7 +90,7 @@ jobs:
 
       - name: Build armAll apk (Android Impeller)
         if: matrix.target == 'android-impeller'
-        run: flutter build apk --release --enable-impeller
+        run: flutter build apk --release
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -116,7 +120,7 @@ jobs:
 
       - name: Build Split apks (Android Impeller)
         if: matrix.target == 'android-impller'
-        run: flutter build apk --split-per-abi --release --enable-impeller
+        run: flutter build apk --split-per-abi --release
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
