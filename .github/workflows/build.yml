@@ -115,11 +115,11 @@ jobs:
         if: matrix.target == 'android'
         uses: actions/upload-artifact@v4
         with:
-          name: apks-impeller
+          name: apks
           path: build/app/outputs/apk/release/*
 
       - name: Build Split apks (Android Impeller)
-        if: matrix.target == 'android-impller'
+        if: matrix.target == 'android-impeller'
         run: flutter build apk --split-per-abi --release
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -127,10 +127,10 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Upload Artifact (Android Impeller)
-        if: matrix.target == 'android-impller'
+        if: matrix.target == 'android-impeller'
         uses: actions/upload-artifact@v4
         with:
-          name: apks
+          name: apks-impeller
           path: build/app/outputs/apk/release/*
 
       # linux
