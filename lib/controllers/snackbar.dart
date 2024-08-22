@@ -11,7 +11,7 @@ void showSnackBar({
     SnackBar(
       content: Center(child: content),
       behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 1),
+      duration: const Duration(seconds: 2),
     ),
   );
 }

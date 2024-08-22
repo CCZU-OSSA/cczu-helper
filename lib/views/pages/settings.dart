@@ -261,7 +261,28 @@ class SettingsPageState extends State<SettingsPage> {
                   ListTile(
                     leading: const Icon(Icons.home),
                     title: const Text("官方网站"),
-                    subtitle: const Text("源神.常州大学.com"),
+                    subtitle: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ShaderMask(
+                          shaderCallback: (bounds) => const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Colors.blue,
+                                Colors.green,
+                                Colors.yellow,
+                                Colors.pink,
+                              ]).createShader(bounds),
+                          child: const Text(
+                            "源神.常州大学.com",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     onTap: () => launchUrlString(
                       "https://cczu-ossa.github.io/home",
                       mode: LaunchMode.externalApplication,

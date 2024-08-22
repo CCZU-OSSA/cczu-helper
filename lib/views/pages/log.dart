@@ -87,28 +87,25 @@ class _LogPageState extends State<LogPage> with TickerProviderStateMixin {
           key: ValueKey(_showReversed),
           children: logs
               .map(
-                (e) => Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: Card(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          title: Text(e.time.toIso8601String()),
-                          subtitle: Text(
-                            e.level.toString(),
-                            style: TextStyle(
-                                color: logger.colorTranslator
-                                    .translation(e.level)),
-                          ),
-                          trailing: CopyIconButton(message: e.message),
+                (e) => Card(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        title: Text(e.time.toIso8601String()),
+                        subtitle: Text(
+                          e.level.toString(),
+                          style: TextStyle(
+                              color:
+                                  logger.colorTranslator.translation(e.level)),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: SelectableText(e.message),
-                        ),
-                      ],
-                    ),
+                        trailing: CopyIconButton(message: e.message),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: SelectableText(e.message),
+                      ),
+                    ],
                   ),
                 ),
               )

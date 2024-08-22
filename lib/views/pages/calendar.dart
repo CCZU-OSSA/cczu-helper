@@ -9,6 +9,7 @@ import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/views/services/sso/icalendar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -36,7 +37,7 @@ class CalendarHeaderState extends State<CalendarHeader> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       controller.addPropertyChangedListener(_listener);
     });
   }
@@ -82,7 +83,11 @@ class CalendarHeaderState extends State<CalendarHeader> {
         children: [
           Row(
             children: [
-              Visibility(visible: isWide, child: arrow),
+              Visibility(
+                  visible: isWide &&
+                      (configs.calendarView.getOr(CalendarView.week) !=
+                          CalendarView.schedule),
+                  child: arrow),
               FilledButton(
                 onPressed: () async {
                   var now = DateTime.now();
