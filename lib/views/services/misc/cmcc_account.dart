@@ -61,11 +61,11 @@ class CMCCAccountServiceState extends State<CMCCAccoutService> {
 
   @override
   void dispose() {
-    super.dispose();
     _phoneTextController.dispose();
     _pwdTextController.dispose();
     _nameTextController.dispose();
     _streamAccountGenerateOutput.cancel();
+    super.dispose();
   }
 
   @override

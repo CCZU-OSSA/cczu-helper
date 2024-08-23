@@ -27,8 +27,9 @@ class _LogPageState extends State<LogPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    super.dispose();
     ArcheBus.logger.removeListener(loggerCallback);
+
+    super.dispose();
   }
 
   @override

@@ -48,9 +48,9 @@ class CalendarHeaderState extends State<CalendarHeader> {
 
   @override
   void dispose() {
-    super.dispose();
-
     controller.removePropertyChangedListener(_listener);
+
+    super.dispose();
   }
 
   @override
@@ -60,6 +60,7 @@ class CalendarHeaderState extends State<CalendarHeader> {
     var date = controller.displayDate ?? DateTime.now();
     ApplicationConfigs configs = ArcheBus().of();
     var isWide = isWideScreen(context);
+    var colorScheme = Theme.of(context).colorScheme;
     var arrow = Row(
       children: [
         IconButton(
@@ -116,7 +117,7 @@ class CalendarHeaderState extends State<CalendarHeader> {
                 initialValue: configs.calendarView.getOr(CalendarView.week),
                 icon: Icon(
                   Icons.view_comfortable,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: colorScheme.onSurfaceVariant,
                 ),
                 onSelected: (value) {
                   configs.calendarView.write(value);
@@ -170,8 +171,8 @@ class CurriculumPageState extends State<CurriculumPage>
 
   @override
   void dispose() {
-    super.dispose();
     calendarController.dispose();
+    super.dispose();
   }
 
   @override
@@ -239,57 +240,74 @@ class CurriculumPageState extends State<CurriculumPage>
             endHour: 21,
             timeIntervalHeight: isWide ? 60 : 120,
           ),
+          cellBorderColor: theme.colorScheme.surfaceContainerHighest,
+          cellEndPadding: 0,
           scheduleViewSettings: ScheduleViewSettings(
-              hideEmptyScheduleWeek: true,
-              monthHeaderSettings: MonthHeaderSettings(
-                  backgroundColor: theme.colorScheme.primary)),
+            hideEmptyScheduleWeek: true,
+            monthHeaderSettings:
+                MonthHeaderSettings(backgroundColor: theme.colorScheme.primary),
+          ),
           appointmentBuilder: (context, calendarAppointmentDetails) {
             CalendarData appointment =
                 calendarAppointmentDetails.appointments.first;
             var time =
                 '${DateFormat('a hh:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('a hh:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
-
+            var dialog = Wrap(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.calendar_month),
+                  title: const Text("时间"),
+                  subtitle: Visibility(
+                      visible: !isWide,
+                      child: Text(
+                        time,
+                        style: TextStyle(
+                          color: theme.colorScheme.primary,
+                        ),
+                      )),
+                  trailing: Visibility(
+                      visible: isWide,
+                      child: Text(
+                        time,
+                      )),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.location_on),
+                  title: const Text("地点"),
+                  subtitle: Visibility(
+                    visible: !isWide,
+                    child: Text(
+                      appointment.location.toString(),
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  trailing: Visibility(
+                    visible: isWide,
+                    child: Text(
+                      appointment.location.toString(),
+                    ),
+                  ),
+                )
+              ],
+            );
             return GestureDetector(
               onTap: appointment.isAllday
                   ? null
                   : () {
                       ComplexDialog.instance.text(
-                          title: Text(appointment.summary),
-                          content: Wrap(
-                            children: [
-                              ListTile(
-                                leading: const Icon(Icons.calendar_month),
-                                title: const Text("时间"),
-                                subtitle: Visibility(
-                                    visible: !isWide, child: Text(time)),
-                                trailing: Visibility(
-                                    visible: isWide, child: Text(time)),
-                              ),
-                              ListTile(
-                                leading: const Icon(Icons.location_on),
-                                title: const Text("地点"),
-                                subtitle: Visibility(
-                                    visible: !isWide,
-                                    child:
-                                        Text(appointment.location.toString())),
-                                trailing: Visibility(
-                                    visible: isWide,
-                                    child:
-                                        Text(appointment.location.toString())),
-                              )
-                            ],
-                          ),
-                          context: context);
+                        title: Text(appointment.summary),
+                        content: dialog,
+                        context: context,
+                      );
                     },
               child: Container(
                 decoration: BoxDecoration(
-                  border: theme.brightness == Brightness.dark
-                      ? null
-                      : Border.all(color: theme.colorScheme.outlineVariant),
                   borderRadius: BorderRadius.circular(4),
                   color: appointment.isAllday
-                      ? theme.colorScheme.primaryContainer
-                      : theme.colorScheme.onSecondary,
+                      ? theme.colorScheme.surfaceContainerHighest
+                      : theme.colorScheme.primaryContainer,
                 ),
                 child: appointment.isAllday
                     ? Center(
@@ -299,14 +317,26 @@ class CurriculumPageState extends State<CurriculumPage>
                         ),
                       )
                     : Padding(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(2),
                         child: Visibility(
                           visible: calendarController.view != CalendarView.week,
-                          replacement: Text(
-                            "${appointment.summary} | ${appointment.location}",
-                            overflow: TextOverflow.fade,
-                            style: const TextStyle(fontSize: 12),
-                          ),
+                          replacement: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  appointment.summary,
+                                  overflow: TextOverflow.fade,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                Text(
+                                  appointment.location ?? "",
+                                  overflow: TextOverflow.fade,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                )
+                              ]),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

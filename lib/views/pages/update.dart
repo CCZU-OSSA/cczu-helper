@@ -41,8 +41,9 @@ class CheckUpdatePageState extends State<CheckUpdatePage> {
 
   @override
   void dispose() {
-    super.dispose();
     _streamVersionOutput.cancel();
+
+    super.dispose();
   }
 
   // busy fail ok

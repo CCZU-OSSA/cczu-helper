@@ -137,9 +137,10 @@ class _AddAccountPageState extends State<AddAccountPage> {
 
   @override
   void dispose() {
-    super.dispose();
     user.dispose();
     password.dispose();
+
+    super.dispose();
   }
 
   @override

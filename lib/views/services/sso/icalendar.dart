@@ -127,8 +127,9 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
 
   @override
   void dispose() {
-    super.dispose();
     _streamICalendarOutput.cancel();
+
+    super.dispose();
   }
 
   @override

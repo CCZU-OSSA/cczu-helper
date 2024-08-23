@@ -36,8 +36,9 @@ class ProgressiveViewState extends State<ProgressiveView> {
 
   @override
   void dispose() {
-    super.dispose();
     pageController.dispose();
+
+    super.dispose();
   }
 
   @override

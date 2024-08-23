@@ -26,6 +26,21 @@ import 'package:share_plus/share_plus.dart';
 import 'package:system_fonts/system_fonts.dart';
 
 void main() {
+  void catchError([ArcheLogger? logger]) async {
+    var store =
+        logger ?? ArcheBus.bus.provideof<ArcheLogger>(instance: ArcheLogger());
+
+    var bus = ArcheBus();
+    if (bus.has<ApplicationConfigs>()) {
+      ApplicationConfigs configs = bus.of();
+      if (configs.autosavelog.getOr(false)) {
+        await (await platDirectory.getValue())
+            .subFile("error.log")
+            .writeAsString(store.getLogs().join("\n"));
+      }
+    }
+  }
+
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +51,11 @@ void main() {
       var config = ArcheConfig.path(configPath);
       logger.info("Application Config Stored in `$configPath`");
 
-      FlutterError.onError = logger.error;
+      FlutterError.onError = (err) async {
+        logger.error(err.exception);
+        logger.error(err.stack);
+        catchError(logger);
+      };
 
       var bus = ArcheBus();
       var configs =
@@ -94,19 +113,11 @@ void main() {
       }
     },
     (error, stack) async {
-      var bus = ArcheBus();
       var logger = ArcheBus.bus.provideof<ArcheLogger>(instance: ArcheLogger());
       logger.error(error);
       logger.error(stack);
 
-      if (bus.has<ApplicationConfigs>()) {
-        ApplicationConfigs configs = bus.of();
-        if (configs.autosavelog.getOr(false)) {
-          await (await platDirectory.getValue())
-              .subFile("error.log")
-              .writeAsString(logger.getLogs().join("\n"));
-        }
-      }
+      catchError(logger);
     },
   );
 }
@@ -143,8 +154,9 @@ class MainApplicationState extends State<MainApplication>
 
   @override
   void dispose() {
-    super.dispose();
     _appLifecycleListener.dispose();
+
+    super.dispose();
   }
 
   ColorScheme _generateColorScheme(ColorScheme? scheme,
@@ -209,7 +221,7 @@ class MainView extends StatefulWidget {
 class MainViewState extends State<MainView> with RefreshMountedStateMixin {
   int currentIndex = 0;
 
-  var viewItems = [
+  static var viewItems = [
     NavigationItem(
       icon: const Icon(Icons.calendar_month),
       page: CurriculumPage(
@@ -308,92 +320,93 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     var showTop =
         navStyle == NavigationStyle.top || navStyle == NavigationStyle.both;
     return Scaffold(
-        appBar: showTop
-            ? AppBar(
-                title: Text(viewItems[currentIndex].label),
-                surfaceTintColor: Colors.transparent,
-                backgroundColor: colorScheme.surfaceContainer,
-                forceMaterialTransparency: configs.forceTransparent.getOr(true),
-              )
-            : null,
-        drawer: showTop
-            ? NavigationDrawer(
-                selectedIndex: currentIndex,
-                onDestinationSelected: navKey.currentState?.pushIndex,
-                children: <Widget>[
-                      ListTile(
-                        leading: IconButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            icon: const Icon(Icons.arrow_back)),
-                        title: const Text("常大助手"),
-                        subtitle: const Text("CCZU HELPER"),
-                        trailing: InkWell(
-                          customBorder: const CircleBorder(),
-                          onTap: () => setState(() {
-                            configs.themeMode.write(
-                                isDark ? ThemeMode.light : ThemeMode.dark);
-                            rootKey.currentState?.refreshMounted();
-                            settingKey.currentState?.refresh();
-                          }),
-                          onLongPress: () => setState(() {
-                            configs.themeMode.write(ThemeMode.system);
-                            rootKey.currentState?.refreshMounted();
-                            settingKey.currentState?.refresh();
-                          }),
-                          child: AnimatedRotation(
-                            turns: isDark ? 0 : 1,
-                            duration: Durations.medium4,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Icon(
-                                  isDark ? Icons.light_mode : Icons.dark_mode),
-                            ),
+      appBar: showTop
+          ? AppBar(
+              title: Text(viewItems[currentIndex].label),
+              surfaceTintColor: Colors.transparent,
+              backgroundColor: colorScheme.surfaceContainer,
+              forceMaterialTransparency: configs.forceTransparent.getOr(true),
+            )
+          : null,
+      drawer: showTop
+          ? NavigationDrawer(
+              selectedIndex: currentIndex,
+              onDestinationSelected: navKey.currentState?.pushIndex,
+              children: <Widget>[
+                    ListTile(
+                      leading: IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.arrow_back)),
+                      title: const Text("常大助手"),
+                      subtitle: const Text("CCZU HELPER"),
+                      trailing: InkWell(
+                        customBorder: const CircleBorder(),
+                        onTap: () => setState(() {
+                          configs.themeMode
+                              .write(isDark ? ThemeMode.light : ThemeMode.dark);
+                          rootKey.currentState?.refreshMounted();
+                          settingKey.currentState?.refresh();
+                        }),
+                        onLongPress: () => setState(() {
+                          configs.themeMode.write(ThemeMode.system);
+                          rootKey.currentState?.refreshMounted();
+                          settingKey.currentState?.refresh();
+                        }),
+                        child: AnimatedRotation(
+                          turns: isDark ? 0 : 1,
+                          duration: Durations.medium4,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Icon(
+                                isDark ? Icons.light_mode : Icons.dark_mode),
                           ),
                         ),
+                      ),
+                    )
+                  ] +
+                  viewItems
+                      .map(
+                        (e) => NavigationDrawerDestination(
+                          icon: e.icon,
+                          label: Text(e.label),
+                        ),
                       )
-                    ] +
-                    viewItems
-                        .map(
-                          (e) => NavigationDrawerDestination(
-                            icon: e.icon,
-                            label: Text(e.label),
-                          ),
-                        )
-                        .toList(),
-              )
-            : null,
-        body: SafeArea(
-          top: true,
-          child: NavigationView(
-            key: navKey,
-            transitionBuilder: (child, animation) {
-              if (configs.weakAnimation.getOr(true)) {
-                return AnimatedSwitcher.defaultTransitionBuilder(
-                    child, animation);
-              }
+                      .toList(),
+            )
+          : null,
+      body: SafeArea(
+        top: true,
+        child: NavigationView(
+          key: navKey,
+          transitionBuilder: (child, animation) {
+            if (configs.weakAnimation.getOr(true)) {
+              return AnimatedSwitcher.defaultTransitionBuilder(
+                  child, animation);
+            }
 
-              const begin = Offset(1, 0);
-              const end = Offset.zero;
-              final tween = Tween(begin: begin, end: end)
-                  .chain(CurveTween(curve: Curves.fastLinearToSlowEaseIn));
-              final offsetAnimation = animation.drive(tween);
-              return SlideTransition(
-                position: offsetAnimation,
-                child: Container(
-                  color: theme.scaffoldBackgroundColor,
-                  child: child,
-                ),
-              );
-            },
-            backgroundColor: Colors.transparent,
-            showBar: navStyle == NavigationStyle.nav ||
-                navStyle == NavigationStyle.both,
-            direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
-            pageViewCurve: Curves.fastLinearToSlowEaseIn,
-            onPageChanged: (value) => setState(() => currentIndex = value),
-            items: viewItems,
-            labelType: NavigationLabelType.selected,
-          ),
-        ));
+            const begin = Offset(1, 0);
+            const end = Offset.zero;
+            final tween = Tween(begin: begin, end: end)
+                .chain(CurveTween(curve: Curves.fastLinearToSlowEaseIn));
+            final offsetAnimation = animation.drive(tween);
+            return SlideTransition(
+              position: offsetAnimation,
+              child: Container(
+                color: theme.scaffoldBackgroundColor,
+                child: child,
+              ),
+            );
+          },
+          backgroundColor: Colors.transparent,
+          showBar: navStyle == NavigationStyle.nav ||
+              navStyle == NavigationStyle.both,
+          direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
+          pageViewCurve: Curves.fastLinearToSlowEaseIn,
+          onPageChanged: (value) => setState(() => currentIndex = value),
+          items: viewItems,
+          labelType: NavigationLabelType.selected,
+        ),
+      ),
+    );
   }
 }

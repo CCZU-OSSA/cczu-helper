@@ -30,8 +30,9 @@ class ServicePageState extends State<ServicePage>
 
   @override
   void dispose() {
-    super.dispose();
     _tabController.dispose();
+
+    super.dispose();
   }
 
   static void accountCheckOnTap(Predicate<MultiAccoutData> predicate,
