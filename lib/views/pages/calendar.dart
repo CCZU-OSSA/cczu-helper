@@ -32,6 +32,9 @@ class CalendarHeader extends StatefulWidget {
   State<StatefulWidget> createState() => CalendarHeaderState();
 }
 
+/// Cache the `displayDate` here
+DateTime? _displayDate;
+
 class CalendarHeaderState extends State<CalendarHeader> {
   CalendarController get controller => widget.controller;
 
@@ -45,6 +48,11 @@ class CalendarHeaderState extends State<CalendarHeader> {
   }
 
   void _listener(String data) {
+    // Store the cache
+    if (data == "displayDate") {
+      _displayDate = controller.displayDate;
+    }
+
     setState(() {});
   }
 
@@ -59,7 +67,7 @@ class CalendarHeaderState extends State<CalendarHeader> {
   Widget build(BuildContext context) {
     var formatter = DateFormat.yMMM(
         Localizations.localeOf(viewKey.currentContext!).languageCode);
-    var date = controller.displayDate ?? DateTime.now();
+    var date = _displayDate ?? controller.displayDate ?? DateTime.now();
     ApplicationConfigs configs = ArcheBus().of();
     var isWide = isWideScreen(context);
     var colorScheme = Theme.of(context).colorScheme;
@@ -257,6 +265,7 @@ class CurriculumPageState extends State<CurriculumPage>
 
         var calendar = SfCalendar(
           controller: calendarController,
+          initialDisplayDate: _displayDate,
           view: view,
           firstDayOfWeek: 1,
           headerHeight: 0,
@@ -410,7 +419,10 @@ class CurriculumPageState extends State<CurriculumPage>
           dataSource: CurriculumDataSource(snapshot.data!.get().data),
         );
 
-        return buildHeader(calendarController, calendar);
+        return buildHeader(
+          calendarController,
+          calendar,
+        );
       },
     );
   }
