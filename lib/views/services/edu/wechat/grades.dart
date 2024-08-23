@@ -1,4 +1,5 @@
 import 'package:arche/arche.dart';
+import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/messages/grades.pb.dart';
 import 'package:flutter/material.dart';
@@ -52,10 +53,9 @@ class WeChatGradeQueryServicePageState
 
         int curTerm = message.data.fold(
             0, (term, element) => term < element.term ? element.term : term);
-
         if (init) {
           showTerm[curTerm - 1] = true;
-          init = true;
+          init = false;
         }
 
         List<Widget> items = message.data.map((course) {
@@ -78,6 +78,7 @@ class WeChatGradeQueryServicePageState
           } else if (visible && onlyRebuild) {
             visible = visible && rebuild;
           }
+
           return Visibility(
             visible: visible,
             child: Card(
@@ -123,112 +124,51 @@ class WeChatGradeQueryServicePageState
             ),
           );
         }).toList();
-        List<Widget> children = [];
-        if (items.isNotEmpty) {
-          children.add(
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 6,
-                children: [
-                  FilterChip(
-                    label: const Text("大一上"),
-                    selected: showTerm[0],
+        List<Widget> children = [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                ...["大一上", "大一下", "大二上", "大二下", "大三上", "大三下", "大四上", "大四下"]
+                    .enumerate(
+                  (index, label) => FilterChip(
+                    label: Text(label),
+                    selected: showTerm[index],
                     onSelected: (bool value) {
-                      setState(() {
-                        showTerm[0] = value;
-                      });
+                      setState(
+                        () {
+                          showTerm[index] = value;
+                        },
+                      );
                     },
                   ),
-                  FilterChip(
-                    label: const Text("大一下"),
-                    selected: showTerm[1],
-                    onSelected: (bool value) {
-                      setState(() {
-                        showTerm[1] = value;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    label: const Text("大二上"),
-                    selected: showTerm[2],
-                    onSelected: (bool value) {
-                      setState(() {
-                        showTerm[2] = value;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    label: const Text("大二下"),
-                    selected: showTerm[3],
-                    onSelected: (bool value) {
-                      setState(() {
-                        showTerm[3] = value;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    label: const Text("大三上"),
-                    selected: showTerm[4],
-                    onSelected: (bool value) {
-                      setState(() {
-                        showTerm[4] = value;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    label: const Text("大三下"),
-                    selected: showTerm[5],
-                    onSelected: (bool value) {
-                      setState(() {
-                        showTerm[5] = value;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    label: const Text("大四上"),
-                    selected: showTerm[6],
-                    onSelected: (bool value) {
-                      setState(() {
-                        showTerm[6] = value;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    label: const Text("大四下"),
-                    selected: showTerm[7],
-                    onSelected: (bool value) {
-                      setState(() {
-                        showTerm[7] = value;
-                      });
-                    },
-                  ),
-                  FilterChip.elevated(
-                    label: const Text("仅补考"),
-                    selected: onlyResit,
-                    onSelected: (bool value) {
-                      setState(() {
-                        onlyResit = value;
-                      });
-                    },
-                  ),
-                  FilterChip.elevated(
-                    label: const Text("仅重修"),
-                    selected: onlyRebuild,
-                    onSelected: (bool value) {
-                      setState(() {
-                        onlyRebuild = value;
-                      });
-                    },
-                  )
-                ],
-              ),
+                ),
+                FilterChip.elevated(
+                  label: const Text("仅补考"),
+                  selected: onlyResit,
+                  onSelected: (bool value) {
+                    setState(() {
+                      onlyResit = value;
+                    });
+                  },
+                ),
+                FilterChip.elevated(
+                  label: const Text("仅重修"),
+                  selected: onlyRebuild,
+                  onSelected: (bool value) {
+                    setState(() {
+                      onlyRebuild = value;
+                    });
+                  },
+                )
+              ],
             ),
-          );
-        }
+          ),
+          ...items
+        ];
 
-        children.addAll(items);
         return Scaffold(
           appBar: AppBar(
             actions: [

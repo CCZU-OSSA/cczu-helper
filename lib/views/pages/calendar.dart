@@ -249,20 +249,26 @@ class CurriculumPageState extends State<CurriculumPage>
             ),
           );
         }
+        var view = configs.calendarView.getOr(CalendarView.week);
+
+        if (view == CalendarView.workWeek) {
+          view = CalendarView.week;
+        }
 
         var calendar = SfCalendar(
           controller: calendarController,
-          view: configs.calendarView.getOr(CalendarView.week),
+          view: view,
           firstDayOfWeek: 1,
           headerHeight: 0,
           timeSlotViewSettings: TimeSlotViewSettings(
-              startHour: 8,
-              endHour: 21,
-              timeFormat: configs.calendarSimple.getOr(false) ? "" : "H:mm",
-              timeRulerSize: configs.calendarSimple.getOr(false) ? 0 : -1,
-              timeIntervalHeight: 50,
-              timeInterval: Duration(
-                  minutes: configs.calendarSimple.getOr(false) ? 60 : 30)),
+            startHour: 8,
+            endHour: 21,
+            timeFormat: configs.calendarSimple.getOr(false) ? "" : "H:mm",
+            timeRulerSize: configs.calendarSimple.getOr(false) ? 0 : -1,
+            timeIntervalHeight: 50,
+            timeInterval: Duration(
+                minutes: configs.calendarSimple.getOr(false) ? 60 : 30),
+          ),
           cellBorderColor: theme.colorScheme.surfaceContainerHighest,
           cellEndPadding: 0,
           scheduleViewSettings: ScheduleViewSettings(
