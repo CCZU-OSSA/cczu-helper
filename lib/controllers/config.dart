@@ -57,4 +57,5 @@ class ApplicationConfigs {
   ConfigEntry<bool> get firstUse => generator("first_use");
   ConfigEntry<bool> get weakAnimation => generator("weak_animation");
   ConfigEntry<bool> get forceTransparent => generator("force_transparent");
+  ConfigEntry<bool> get calendarSimple => generator("calendar_simple");
 }

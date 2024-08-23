@@ -15,4 +15,5 @@ var calendarViewTr = StringTranslator(
         [CalendarView.week, CalendarView.day, CalendarView.schedule])
     .translate(CalendarView.day, "天")
     .translate(CalendarView.week, "星期")
+    .translate(CalendarView.workWeek, "星期简略")
     .translate(CalendarView.schedule, "日程");

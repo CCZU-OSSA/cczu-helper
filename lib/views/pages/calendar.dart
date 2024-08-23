@@ -23,8 +23,10 @@ class CurriculumPage extends StatefulWidget {
 
 class CalendarHeader extends StatefulWidget {
   final CalendarController controller;
+  final Function refresh;
 
-  const CalendarHeader({super.key, required this.controller});
+  const CalendarHeader(
+      {super.key, required this.controller, required this.refresh});
 
   @override
   State<StatefulWidget> createState() => CalendarHeaderState();
@@ -121,12 +123,24 @@ class CalendarHeaderState extends State<CalendarHeader> {
                 ),
                 onSelected: (value) {
                   configs.calendarView.write(value);
-                  controller.view = value;
+
+                  if (value == CalendarView.workWeek) {
+                    configs.calendarSimple.write(true);
+                    controller.view = CalendarView.week;
+                  } else {
+                    configs.calendarSimple.write(false);
+                    controller.view = value;
+                  }
+
+                  if (controller.view == CalendarView.week) {
+                    widget.refresh();
+                  }
                 },
                 itemBuilder: (context) => [
                   CalendarView.day,
                   CalendarView.week,
-                  CalendarView.schedule
+                  CalendarView.workWeek, // Week Simple ...
+                  CalendarView.schedule,
                 ]
                     .map((view) => PopupMenuItem(
                         value: view,
@@ -135,10 +149,11 @@ class CalendarHeaderState extends State<CalendarHeader> {
                     .toList(),
               ),
               Visibility(
-                  visible: !isWide &&
-                      configs.calendarView.getOr(CalendarView.week) !=
-                          CalendarView.schedule,
-                  child: arrow),
+                visible: !isWide &&
+                    configs.calendarView.getOr(CalendarView.week) !=
+                        CalendarView.schedule,
+                child: arrow,
+              ),
             ],
           ),
         ],
@@ -157,7 +172,10 @@ class CurriculumPageState extends State<CurriculumPage>
   ) {
     return Column(
       children: [
-        CalendarHeader(controller: controller),
+        CalendarHeader(
+          controller: controller,
+          refresh: refreshMounted,
+        ),
         Expanded(child: child)
       ],
     );
@@ -178,6 +196,9 @@ class CurriculumPageState extends State<CurriculumPage>
   @override
   Widget build(BuildContext context) {
     var isWide = isWideScreen(context);
+    var theme = Theme.of(context);
+    var configs = ArcheBus().of<ApplicationConfigs>();
+
     return FutureBuilder(
       future: Future<Optional<ICalendarParser>>(() async {
         var datafile =
@@ -228,18 +249,20 @@ class CurriculumPageState extends State<CurriculumPage>
             ),
           );
         }
-        var theme = Theme.of(context);
-        var configs = ArcheBus().of<ApplicationConfigs>();
+
         var calendar = SfCalendar(
           controller: calendarController,
           view: configs.calendarView.getOr(CalendarView.week),
           firstDayOfWeek: 1,
           headerHeight: 0,
           timeSlotViewSettings: TimeSlotViewSettings(
-            startHour: 8,
-            endHour: 21,
-            timeIntervalHeight: isWide ? 60 : 120,
-          ),
+              startHour: 8,
+              endHour: 21,
+              timeFormat: configs.calendarSimple.getOr(false) ? "" : "H:mm",
+              timeRulerSize: configs.calendarSimple.getOr(false) ? 0 : -1,
+              timeIntervalHeight: 50,
+              timeInterval: Duration(
+                  minutes: configs.calendarSimple.getOr(false) ? 60 : 30)),
           cellBorderColor: theme.colorScheme.surfaceContainerHighest,
           cellEndPadding: 0,
           scheduleViewSettings: ScheduleViewSettings(
@@ -318,59 +341,62 @@ class CurriculumPageState extends State<CurriculumPage>
                       )
                     : Padding(
                         padding: const EdgeInsets.all(2),
-                        child: Visibility(
-                          visible: calendarController.view != CalendarView.week,
-                          replacement: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  appointment.summary,
-                                  overflow: TextOverflow.fade,
+                        child: calendarController.view == CalendarView.week
+                            ? Text.rich(
+                                TextSpan(
+                                  text: "${appointment.summary}\n",
                                   style: const TextStyle(fontSize: 12),
+                                  children: [
+                                    TextSpan(
+                                      text: appointment.location,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                    )
+                                  ],
                                 ),
-                                Text(
-                                  appointment.location ?? "",
-                                  overflow: TextOverflow.fade,
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: theme.colorScheme.primary,
-                                  ),
-                                )
-                              ]),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  appointment.summary,
-                                  overflow: TextOverflow.fade,
+                                overflow: TextOverflow.fade,
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.all(2),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            appointment.summary,
+                                            overflow: TextOverflow.fade,
+                                          ),
+                                          const SizedBox(
+                                            width: 8,
+                                          ),
+                                          Text(
+                                            time,
+                                            overflow: TextOverflow.fade,
+                                            style: TextStyle(
+                                              color:
+                                                  theme.colorScheme.secondary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Text(
+                                      appointment.location.toString(),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                    )
+                                  ],
                                 ),
                               ),
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Wrap(
-                                    children: [
-                                      const Icon(
-                                        Icons.calendar_month,
-                                      ),
-                                      Text(
-                                        time,
-                                      ),
-                                      const Icon(
-                                        Icons.location_on,
-                                      ),
-                                      Text(
-                                        appointment.location.toString(),
-                                        overflow: TextOverflow.ellipsis,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       ),
               ),
             );
