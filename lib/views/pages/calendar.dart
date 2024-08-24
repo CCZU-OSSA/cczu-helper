@@ -140,9 +140,7 @@ class CalendarHeaderState extends State<CalendarHeader> {
                     controller.view = value;
                   }
 
-                  if (controller.view == CalendarView.week) {
-                    widget.refresh();
-                  }
+                  widget.refresh();
                 },
                 itemBuilder: (context) => [
                   CalendarView.day,
