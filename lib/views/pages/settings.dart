@@ -12,6 +12,7 @@ import 'package:cczu_helper/views/pages/log.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/notifications.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
+import 'package:cczu_helper/views/pages/vpn.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:cczu_helper/views/widgets/seletor.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,17 @@ class SettingsPageState extends State<SettingsPage> {
               padding: const EdgeInsets.only(top: 12, bottom: 12),
               child: Column(
                 children: [
+                  ListTile(
+                    leading: const Icon(Icons.network_wifi),
+                    title: const Text("VPN 服务"),
+                    subtitle: const Text("VPN Service"),
+                    trailing: const Icon(Icons.arrow_right),
+                    onTap: () {
+                      pushMaterialRoute(
+                        builder: (context) => const VPNServicePage(),
+                      );
+                    },
+                  ),
                   ListTile(
                     leading: const Icon(Icons.perm_identity),
                     title: const Text("账户"),
@@ -92,6 +104,37 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                 ],
               ),
+            ),
+          ),
+          // Only avilable in `Android`
+          Visibility(
+            visible: Platform.isAndroid,
+            child: Column(
+              children: [
+                const ListTile(
+                  title: Text("网络"),
+                ),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 12),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.network_wifi),
+                          title: const Text("校园VPN服务"),
+                          subtitle: const Text("VPN Service"),
+                          trailing: const Icon(Icons.arrow_right),
+                          onTap: () {
+                            pushMaterialRoute(
+                              builder: (context) => const VPNServicePage(),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const ListTile(
