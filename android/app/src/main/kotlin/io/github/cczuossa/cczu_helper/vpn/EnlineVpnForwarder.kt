@@ -1,55 +1,65 @@
 package io.github.cczuossa.cczu_helper.vpn
 
 import io.github.cczuossa.cczu_helper.utils.Utils.Companion.async
-import java.io.ByteArrayOutputStream
+import li.mo.testvpn.EnlinkDataInputStream
+import li.mo.testvpn.EnlinkDataOutputStream
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.util.LinkedList
 
 class EnlineVpnForwarder(
     val fileDescriptor: FileDescriptor,
-    val forwarder: (proxyOut: ByteArray) -> Unit// 从代理出去的
+    val proxyIn: EnlinkDataInputStream,
+    val proxyOut: EnlinkDataOutputStream
 ) {
 
     private val vpnIn = FileInputStream(fileDescriptor)
     private val vpnOut = FileOutputStream(fileDescriptor)
-    private val queue = LinkedList<ByteArray>()
 
-    fun write(data: ByteArray) {
-
-        queue.offer(data)
+    fun start() {
+        reader()
+        writer()
     }
 
-    fun writer() {
+    private fun writer() {
         async {
             // 从代理到vpn
             while (fileDescriptor.valid()) {
-                runCatching {
-                    val data = queue.poll()
-                    if (data != null) {
+                try {
+                    val data = proxyIn.readData()
+                    if (data.isNotEmpty()) {
                         vpnOut.write(data)
                     }
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                    proxyIn.close()
+                    proxyOut.close()
+                    vpnOut.close()
+                    vpnIn.close()
+                    break
                 }
             }
         }
     }
 
-    fun reader() {
+    private fun reader() {
         async {
             // 从vpn到代理
             var temp = ByteArray(1024)
             var read = 0
             while (fileDescriptor.valid()) {
-                runCatching {
+                try {
                     read = vpnIn.read(temp)
                     if (read > 0) {
-                        forwarder.invoke(ByteArrayOutputStream()
-                            .apply {
-                                this.write(temp, 0, read)
-                            }
-                            .toByteArray())
+                        proxyOut.writeData(temp, read)
                     }
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                    proxyIn.close()
+                    proxyOut.close()
+                    vpnOut.close()
+                    vpnIn.close()
+                    break
                 }
             }
         }

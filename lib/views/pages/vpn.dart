@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
+import 'package:cczu_helper/plugins/enlink_vpn.dart';
 import 'package:flutter/material.dart';
 
 class VPNServicePage extends StatefulWidget {
@@ -43,6 +46,13 @@ class VPNServicePageState extends State<VPNServicePage> {
                     setState(() {
                       enableVPN = value;
                     });
+
+                    if (value) {
+                      if (Platform.isAndroid) {
+                        // 启动android vpn
+                        // MethodChannelFlutterVpn().start(user: user, token: token, dns: dns)
+                      }
+                    }
                   },
                 )
               ]),
