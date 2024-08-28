@@ -49,17 +49,6 @@ class SettingsPageState extends State<SettingsPage> {
               child: Column(
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.network_wifi),
-                    title: const Text("VPN 服务"),
-                    subtitle: const Text("VPN Service"),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: () {
-                      pushMaterialRoute(
-                        builder: (context) => const VPNServicePage(),
-                      );
-                    },
-                  ),
-                  ListTile(
                     leading: const Icon(Icons.perm_identity),
                     title: const Text("账户"),
                     subtitle: const Text("Accounts"),
