@@ -7,6 +7,8 @@
 use tokio;
 
 mod account_implments;
+#[cfg(target_os = "android")]
+mod android;
 mod app_implements;
 mod jwcas_implments;
 mod jwqywx_implement;
@@ -36,6 +38,11 @@ async fn main() {
     #[cfg(windows)]
     {
         tokio::spawn(windows::cmcc_account());
+    }
+
+    #[cfg(target_os = "android")]
+    {
+        tokio::spawn(android::get_vpn_data());
     }
 
     tokio::spawn(app_implements::get_app_version());

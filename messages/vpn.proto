@@ -9,6 +9,8 @@ message VPNServiceUserInput {
 
 // [RINF:RUST-SIGNAL]
 message VPNServiceUserOutput {
-    string token = 1;
-    string dns = 2;
+    bool ok = 1;
+    optional string err = 2;
+    optional string token = 3;
+    optional string dns = 4;
 }

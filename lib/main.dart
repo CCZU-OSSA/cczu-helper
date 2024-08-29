@@ -95,6 +95,7 @@ void main() {
         bus.provide((await MultiAccoutData.readAccounts())!);
       } else {
         logger.warn("Can't find `accounts.json`");
+        bus.provide(MultiAccoutData.template);
       }
 
       runApp(
