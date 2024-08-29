@@ -2,6 +2,7 @@ package io.github.cczuossa.cczu_helper.vpn
 
 
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import io.github.cczuossa.cczu_helper.utils.Utils.Companion.async
 import io.github.cczuossa.cczu_helper.vpn.trust.EasyTrustManager
 import li.mo.testvpn.EnlinkDataInputStream
@@ -27,6 +28,7 @@ class EnlinkVPN(
     val dnsList = arrayListOf<String>()
     var gate = "0.0.0.0"
     var watchdog = false
+    var forward = false
     var totalTry = 20
     var tryReconnect = 0
 
@@ -44,6 +46,7 @@ class EnlinkVPN(
 
 
     fun auth() {
+        Log.i("ccze-helper", "try auth vpn: $user, $token")
         val out = EnlinkDataOutputStream(this.socket.getOutputStream())
         out.writeAuth(user, token)
         val ins = EnlinkDataInputStream(this.socket.getInputStream())
@@ -76,41 +79,52 @@ class EnlinkVPN(
                 if (socket.isClosed) {
                     connect()
                     tryReconnect++
-                    Thread.sleep(3000L)
+                    forwarder?.stop()
                 } else {
                     if (tryReconnect > 0) {
                         callback = { status, _ ->
                             if (status) {
                                 tryReconnect = 0
+                                forward = false
                                 forward()
                             }
                         }
                         auth()
                     }
                 }
+                Thread.sleep(3000L)
             }
             watchdog = false
         }
     }
 
     fun init(service: EnlinkVpnService, dns: String?, apps: String?) {
+        Log.i("ccze-helper", "setup vpn: $ip, $mask, apps: $apps")
         this.fileDescriptor = service.setup(ip, mask, dnsList.apply {
-            if (dns.isNullOrBlank()) {
-                addAll(dns?.split(",")!!)
+            if (!dns.isNullOrBlank()) {
+                addAll(dns.split(","))
             }
         }, arrayListOf<String>().apply {
-            if (apps.isNullOrBlank()) {
-                addAll(apps?.split(",")!!)
+            if (!apps.isNullOrBlank()) {
+                addAll(apps.split(","))
             }
         })
+        service.protect(this.socket)
         forward()
-        watchdog()
+        //watchdog()
     }
 
     private fun forward() {
+        if (forward) return
+        forward = true
         this.forwarder =
             EnlineVpnForwarder(fileDescriptor?.fileDescriptor!!, inputStream(), outputStream())
         this.forwarder?.start()
+    }
+
+    fun stop() {
+        this.forwarder?.stop()
+        this.socket.close()
     }
 
 }

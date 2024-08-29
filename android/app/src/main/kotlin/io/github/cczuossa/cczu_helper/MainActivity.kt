@@ -9,7 +9,7 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 注册插件
-        provideFlutterEngine(this)?.plugins?.add(EnlinkVpnPlugin())
+        flutterEngine!!.plugins.add(EnlinkVpnPlugin())
 
     }
 }
