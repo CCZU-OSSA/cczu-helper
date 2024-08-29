@@ -18,18 +18,18 @@ pub async fn get_vpn_data() {
         if let Ok(Some(info)) = login {
             let proxy = client.webvpn_get_proxy_service(info.userid.unwrap()).await;
             if let Ok(proxy) = proxy {
-                if let Some(data) = proxy.data {
+                if let Some(gateway) = proxy.data.gateway_list.first() {
                     VpnServiceUserOutput {
                         ok: true,
                         err: None,
-                        token: Some(data.token),
-                        dns: Some(data.gateway_list.dns),
+                        token: Some(proxy.data.token),
+                        dns: Some(gateway.dns.clone()),
                     }
                     .send_signal_to_dart()
                 } else {
                     VpnServiceUserOutput {
-                        ok: false,
-                        err: Some("获取数据为空".into()),
+                        ok: true,
+                        err: Some("获取DNS失败".into()),
                         token: None,
                         dns: None,
                     }

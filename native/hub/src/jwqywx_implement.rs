@@ -20,8 +20,11 @@ pub async fn get_grades() {
             DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
 
         let app = client.visit::<JwqywxApplication<_>>().await;
-        if let Some(_) = app.login().await {
-            if let Some(data) = app.get_grades().await {
+        let login = app.login().await;
+
+        if let Ok(_) = login {
+            let grade = app.get_grades().await;
+            if let Ok(data) = grade {
                 WeChatGradesOutput {
                     ok: true,
                     data: data
@@ -41,19 +44,19 @@ pub async fn get_grades() {
                     error: None,
                 }
                 .send_signal_to_dart()
-            } else {
+            } else if let Err(message) = grade {
                 WeChatGradesOutput {
                     ok: false,
                     data: vec![],
-                    error: Some("获取成绩失败".to_owned()),
+                    error: Some(message.to_string()),
                 }
                 .send_signal_to_dart()
             }
-        } else {
+        } else if let Err(message) = login {
             WeChatGradesOutput {
                 ok: false,
                 data: vec![],
-                error: Some("登陆失败".to_owned()),
+                error: Some(message.to_string()),
             }
             .send_signal_to_dart()
         }
@@ -73,10 +76,10 @@ pub async fn generate_icalendar() {
         let app = client.visit::<JwqywxApplication<_>>().await;
         let login = app.login().await;
 
-        if let None = login {
+        if let Err(message) = login {
             ICalendarOutput {
                 ok: false,
-                data: "登录失败".into(),
+                data: message.to_string(),
             }
             .send_signal_to_dart();
             continue;
@@ -136,10 +139,9 @@ pub async fn get_terms() {
 
     while let Some(_) = rev.recv().await {
         let client = DefaultClient::default();
-
         let app = client.visit::<JwqywxApplication<_>>().await;
 
-        if let Some(terms) = app.terms().await {
+        if let Ok(terms) = app.terms().await {
             WxTermsOutput {
                 ok: true,
                 terms: terms.message.into_iter().map(|t| t.term).collect(),
