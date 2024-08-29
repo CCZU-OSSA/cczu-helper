@@ -87,6 +87,16 @@ class VPNSwitcherState extends State<VPNSwitcher> {
         }
         var message = data.message;
 
+        if (!message.ok) {
+          setState(() {
+            enableVPN = false;
+          });
+
+          ComplexDialog.instance
+              .withContext(context: context)
+              .text(content: Text(message.err));
+        }
+
         channel.start(
           user: account.getCurrentSSOAccount().user,
           token: message.token,
