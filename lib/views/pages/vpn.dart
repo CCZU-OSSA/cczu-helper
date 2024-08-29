@@ -172,7 +172,7 @@ class InstallAppSelectorState extends State<InstallAppSelector> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context).pop(selected),
         child: const Icon(Icons.check),
-      p),
+      ),
       body: FutureBuilder(
         future: InstalledApps.getInstalledApps(true, true),
         builder: (context, snapshot) {
