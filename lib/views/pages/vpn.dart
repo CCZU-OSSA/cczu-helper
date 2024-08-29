@@ -170,15 +170,16 @@ class InstallAppSelectorState extends State<InstallAppSelector> {
     return Scaffold(
       appBar: AppBar(),
       floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.of(context).pop(selected),
-          child: Icon(Icons.check)),
+        onPressed: () => Navigator.of(context).pop(selected),
+        child: const Icon(Icons.check),
+      p),
       body: FutureBuilder(
         future: InstalledApps.getInstalledApps(true, true),
         builder: (context, snapshot) {
           var data = snapshot.data;
 
           if (data == null) {
-            return Center(child: const CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           return AppInfoListView(apps: data, selected: selected);

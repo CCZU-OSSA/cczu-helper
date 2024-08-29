@@ -67,6 +67,12 @@ android {
             signingConfig signingConfigs.release
         }
     }
+
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.core:core-ktx:1.6.0'
+        }
+    }
 }
 
 flutter {
@@ -78,8 +84,3 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
 }
 
-configurations.all {
-    resolutionStrategy {
-        force 'androidx.core:core-ktx:1.6.0'
-    }
-}
