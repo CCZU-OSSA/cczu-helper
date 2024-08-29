@@ -3,14 +3,12 @@ use cczuni::{
     extension::calendar::{ApplicationCalendarExt, Schedule},
     impls::{
         apps::sso::jwcas::JwcasApplication, client::DefaultClient, login::sso::SSOUniversalLogin,
-        services::webvpn::WebVPNService,
     },
 };
 
 use crate::messages::{
     grades::{GradeData, GradesInput, GradesOutput},
     icalendar::{ICalendarInput, ICalendarOutput},
-    vpn::{VpnServiceUserInput, VpnServiceUserOutput},
 };
 
 pub async fn generate_icalendar() {

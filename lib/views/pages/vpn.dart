@@ -2,6 +2,7 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/messages/vpn.pb.dart';
+import 'package:cczu_helper/plugins/enlink_vpn.dart';
 import 'package:flutter/material.dart';
 
 class VPNServicePage extends StatefulWidget {
@@ -51,6 +52,7 @@ class VPNSwitcher extends StatefulWidget {
 
 class VPNSwitcherState extends State<VPNSwitcher> {
   static bool enableVPN = false;
+  static MethodChannelFlutterVpn channel = MethodChannelFlutterVpn();
 
   @override
   Widget build(BuildContext context) {
@@ -79,17 +81,22 @@ class VPNSwitcherState extends State<VPNSwitcher> {
     return StreamBuilder(
       stream: VPNServiceUserOutput.rustSignalStream,
       builder: (context, snapshot) {
-        var message = snapshot.data;
-        if (message == null) {
+        var data = snapshot.data;
+        if (data == null) {
           return const CircularProgressIndicator();
         }
+        var message = data.message;
 
-        //TODO Connect VPN
+        channel.start(
+          user: account.getCurrentSSOAccount().user,
+          token: message.token,
+          dns: message.dns,
+        );
 
         return Switch(
             value: true,
             onChanged: (value) {
-              //TODO Shutdown VPN session
+              channel.stop();
               setState(() {
                 enableVPN = false;
               });
