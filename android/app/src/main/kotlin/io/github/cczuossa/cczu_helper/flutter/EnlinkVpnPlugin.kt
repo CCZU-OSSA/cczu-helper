@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.ServiceConnection
 import android.net.VpnService
 import android.os.IBinder
+import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -13,6 +14,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
+import io.github.cczuossa.cczu_helper.utils.Utils.Companion.async
 import io.github.cczuossa.cczu_helper.utils.Utils.Companion.sync
 import io.github.cczuossa.cczu_helper.vpn.EnlinkVpnService
 import io.github.cczuossa.cczu_helper.utils.bindService
@@ -21,6 +23,7 @@ import io.github.cczuossa.cczu_helper.vpn.EnlinkVPN
 
 class EnlinkVpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware {
 
+    private var vpn: EnlinkVPN? = null
     private lateinit var binding: FlutterPluginBinding
     private var service: EnlinkVpnService? = null
     private var connector: (service: EnlinkVpnService) -> Unit = {}
@@ -67,6 +70,7 @@ class EnlinkVpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Activity
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
+        Log.i("cczu-helper", "dart call: ${call.method}")
         when (call.method) {
             "start" -> {
                 if (call.hasArgument("user") && call.hasArgument("token")) {
@@ -74,28 +78,33 @@ class EnlinkVpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Activity
                     val token = call.argument<String>("token")
                     val dns = call.argument<String>("dns")
                     val apps = call.argument<String>("apps")
-                    EnlinkVPN(user!!, token!!) { status, vpn ->
-                        if (status) {
-                            // 认证完毕
-                            prepare {
-                                if (it == RESULT_OK) {
-                                    // 当同意创建vpn连接时绑定并启动服务
-                                    connector = { service ->
-                                        // 当服务启动成功
-                                        // 初始化服务
-                                        vpn.init(service, dns, apps)
+                    async {
+                        this.vpn = EnlinkVPN(user!!, token!!) { status, vpn ->
+                            if (status) {
+                                // 认证完毕
+                                prepare {
+                                    if (it == RESULT_OK) {
+                                        // 当同意创建vpn连接时绑定并启动服务
+                                        connector = { service ->
+                                            // 当服务启动成功
+                                            // 初始化服务
+                                            vpn.init(service, dns ?: "211.65.64.65", apps)
+                                        }
+                                        this.activityBinding.activity.bindService(
+                                            EnlinkVpnService::class.java,
+                                            connection,
+                                            BIND_AUTO_CREATE
+                                        )
                                     }
-                                    this.activityBinding.activity.bindService(
-                                        EnlinkVpnService::class.java,
-                                        connection,
-                                        BIND_AUTO_CREATE
-                                    )
+                                    result.success(it == RESULT_OK)
                                 }
-                                result.success(it == RESULT_OK)
+                            } else {
+                                result.success(status)
                             }
                         }
-                        result.success(status)
-                    }.auth()
+                        this.vpn?.auth()
+                    }
+
                 } else {
                     result.success(false)
                 }
@@ -103,6 +112,9 @@ class EnlinkVpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Activity
 
             "stop" -> {
                 connector = {}
+                if (this.vpn != null) {
+                    this.vpn?.stop()
+                }
                 this.activityBinding.activity.stopService(
                     EnlinkVpnService::class.java
                 )

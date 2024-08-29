@@ -5,6 +5,7 @@ import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 
 class EnlinkVpnService : VpnService() {
@@ -33,8 +34,16 @@ class EnlinkVpnService : VpnService() {
             .addRoute("0.0.0.0", 0)
             .addAddress(virtualAddress, virtualMask)
             .apply {
-                dnsList.forEach { addDnsServer(it) }
-                allowedApplications.forEach { addAllowedApplication(it) }
+                dnsList.forEach {
+                    Log.i(
+                        "ccze-helper",
+                        "setup vpn dns: $it"
+                    )
+                    if (it.isNotBlank() && it != "127.0.0.1") addDnsServer(it.trim())
+                }
+                allowedApplications.forEach { if (it.isNotBlank()) addAllowedApplication(it.trim()) }
+                //addAllowedApplication("com.mmbox.xbrowser")
+                //addAllowedApplication("com.tencent.wework")
             }
             .establish()
     }
