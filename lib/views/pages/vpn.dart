@@ -193,39 +193,41 @@ class AppInfoListViewState extends State<AppInfoListView> {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      children: widget.apps
-          .map((app) => ListTile(
-                leading: app.icon != null
-                    ? Image.memory(app.icon!)
-                    : const Icon(Icons.android),
-                title: Text(app.name),
-                subtitle: Text(app.packageName),
-                onTap: () {
-                  setState(() {
-                    if (!widget.selected.contains(app.packageName)) {
-                      widget.selected.add(app.packageName);
-                    } else {
-                      widget.selected.remove(app.packageName);
-                    }
-                  });
-                },
-                trailing: Checkbox(
-                  value: widget.selected.contains(app.packageName),
-                  onChanged: (value) {
-                    if (value == null) {
-                      return;
-                    }
-                    setState(() {
-                      if (value) {
-                        widget.selected.add(app.packageName);
-                      } else {
-                        widget.selected.remove(app.packageName);
-                      }
-                    });
-                  },
-                ),
-              ))
-          .toList(),
+      children: widget.apps.map((app) {
+        var contain = widget.selected.contains(app.packageName);
+
+        return ListTile(
+          leading: app.icon != null
+              ? Image.memory(app.icon!)
+              : const Icon(Icons.android),
+          title: Text(app.name),
+          subtitle: Text(app.packageName),
+          onTap: () {
+            setState(() {
+              if (contain) {
+                widget.selected.remove(app.packageName);
+              } else {
+                widget.selected.add(app.packageName);
+              }
+            });
+          },
+          trailing: Checkbox(
+            value: contain,
+            onChanged: (value) {
+              if (value == null) {
+                return;
+              }
+              setState(() {
+                if (value) {
+                  widget.selected.add(app.packageName);
+                } else {
+                  widget.selected.remove(app.packageName);
+                }
+              });
+            },
+          ),
+        );
+      }).toList(),
     );
   }
 }
