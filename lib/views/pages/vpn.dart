@@ -206,8 +206,20 @@ class AppInfoListViewState extends State<AppInfoListView> {
     return ListView(
       children: widget.apps
           .map((app) => ListTile(
+                leading: app.icon != null
+                    ? Image.memory(app.icon!)
+                    : const Icon(Icons.android),
                 title: Text(app.name),
                 subtitle: Text(app.packageName),
+                onTap: () {
+                  setState(() {
+                    if (widget.selected.contains(app.packageName)) {
+                      widget.selected.add(app.packageName);
+                    } else {
+                      widget.selected.remove(app.packageName);
+                    }
+                  });
+                },
                 trailing: Checkbox(
                   value: widget.selected.contains(app.packageName),
                   onChanged: (value) {
