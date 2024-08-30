@@ -202,7 +202,7 @@ class AppInfoListViewState extends State<AppInfoListView> {
                 subtitle: Text(app.packageName),
                 onTap: () {
                   setState(() {
-                    if (widget.selected.contains(app.packageName)) {
+                    if (!widget.selected.contains(app.packageName)) {
                       widget.selected.add(app.packageName);
                     } else {
                       widget.selected.remove(app.packageName);
