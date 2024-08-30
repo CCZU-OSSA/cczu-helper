@@ -125,7 +125,7 @@ class VPNSwitcherState extends State<VPNSwitcher> {
           ComplexDialog.instance
               .withContext(context: context)
               .text(content: Text(message.err));
-          return;
+          return const CircularProgressIndicator();
         }
 
         channel.start(
