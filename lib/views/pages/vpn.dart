@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
@@ -5,8 +7,10 @@ import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/messages/vpn.pb.dart';
 import 'package:cczu_helper/plugins/enlink_vpn.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:installed_apps/app_info.dart';
 import 'package:installed_apps/installed_apps.dart';
+import 'package:rinf/rinf.dart';
 
 class VPNServicePage extends StatefulWidget {
   const VPNServicePage({super.key});
@@ -81,70 +85,55 @@ class VPNSwitcher extends StatefulWidget {
 }
 
 class VPNSwitcherState extends State<VPNSwitcher> {
-  static bool enableVPN = false;
   static MethodChannelFlutterVpn channel = MethodChannelFlutterVpn();
+  late StreamSubscription<RustSignal<VPNServiceUserOutput>> _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    _listener = VPNServiceUserOutput.rustSignalStream.listen((data) {
+      var message = data.message;
+      var account = ArcheBus().of<MultiAccoutData>();
+
+      if (!message.ok) {
+        if (mounted) {
+          ComplexDialog.instance
+              .withContext(context: context)
+              .text(content: Text(message.err));
+        }
+      }
+
+      channel.start(
+        user: account.getCurrentSSOAccount().user,
+        token: message.token,
+        dns: message.dns,
+        apps: widget.apps.join(","),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _listener.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     var account = ArcheBus().of<MultiAccoutData>();
-
-    if (!enableVPN) {
-      return Switch(
-        value: false,
-        onChanged: (value) {
-          if (!account.hasCurrentSSOAccount()) {
-            ComplexDialog.instance
-                .withContext(context: context)
-                .text(content: const Text("请先填写选中 SSO 账户"));
-            return;
-          }
-
-          VPNServiceUserInput(account: account.getCurrentSSOAccount())
-              .sendSignalToRust();
-
-          setState(() {
-            enableVPN = true;
-          });
-        },
-      );
-    }
-    return StreamBuilder(
-      stream: VPNServiceUserOutput.rustSignalStream,
-      builder: (context, snapshot) {
-        var data = snapshot.data;
-        if (data == null) {
-          return const CircularProgressIndicator();
-        }
-        var message = data.message;
-
-        if (!message.ok) {
-          setState(() {
-            enableVPN = false;
-          });
-
+    return IconButton(
+      onPressed: () {
+        if (!account.hasCurrentSSOAccount()) {
           ComplexDialog.instance
               .withContext(context: context)
-              .text(content: Text(message.err));
-          return const CircularProgressIndicator();
+              .text(content: const Text("请先填写选中 SSO 账户"));
+          return;
         }
 
-        channel.start(
-          user: account.getCurrentSSOAccount().user,
-          token: message.token,
-          dns: message.dns,
-          apps: widget.apps.join(","),
-        );
-
-        return Switch(
-          value: true,
-          onChanged: (value) {
-            channel.stop();
-            setState(() {
-              enableVPN = false;
-            });
-          },
-        );
+        VPNServiceUserInput(account: account.getCurrentSSOAccount())
+            .sendSignalToRust();
       },
+      icon: const Icon(FontAwesomeIcons.plane),
     );
   }
 }
