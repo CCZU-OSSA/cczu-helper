@@ -10,6 +10,7 @@ import 'package:cczu_helper/views/services/sso/grades.dart';
 import 'package:cczu_helper/views/services/sso/icalendar.dart';
 import 'package:cczu_helper/views/services/misc/cmcc_account.dart';
 import 'package:cczu_helper/views/services/edu/wechat/grades.dart';
+import 'package:cczu_helper/views/services/sso/lab.dart';
 import 'package:flutter/material.dart';
 
 class ServicePage extends StatefulWidget {
@@ -115,6 +116,12 @@ class ServicePageState extends State<ServicePage>
         text: "查询成绩",
         service: GradeQueryServicePage(),
         image: AssetImage("assets/grade.png"),
+        onTap: ssoCheckOnTap,
+      ),
+      const ServiceItem(
+        text: "实验室时长(需校园网)",
+        service: LabServicePage(),
+        image: AssetImage("assets/lab.png"),
         onTap: ssoCheckOnTap,
       )
     ],

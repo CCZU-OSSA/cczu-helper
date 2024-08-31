@@ -71,25 +71,18 @@ class CMCCAccountServiceState extends State<CMCCAccoutService> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text("生成CMCC宽带拨号账户"),
+      ),
       body: AdaptiveView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    "生成CMCC宽带拨号账户",
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      ComplexDialog.instance.text(
-                        title: const Text("说明"),
-                        content: const SelectableText("""
+            TextButton.icon(
+              onPressed: () {
+                ComplexDialog.instance.text(
+                  title: const Text("说明"),
+                  content: const SelectableText("""
 此功能受GUID所限制，仅适用于Windows端，如果你是Mac/Linux用户想必你早已向客服说明将账户改为你的手机号。
 
 这个功能是用来取代移动的上网助手的，上网助手的通过加密账户(PPPoE拨号账户)创建宽带连接，而这个功能将会直接给你PPPoE拨号账户进行取舍。
@@ -105,13 +98,11 @@ class CMCCAccountServiceState extends State<CMCCAccoutService> {
 如果你想用于路由器可以参考下方这个文档，账户可以通过这个功能生成，祝你有美好的一天~
 https://cczu-ossa.github.io/home/pdf/cczu-cmcc-router.pdf
 """),
-                        context: context,
-                      );
-                    },
-                    icon: const Icon(Icons.help),
-                  )
-                ],
-              ),
+                  context: context,
+                );
+              },
+              icon: const Icon(Icons.help),
+              label: const Text("说明"),
             ),
             Padding(
               padding: const EdgeInsets.all(10),

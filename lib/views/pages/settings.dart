@@ -101,7 +101,7 @@ class SettingsPageState extends State<SettingsPage> {
             child: Column(
               children: [
                 const ListTile(
-                  title: Text("网络"),
+                  title: Text("网络 (试验)"),
                 ),
                 Card(
                   child: Padding(
