@@ -297,14 +297,14 @@ class SettingsPageState extends State<SettingsPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ShaderMask(
-                          shaderCallback: (bounds) => const LinearGradient(
+                          shaderCallback: (bounds) => LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
                                 Colors.blue,
-                                Colors.green,
                                 Colors.yellow,
-                                Colors.pink,
+                                Colors.pink.shade200,
+                                Colors.red,
                               ]).createShader(bounds),
                           child: const Text(
                             "源神.常州大学.com",
