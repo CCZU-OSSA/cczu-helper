@@ -2,13 +2,16 @@ use cczuni::{
     base::{app::AppVisitor, client::Account},
     extension::calendar::{ApplicationCalendarExt, Schedule},
     impls::{
-        apps::sso::jwcas::JwcasApplication, client::DefaultClient, login::sso::SSOUniversalLogin,
+        apps::sso::{jwcas::JwcasApplication, lan::lab::LabApplication},
+        client::DefaultClient,
+        login::sso::SSOUniversalLogin,
     },
 };
 
 use crate::messages::{
     grades::{GradeData, GradesInput, GradesOutput},
     icalendar::{ICalendarInput, ICalendarOutput},
+    lab::{LabDurationUserInput, LabDurationUserOutput},
 };
 
 pub async fn generate_icalendar() {
@@ -101,6 +104,54 @@ pub async fn get_grades() {
                 }
                 .send_signal_to_dart();
             }
+        }
+    }
+}
+
+pub async fn lab_durations() {
+    let mut rev = LabDurationUserInput::get_dart_signal_receiver().unwrap();
+    while let Some(signal) = rev.recv().await {
+        let message = signal.message;
+        let account = message.account.unwrap();
+
+        let client = DefaultClient::account(account.user, account.password);
+        if let Err(message) = client.sso_universal_login().await {
+            LabDurationUserOutput {
+                ok: false,
+                err: Some(message.to_string()),
+            }
+            .send_signal_to_dart();
+            continue;
+        }
+        let app = client.visit::<LabApplication<_>>().await;
+        if let Err(message) = app.exam_login().await {
+            LabDurationUserOutput {
+                ok: false,
+                err: Some(message.to_string()),
+            }
+            .send_signal_to_dart();
+            continue;
+        }
+
+        let mut flag = true;
+        for _ in 0..message.count {
+            if let Err(message) = app.exam_increase_thirty_secs().await {
+                LabDurationUserOutput {
+                    ok: false,
+                    err: Some(message.to_string()),
+                }
+                .send_signal_to_dart();
+                flag = false;
+                break;
+            }
+        }
+
+        if flag {
+            LabDurationUserOutput {
+                ok: true,
+                err: None,
+            }
+            .send_signal_to_dart();
         }
     }
 }

@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
+import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/snackbar.dart';
+import 'package:cczu_helper/messages/lab.pb.dart';
 import 'package:cczu_helper/views/widgets/adaptive.dart';
 import 'package:flutter/material.dart';
+import 'package:rinf/rinf.dart';
 
 class LabServicePage extends StatefulWidget {
   const LabServicePage({super.key});
@@ -13,6 +18,33 @@ class LabServicePage extends StatefulWidget {
 
 class LabServicePageState extends State<LabServicePage> {
   int count = 960;
+  bool working = false;
+  late StreamSubscription<RustSignal<LabDurationUserOutput>> _output;
+
+  @override
+  void initState() {
+    super.initState();
+    _output = LabDurationUserOutput.rustSignalStream.listen((data) {
+      if (mounted) {
+        if (data.message.ok) {
+          showSnackBar(context: context, content: const Text("完成"));
+        } else {
+          ComplexDialog.instance
+              .text(context: context, content: Text(data.message.err));
+        }
+
+        setState(() {
+          working = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _output.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +95,22 @@ class LabServicePageState extends State<LabServicePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.check),
+        onPressed: working
+            ? null
+            : () {
+                LabDurationUserInput(
+                        account: ArcheBus()
+                            .of<MultiAccoutData>()
+                            .getCurrentSSOAccount(),
+                        count: count)
+                    .sendSignalToRust();
+                setState(() {
+                  working = true;
+                });
+              },
+        child: working
+            ? const CircularProgressIndicator()
+            : const Icon(Icons.check),
       ),
     );
   }

@@ -30,6 +30,7 @@ async fn main() {
 
     tokio::spawn(jwcas_implments::generate_icalendar());
     tokio::spawn(jwcas_implments::get_grades());
+    tokio::spawn(jwcas_implments::lab_durations());
 
     tokio::spawn(jwqywx_implement::get_grades());
     tokio::spawn(jwqywx_implement::get_terms());
