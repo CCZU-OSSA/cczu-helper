@@ -39,6 +39,7 @@ pub async fn get_grades() {
                             mid_grade: e.mid_exam_grade,
                             end_grade: e.end_exam_grade,
                             exam_grade: e.exam_grade,
+                            exam_type: e.exam_type,
                         })
                         .collect(),
                     error: None,

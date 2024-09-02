@@ -16,6 +16,9 @@ class WeChatGradeQueryServicePageState
   List<bool> showTerm = List.filled(8, false);
   bool onlyResit = false;
   bool onlyRebuild = false;
+  bool onlyTypeResit = false;
+  bool onlyTypeEndExam = false;
+
   bool init = true;
 
   @override
@@ -79,6 +82,17 @@ class WeChatGradeQueryServicePageState
             visible = visible && rebuild;
           }
 
+          var typeEndExam = course.examType == "期末总评";
+          var typeResit = course.examType == "补考";
+
+          if (visible && onlyTypeEndExam && onlyTypeResit) {
+            visible = visible && (typeResit || typeEndExam);
+          } else if (visible && onlyTypeResit) {
+            visible = visible && typeResit;
+          } else if (visible && onlyTypeEndExam) {
+            visible = visible && typeEndExam;
+          }
+
           return Visibility(
             visible: visible,
             child: Card(
@@ -86,9 +100,13 @@ class WeChatGradeQueryServicePageState
                 children: [
                   ListTile(
                     title: Text(course.courseName),
-                    trailing: Chip(label: Text(course.term.toString())),
+                    trailing: Text(course.term.toString()),
                   ),
                   const Divider(),
+                  ListTile(
+                    title: const Text("考试类型"),
+                    trailing: Text(course.examType),
+                  ),
                   Visibility(
                     visible: course.usualGrade != 0,
                     child: ListTile(
@@ -160,6 +178,24 @@ class WeChatGradeQueryServicePageState
                   onSelected: (bool value) {
                     setState(() {
                       onlyRebuild = value;
+                    });
+                  },
+                ),
+                FilterChip.elevated(
+                  label: const Text("类型: 期末"),
+                  selected: onlyTypeEndExam,
+                  onSelected: (bool value) {
+                    setState(() {
+                      onlyTypeEndExam = value;
+                    });
+                  },
+                ),
+                FilterChip.elevated(
+                  label: const Text("类型: 补考"),
+                  selected: onlyTypeResit,
+                  onSelected: (bool value) {
+                    setState(() {
+                      onlyTypeResit = value;
                     });
                   },
                 )

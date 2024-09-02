@@ -36,6 +36,7 @@ message WeChatGradeData {
     float mid_grade = 6;
     float end_grade = 7;
     string exam_grade = 8;
+    string exam_type = 9;
 }
 
 // [RINF:RUST-SIGNAL]
