@@ -119,7 +119,7 @@ class ServicePageState extends State<ServicePage>
         onTap: ssoCheckOnTap,
       ),
       const ServiceItem(
-        text: "实验室时长(需校园网)",
+        text: "实验室时长",
         service: LabServicePage(),
         image: AssetImage("assets/lab.png"),
         onTap: ssoCheckOnTap,

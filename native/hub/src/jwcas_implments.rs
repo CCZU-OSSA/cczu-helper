@@ -2,7 +2,7 @@ use cczuni::{
     base::{app::AppVisitor, client::Account},
     extension::calendar::{ApplicationCalendarExt, Schedule},
     impls::{
-        apps::sso::{jwcas::JwcasApplication, lan::lab::LabApplication},
+        apps::sso::{jwcas::JwcasApplication, lab::LabApplication},
         client::DefaultClient,
         login::sso::SSOUniversalLogin,
     },
@@ -115,14 +115,6 @@ pub async fn lab_durations() {
         let account = message.account.unwrap();
 
         let client = DefaultClient::account(account.user, account.password);
-        if let Err(message) = client.sso_universal_login().await {
-            LabDurationUserOutput {
-                ok: false,
-                err: Some(message.to_string()),
-            }
-            .send_signal_to_dart();
-            continue;
-        }
         let app = client.visit::<LabApplication<_>>().await;
         if let Err(message) = app.exam_login().await {
             LabDurationUserOutput {
