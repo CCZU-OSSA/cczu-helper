@@ -16,7 +16,7 @@ pub async fn get_vpn_data() {
             DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
         let login = client.sso_universal_login().await;
         if let Ok(Some(info)) = login {
-            let proxy = client.webvpn_get_proxy_service(info.userid.unwrap()).await;
+            let proxy = client.webvpn_get_proxy_service(info.userid).await;
             if let Ok(proxy) = proxy {
                 if let Some(gateway) = proxy.data.gateway_list.first() {
                     VpnServiceUserOutput {
