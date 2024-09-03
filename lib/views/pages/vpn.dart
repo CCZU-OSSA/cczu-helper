@@ -7,7 +7,6 @@ import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/messages/vpn.pb.dart';
 import 'package:cczu_helper/plugins/enlink_vpn.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:installed_apps/app_info.dart';
 import 'package:installed_apps/installed_apps.dart';
 import 'package:rinf/rinf.dart';
@@ -21,6 +20,38 @@ class VPNServicePage extends StatefulWidget {
 
 class VPNServicePageState extends State<VPNServicePage> {
   static List<String> apps = [];
+  static MethodChannelFlutterVpn channel = MethodChannelFlutterVpn();
+  late StreamSubscription<RustSignal<VPNServiceUserOutput>> _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    _listener = VPNServiceUserOutput.rustSignalStream.listen((data) {
+      var message = data.message;
+      var account = ArcheBus().of<MultiAccoutData>();
+
+      if (!message.ok) {
+        if (mounted) {
+          ComplexDialog.instance
+              .withContext(context: context)
+              .text(content: Text(message.err));
+        }
+      }
+
+      channel.start(
+        user: account.getCurrentSSOAccount().user,
+        token: message.token,
+        dns: message.dns,
+        apps: apps.join(","),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _listener.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +71,19 @@ class VPNServicePageState extends State<VPNServicePage> {
                   title: const Text("启用"),
                   subtitle: const Text("Enable"),
                   leading: const Icon(Icons.public),
-                  trailing: VPNSwitcher(
-                    apps: apps,
-                  ),
+                  onTap: () {
+                    var account = ArcheBus().of<MultiAccoutData>();
+
+                    if (!account.hasCurrentSSOAccount()) {
+                      ComplexDialog.instance
+                          .withContext(context: context)
+                          .text(content: const Text("请先填写选中 SSO 账户"));
+                      return;
+                    }
+
+                    VPNServiceUserInput(account: account.getCurrentSSOAccount())
+                        .sendSignalToRust();
+                  },
                 ),
                 ListTile(
                   title: const Text("应用"),
@@ -72,68 +113,6 @@ class VPNServicePageState extends State<VPNServicePage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class VPNSwitcher extends StatefulWidget {
-  final List<String> apps;
-  const VPNSwitcher({super.key, required this.apps});
-
-  @override
-  State<StatefulWidget> createState() => VPNSwitcherState();
-}
-
-class VPNSwitcherState extends State<VPNSwitcher> {
-  static MethodChannelFlutterVpn channel = MethodChannelFlutterVpn();
-  late StreamSubscription<RustSignal<VPNServiceUserOutput>> _listener;
-
-  @override
-  void initState() {
-    super.initState();
-    _listener = VPNServiceUserOutput.rustSignalStream.listen((data) {
-      var message = data.message;
-      var account = ArcheBus().of<MultiAccoutData>();
-
-      if (!message.ok) {
-        if (mounted) {
-          ComplexDialog.instance
-              .withContext(context: context)
-              .text(content: Text(message.err));
-        }
-      }
-
-      channel.start(
-        user: account.getCurrentSSOAccount().user,
-        token: message.token,
-        dns: message.dns,
-        apps: widget.apps.join(","),
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _listener.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var account = ArcheBus().of<MultiAccoutData>();
-    return IconButton(
-      onPressed: () {
-        if (!account.hasCurrentSSOAccount()) {
-          ComplexDialog.instance
-              .withContext(context: context)
-              .text(content: const Text("请先填写选中 SSO 账户"));
-          return;
-        }
-
-        VPNServiceUserInput(account: account.getCurrentSSOAccount())
-            .sendSignalToRust();
-      },
-      icon: const Icon(FontAwesomeIcons.plane),
     );
   }
 }
