@@ -123,6 +123,9 @@ class AddAccountPage extends StatefulWidget {
 class _AddAccountPageState extends State<AddAccountPage> {
   late TextEditingController user;
   late TextEditingController password;
+  bool userError = false;
+  bool passwordError = false;
+
   bool obscurePassword = true;
   @override
   void initState() {
@@ -168,17 +171,27 @@ class _AddAccountPageState extends State<AddAccountPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          if (user.text.isEmpty || password.text.isEmpty) {
+            setState(() {
+              userError = user.text.isEmpty;
+              passwordError = password.text.isEmpty;
+            });
+            return;
+          }
+
           var data = ArcheBus.bus.provideof(instance: MultiAccoutData.template);
+
           var account = AccountData(
             user: user.text,
             password: password.text,
           );
-          data.addAccount(account, widget.accountType);
+
           if (widget.account != null) {
             data.deleteAccount(widget.account!, widget.accountType);
-          } else {
-            data.current[widget.accountType.name] = account;
           }
+          data.addAccount(account, widget.accountType);
+          data.current[widget.accountType.name] = account;
+
           data.writeAccounts().then((_) {
             nav.pop();
             widget.callback();
@@ -193,10 +206,18 @@ class _AddAccountPageState extends State<AddAccountPage> {
             children: [
               TextField(
                 controller: user,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
+                onChanged: (value) {
+                  if (userError) {
+                    setState(() {
+                      userError = false;
+                    });
+                  }
+                },
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.person),
                   labelText: "账户",
+                  errorText: userError ? "不能为空" : null,
                 ),
               ),
               const SizedBox(
@@ -204,17 +225,27 @@ class _AddAccountPageState extends State<AddAccountPage> {
               ),
               TextField(
                 controller: password,
+                onChanged: (value) {
+                  if (passwordError) {
+                    setState(() {
+                      passwordError = false;
+                    });
+                  }
+                },
                 decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.lock),
-                    labelText: "密码",
-                    suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            obscurePassword = !obscurePassword;
-                          });
-                        },
-                        icon: const Icon(Icons.visibility))),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.lock),
+                  errorText: passwordError ? "不能为空" : null,
+                  labelText: "密码",
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        obscurePassword = !obscurePassword;
+                      });
+                    },
+                    icon: const Icon(Icons.visibility),
+                  ),
+                ),
                 obscureText: obscurePassword,
               ),
               const SizedBox(
