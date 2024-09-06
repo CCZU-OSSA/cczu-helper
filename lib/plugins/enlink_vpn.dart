@@ -12,13 +12,15 @@ class MethodChannelFlutterVpn {
     required String token,
     String? dns,
     String? apps,
+    String? routes,
   }) async {
     if (!Platform.isAndroid) return true;
     return (await methodChannel.invokeMethod('start', {
       'user': user,
       'token': token,
-      if (apps != null) 'dns': dns,
+      if (dns != null) 'dns': dns,
       if (apps != null) 'apps': apps,
+      if (routes != null) 'routes': routes,
     }))!;
   }
 

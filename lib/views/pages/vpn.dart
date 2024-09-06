@@ -43,6 +43,7 @@ class VPNServicePageState extends State<VPNServicePage> {
         token: message.token,
         dns: message.dns,
         apps: apps.join(","),
+        routes: message.routes,
       );
     });
   }

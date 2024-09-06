@@ -139,9 +139,14 @@ class EnlinkDataInputStream(val ins: InputStream) : InputStream() {
         //println(byte.toString(StandardCharsets.UTF_8))
     }
 
+    fun readByte(): Byte {
+        val data = ByteArray(1)
+        read(data)
+        return data[0]
+    }
+
     fun readData(): ByteArray {
         val head = ByteArray(8)
-
         if (read(head) > 0) {
             // 1,4 开头为数据
             // 1,2 开头为心跳包

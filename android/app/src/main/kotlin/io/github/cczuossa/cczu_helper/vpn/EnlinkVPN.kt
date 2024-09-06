@@ -1,130 +1,86 @@
 package io.github.cczuossa.cczu_helper.vpn
 
 
-import android.os.ParcelFileDescriptor
 import android.util.Log
-import io.github.cczuossa.cczu_helper.utils.Utils.Companion.async
+import io.github.cczuossa.cczu_helper.vpn.data.EnlinkTunData
 import io.github.cczuossa.cczu_helper.vpn.trust.EasyTrustManager
 import li.mo.testvpn.EnlinkDataInputStream
 import li.mo.testvpn.EnlinkDataOutputStream
 import java.net.InetSocketAddress
-import java.net.Socket
 import javax.net.ssl.SSLContext
 
 
-class EnlinkVPN(
-    val user: String,
-    val token: String,
-    val host: String = "zmvpn.cczu.edu.cn",
-    val port: Int = 443,
-    var callback: (status: Boolean, vpn: EnlinkVPN) -> Unit
-) {
-
-    private var fileDescriptor: ParcelFileDescriptor? = null
-    private var forwarder: EnlineVpnForwarder? = null
-    val socket: Socket
-    var ip = "0.0.0.0"
-    var mask = 32
-    val dnsList = arrayListOf<String>()
-    var gate = "0.0.0.0"
-    var watchdog = false
-    var forward = false
-    var totalTry = 20
-    var tryReconnect = 0
+object EnlinkVPN {
 
 
-    init {
-        val sslContext = SSLContext.getInstance("TLS")
-        sslContext.init(null, arrayOf(EasyTrustManager), null)
-        this.socket = sslContext.socketFactory.createSocket()
-        connect()
+    val port = 443// 固定端口
+    val host = "zmvpn.cczu.edu.cn"// 固定主机
+    val whitelist = hashSetOf<String>(// 白名单
+        "202.195.100.36"
+    )// 白名单ip
+    val sslFactory = SSLContext.getInstance("TLS").apply {
+        init(null, arrayOf(EasyTrustManager), null)
     }
+    var socket = sslFactory.socketFactory.createSocket()// 连接对象
 
+
+    private var validator: () -> EnlinkTunData =
+        { EnlinkTunData("", -1) }// 验证器
+
+
+    /**
+     * 连接但不进行验证
+     */
     fun connect() {
-        this.socket.connect(InetSocketAddress(host, port))
-    }
-
-
-    fun auth() {
-        Log.i("ccze-helper", "try auth vpn: $user, $token")
-        val out = EnlinkDataOutputStream(this.socket.getOutputStream())
-        out.writeAuth(user, token)
-        val ins = EnlinkDataInputStream(this.socket.getInputStream())
-        if (ins.authStatus()) {
-            this.ip = ins.virtualAddress()
-            this.mask = ins.virtualMask()
-            ins.others()
-            ins.drop()
-            if (ins.gate.size > 0)
-                this.gate = ins.gate[0]
-            this.dnsList.addAll(ins.dnsList)
-            callback.invoke(true, this)
-        } else callback.invoke(false, this)
-    }
-
-    private fun outputStream(): EnlinkDataOutputStream {
-        return EnlinkDataOutputStream(this.socket.getOutputStream())
-    }
-
-    private fun inputStream(): EnlinkDataInputStream {
-        return EnlinkDataInputStream(this.socket.getInputStream())
-    }
-
-    fun watchdog() {
-        if (watchdog) return
-        watchdog = true
-        async {
-            while (watchdog) {
-                if (tryReconnect >= totalTry) break
-                if (socket.isClosed) {
-                    connect()
-                    tryReconnect++
-                    forwarder?.stop()
-                } else {
-                    if (tryReconnect > 0) {
-                        callback = { status, _ ->
-                            if (status) {
-                                tryReconnect = 0
-                                forward = false
-                                forward()
-                            }
-                        }
-                        auth()
-                    }
-                }
-                Thread.sleep(3000L)
-            }
-            watchdog = false
+        runCatching {
+            if (this.socket.isConnected) this.socket.close()
+            this.socket = sslFactory.socketFactory.createSocket()
+            this.socket.connect(InetSocketAddress(host, port))
+            // 验证并重启服务
+            auth()
+        }.onFailure {
+            //it.printStackTrace()
         }
     }
 
-    fun init(service: EnlinkVpnService, dns: String?, apps: String?) {
-        Log.i("ccze-helper", "setup vpn: $ip, $mask, apps: $apps")
-        this.fileDescriptor = service.setup(ip, mask, dnsList.apply {
-            if (!dns.isNullOrBlank()) {
-                addAll(dns.split(","))
-            }
-        }, arrayListOf<String>().apply {
-            if (!apps.isNullOrBlank()) {
-                addAll(apps.split(","))
-            }
-        })
-        service.protect(this.socket)
-        forward()
-        //watchdog()
+
+    fun init(
+        user: String,
+        token: String,
+        callback: (status: Boolean, data: EnlinkTunData, vpn: EnlinkVPN) -> Unit
+    ) {
+        Log.i("ccze-helper", "try auth vpn: $user, $token")
+        validator = {
+            val output = outputStream()
+            val input = inputStream()
+            // 写出认证
+            output.writeAuth(user, token)
+            val data = if (input.authStatus()) {
+                val address = input.virtualAddress()
+                val mask = input.virtualMask()
+                input.others()
+                input.drop()
+                whitelist.add("0.0.0.0")
+                EnlinkTunData(address, mask)
+            } else EnlinkTunData("", -1)
+
+            callback.invoke(data.mask > 0, data, this)
+            data
+        }
+        connect()
+
     }
 
-    private fun forward() {
-        if (forward) return
-        forward = true
-        this.forwarder =
-            EnlineVpnForwarder(fileDescriptor?.fileDescriptor!!, inputStream(), outputStream())
-        this.forwarder?.start()
+    fun auth(): EnlinkTunData {
+        return validator.invoke()
     }
 
-    fun stop() {
-        this.forwarder?.stop()
-        this.socket.close()
+    fun outputStream(): EnlinkDataOutputStream {
+        return EnlinkDataOutputStream(this.socket.getOutputStream())
+    }
+
+    fun inputStream(): EnlinkDataInputStream {
+        return EnlinkDataInputStream(this.socket.getInputStream())
     }
 
 }

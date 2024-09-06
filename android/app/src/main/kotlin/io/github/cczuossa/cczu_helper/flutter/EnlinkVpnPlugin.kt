@@ -1,12 +1,15 @@
 package io.github.cczuossa.cczu_helper.flutter
 
+import android.Manifest
 import android.app.Activity.BIND_AUTO_CREATE
 import android.app.Activity.RESULT_OK
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.net.VpnService
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.ActivityCompat
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -19,11 +22,12 @@ import io.github.cczuossa.cczu_helper.utils.Utils.Companion.sync
 import io.github.cczuossa.cczu_helper.vpn.EnlinkVpnService
 import io.github.cczuossa.cczu_helper.utils.bindService
 import io.github.cczuossa.cczu_helper.utils.stopService
+import io.github.cczuossa.cczu_helper.vpn.EnlinkAdapter
 import io.github.cczuossa.cczu_helper.vpn.EnlinkVPN
+import io.github.cczuossa.cczu_helper.vpn.data.EnlinkTunRouteData
 
 class EnlinkVpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware {
 
-    private var vpn: EnlinkVPN? = null
     private lateinit var binding: FlutterPluginBinding
     private var service: EnlinkVpnService? = null
     private var connector: (service: EnlinkVpnService) -> Unit = {}
@@ -39,7 +43,11 @@ class EnlinkVpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Activity
                 if (binder is EnlinkVpnService.EnlinkVpnServiceBinder) {
                     // 获取服务
                     service = binder.service()
-                    connector.invoke(service!!)
+                    sync {
+                        connector.invoke(service!!)
+                    }
+                } else {
+                    Log.i("cczu-helper", "Unknown binder: $binder")
                 }
             }
 
@@ -70,39 +78,76 @@ class EnlinkVpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Activity
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-        Log.i("cczu-helper", "dart call: ${call.method}")
         when (call.method) {
             "start" -> {
                 if (call.hasArgument("user") && call.hasArgument("token")) {
+                    // 取参数
                     val user = call.argument<String>("user")
                     val token = call.argument<String>("token")
                     val dns = call.argument<String>("dns")
                     val apps = call.argument<String>("apps")
+                    val routes = call.argument<String>("routes")
+                    Log.i("cczu-helper", "call kotlin method,routes: $routes")
                     async {
-                        this.vpn = EnlinkVPN(user!!, token!!) { status, vpn ->
+                        EnlinkVPN.init(user!!, token!!) { status, data, vpn ->
                             if (status) {
                                 // 认证完毕
+                                // 处理dns和apps
+                                if (!dns.isNullOrBlank()) {
+                                    dns.trim().split(",").forEach {
+                                        if (it.isNotBlank()) {
+                                            data.dns.add(it.trim())
+                                            data.routes.add(EnlinkTunRouteData(it.trim()))
+                                        }
+                                    }
+                                } else data.dns.add("211.65.64.65")
+
+                                if (!apps.isNullOrBlank()) {
+                                    apps.trim().split(",").forEach {
+                                        if (it.isNotBlank()) data.apps.add(it.trim())
+                                    }
+                                }
+
+                                // 处理 routes
+                                if (!routes.isNullOrBlank()) {
+                                    routes.trim().split("#").forEach {
+                                        if (it.isNotBlank()) {
+                                            val route = it
+                                                .replace("ANY://", "")
+                                                .replace("TCP://", "")
+                                                .replace("UDP://", "")
+                                                .replace("ANY;", "")
+                                                .replace("TCP;", "")
+                                                .replace("UDP;", "")
+                                                .split("/")[0]
+                                            data.routes.add(EnlinkTunRouteData(route))
+                                        }
+                                    }
+                                }
+
+                                // 准备vpn服务
                                 prepare {
                                     if (it == RESULT_OK) {
                                         // 当同意创建vpn连接时绑定并启动服务
                                         connector = { service ->
                                             // 当服务启动成功
-                                            // 初始化服务
-                                            vpn.init(service, dns ?: "211.65.64.65", apps)
+                                            // 配置服务并代理
+                                            result.success(EnlinkAdapter.proxy(service, data, vpn))
                                         }
+                                        // 尝试绑定服务
+                                        Log.i("cczu-helper", "try bind service")
                                         this.activityBinding.activity.bindService(
                                             EnlinkVpnService::class.java,
                                             connection,
                                             BIND_AUTO_CREATE
                                         )
                                     }
-                                    result.success(it == RESULT_OK)
                                 }
                             } else {
-                                result.success(status)
+                                result.success(false)
                             }
                         }
-                        this.vpn?.auth()
+
                     }
 
                 } else {
@@ -112,9 +157,7 @@ class EnlinkVpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Activity
 
             "stop" -> {
                 connector = {}
-                if (this.vpn != null) {
-                    this.vpn?.stop()
-                }
+                EnlinkAdapter.stop()
                 this.activityBinding.activity.stopService(
                     EnlinkVpnService::class.java
                 )
@@ -146,6 +189,19 @@ class EnlinkVpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Activity
                     }
                     // 注册回调
                     this.activityBinding.addActivityResultListener(resultListener)
+                    ActivityCompat.requestPermissions(
+                        this.activityBinding.activity,
+                        arrayListOf<String>().apply {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                add(Manifest.permission.POST_NOTIFICATIONS)
+                                add(Manifest.permission.FOREGROUND_SERVICE)
+                            }
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                                add(Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE)
+                            }
+                        }.toTypedArray(),
+                        0x3c
+                    )
                     // 弹出连接请求
                     this.activityBinding.activity.startActivityForResult(intent, reqCode)
 

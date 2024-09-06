@@ -24,6 +24,16 @@ pub async fn get_vpn_data() {
                         err: None,
                         token: Some(proxy.data.token),
                         dns: Some(gateway.dns.clone()),
+                        routes: Some(format!(
+                            "{}#{}#{}",
+                            gateway.white_list.join("#"),
+                            gateway.in_ip_list.join("#"),
+                            gateway
+                                .in_ip_list_by_gateway_map
+                                .get(&gateway.id.clone())
+                                .unwrap()
+                                .join("#")
+                        )),
                     }
                     .send_signal_to_dart()
                 } else {
@@ -32,6 +42,7 @@ pub async fn get_vpn_data() {
                         err: Some("获取DNS失败".into()),
                         token: None,
                         dns: None,
+                        routes: None,
                     }
                     .send_signal_to_dart()
                 }
@@ -41,6 +52,7 @@ pub async fn get_vpn_data() {
                     err: Some(message.to_string()),
                     token: None,
                     dns: None,
+                    routes: None,
                 }
                 .send_signal_to_dart()
             }
@@ -50,6 +62,7 @@ pub async fn get_vpn_data() {
                 err: Some("当前正在使用校园网，无需代理".into()),
                 token: None,
                 dns: None,
+                routes: None,
             }
             .send_signal_to_dart()
         } else if let Err(message) = login {
@@ -58,6 +71,7 @@ pub async fn get_vpn_data() {
                 err: Some(message.to_string()),
                 token: None,
                 dns: None,
+                routes: None,
             }
             .send_signal_to_dart()
         }

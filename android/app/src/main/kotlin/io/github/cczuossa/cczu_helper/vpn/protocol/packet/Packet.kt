@@ -1,6 +1,7 @@
 package io.github.cczuossa.cczu_helper.vpn.protocol.packet
 
 import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
 
 data class Packet(val buffer: ByteBuffer) {
     private val IP4_HEADER_SIZE = 20
@@ -20,6 +21,12 @@ data class Packet(val buffer: ByteBuffer) {
     }
 
     override fun toString(): String {
-        return "ipcHeader($ip4Header),tcpHeader($tcpHeader),udpHeader($udpHeader)"
+        val data = ByteArray(buffer.remaining())
+        buffer.get(data)
+        return "ipcHeader($ip4Header),tcpHeader($tcpHeader),udpHeader($udpHeader),data(${
+            data.toString(
+                StandardCharsets.UTF_8
+            )
+        })"
     }
 }
