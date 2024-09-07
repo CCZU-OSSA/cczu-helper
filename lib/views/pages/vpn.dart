@@ -9,6 +9,7 @@ import 'package:cczu_helper/plugins/enlink_vpn.dart';
 import 'package:flutter/material.dart';
 import 'package:installed_apps/app_info.dart';
 import 'package:installed_apps/installed_apps.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:rinf/rinf.dart';
 
 class VPNServicePage extends StatefulWidget {
@@ -90,7 +91,14 @@ class VPNServicePageState extends State<VPNServicePage> {
                   title: const Text("应用"),
                   subtitle: const Text("Applications"),
                   leading: const Icon(Icons.apps),
-                  onTap: () {
+                  onTap: () async {
+                    var status =
+                        await Permission.requestInstallPackages.request();
+
+                    if (status.isDenied) {
+                      return;
+                    }
+
                     pushMaterialRoute<List<String>>(
                       builder: (context) {
                         return InstallAppSelector(

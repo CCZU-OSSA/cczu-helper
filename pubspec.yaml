@@ -55,6 +55,7 @@ dependencies:
   system_fonts: ^1.0.1
   installed_apps:
     git: https://github.com/CCZU-OSSA/installed_apps.git
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:

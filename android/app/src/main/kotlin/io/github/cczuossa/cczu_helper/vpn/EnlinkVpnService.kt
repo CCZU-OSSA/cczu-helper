@@ -78,7 +78,8 @@ class EnlinkVpnService : VpnService() {
 
         return Builder()
             .addAddress(virtualAddress, virtualMask)
-            .addRoute("0.0.0.0", 0)
+            .addRoute("202.195.100.36", 32)
+            // TODO Add Route here
             .setSession("EnlinkVPN")
             .setConfigureIntent(intent)
             //.addDisallowedApplication("io.github.cczuossa.cczu_helper")
