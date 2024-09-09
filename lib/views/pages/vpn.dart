@@ -9,7 +9,6 @@ import 'package:cczu_helper/plugins/enlink_vpn.dart';
 import 'package:flutter/material.dart';
 import 'package:installed_apps/app_info.dart';
 import 'package:installed_apps/installed_apps.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:rinf/rinf.dart';
 
 class VPNServicePage extends StatefulWidget {
@@ -92,12 +91,13 @@ class VPNServicePageState extends State<VPNServicePage> {
                   subtitle: const Text("Applications"),
                   leading: const Icon(Icons.apps),
                   onTap: () async {
-                    var status =
-                        await Permission.requestInstallPackages.request();
-
-                    if (status.isDenied) {
-                      return;
-                    }
+                    //TODO Request Permission here, this code has problem
+                    //var status =
+                    //    await Permission.requestInstallPackages.request();
+                    //
+                    //if (status.isDenied) {
+                    //  return;
+                    //}
 
                     pushMaterialRoute<List<String>>(
                       builder: (context) {

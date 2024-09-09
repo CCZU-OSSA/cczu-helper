@@ -271,9 +271,10 @@ class CurriculumPageState extends State<CurriculumPage>
             endHour: 21,
             timeFormat: configs.calendarSimple.getOr(false) ? "" : "H:mm",
             timeRulerSize: configs.calendarSimple.getOr(false) ? 0 : -1,
-            timeIntervalHeight: 50,
+            timeIntervalHeight: 40,
             timeInterval: Duration(
-                minutes: configs.calendarSimple.getOr(false) ? 60 : 30),
+              minutes: configs.calendarSimple.getOr(false) ? 60 : 30,
+            ),
           ),
           cellBorderColor: theme.colorScheme.surfaceContainerHighest,
           cellEndPadding: 0,
@@ -290,7 +291,7 @@ class CurriculumPageState extends State<CurriculumPage>
             var dialog = Wrap(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.calendar_month),
+                  leading: const Icon(Icons.access_time_filled),
                   title: const Text("时间"),
                   subtitle: Text(
                     time,
@@ -325,8 +326,8 @@ class CurriculumPageState extends State<CurriculumPage>
                 Visibility(
                   visible: appointment.week != null,
                   child: ListTile(
-                    leading: const Icon(Icons.work),
-                    title: const Text("周"),
+                    leading: const Icon(Icons.calendar_month),
+                    title: const Text("工作周"),
                     subtitle: Text(
                       appointment.week.toString(),
                       style: TextStyle(
