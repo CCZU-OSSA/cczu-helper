@@ -89,23 +89,13 @@ pub async fn generate_icalendar() {
         let calendar = if let Some(term) = message.term {
             let result = app.get_term_classinfo_week_matrix(term).await;
 
-            if let Ok(matrix) = result {
-                let result = app.row_matrix_to_classinfo(matrix);
-                if let Ok(classlist) = result {
-                    app.generate_icalendar_from_classlist(
-                        classlist,
-                        message.firstweekdate,
-                        Schedule::default(),
-                        message.reminder,
-                    )
-                } else {
-                    ICalendarOutput {
-                        ok: false,
-                        data: result.unwrap_err().to_string(),
-                    }
-                    .send_signal_to_dart();
-                    continue;
-                }
+            if let Ok(classlist) = result {
+                app.generate_icalendar_from_classlist(
+                    classlist,
+                    message.firstweekdate,
+                    Schedule::default(),
+                    message.reminder,
+                )
             } else {
                 ICalendarOutput {
                     ok: false,

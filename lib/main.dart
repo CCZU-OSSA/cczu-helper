@@ -21,6 +21,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:rinf/rinf.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:system_fonts/system_fonts.dart';
@@ -57,9 +58,17 @@ void main() {
         catchError(logger);
       };
 
+      //Calendar
+      ICalendar.registerField(
+        field: "WEEK",
+        function: (value, params, event, lastEvent) {
+          lastEvent['week'] = value;
+          return lastEvent;
+        },
+      );
+
       var bus = ArcheBus();
-      var configs =
-          ApplicationConfigs(ConfigEntry.withConfig(config, generateMap: true));
+      var configs = ApplicationConfigs(config);
       bus.provide(ArcheLogger()).provide(config).provide(configs);
       // Custom Font
       var customfont = platDir.subFile("customfont");

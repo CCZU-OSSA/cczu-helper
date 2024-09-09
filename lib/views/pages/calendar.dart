@@ -201,7 +201,6 @@ class CurriculumPageState extends State<CurriculumPage>
 
   @override
   Widget build(BuildContext context) {
-    var isWide = isWideScreen(context);
     var theme = Theme.of(context);
     var configs = ArcheBus().of<ApplicationConfigs>();
 
@@ -287,42 +286,52 @@ class CurriculumPageState extends State<CurriculumPage>
             CalendarData appointment =
                 calendarAppointmentDetails.appointments.first;
             var time =
-                '${DateFormat('a hh:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('a hh:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
+                '${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
             var dialog = Wrap(
               children: [
                 ListTile(
                   leading: const Icon(Icons.calendar_month),
                   title: const Text("时间"),
-                  subtitle: Visibility(
-                      visible: !isWide,
-                      child: Text(
-                        time,
-                        style: TextStyle(
-                          color: theme.colorScheme.primary,
-                        ),
-                      )),
-                  trailing: Visibility(
-                      visible: isWide,
-                      child: Text(
-                        time,
-                      )),
+                  subtitle: Text(
+                    time,
+                    style: TextStyle(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.location_on),
                   title: const Text("地点"),
-                  subtitle: Visibility(
-                    visible: !isWide,
-                    child: Text(
-                      appointment.location.toString(),
+                  subtitle: Text(
+                    appointment.location.toString(),
+                    style: TextStyle(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ),
+                Visibility(
+                  visible: appointment.teacher != null,
+                  child: ListTile(
+                    leading: const Icon(Icons.person),
+                    title: const Text("教师"),
+                    subtitle: Text(
+                      appointment.teacher.toString(),
                       style: TextStyle(
                         color: theme.colorScheme.primary,
                       ),
                     ),
                   ),
-                  trailing: Visibility(
-                    visible: isWide,
-                    child: Text(
-                      appointment.location.toString(),
+                ),
+                Visibility(
+                  visible: appointment.week != null,
+                  child: ListTile(
+                    leading: const Icon(Icons.work),
+                    title: const Text("周"),
+                    subtitle: Text(
+                      appointment.week.toString(),
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
                   ),
                 )
@@ -458,6 +467,8 @@ class CurriculumDataSource extends CalendarDataSource {
 class CalendarData {
   final String? location;
   final String summary;
+  final String? teacher;
+  final String? week;
   final IcsDateTime start;
   final IcsDateTime end;
   final bool isAllday;
@@ -466,27 +477,36 @@ class CalendarData {
     required this.summary,
     required this.start,
     required this.end,
+    this.teacher,
+    this.week,
     this.isAllday = false,
   });
 
   @override
   String toString() {
-    return "CourseData { summary: $summary, location: $location, dtstart: $start }";
+    return "CourseData { summary: $summary, location: $location, dtstart: $start teacher: $teacher }";
   }
 }
 
 class ICalendarParser {
   final ICalendar source;
-  ICalendarParser(String source) : source = ICalendar.fromString(source);
+  ICalendarParser(String source) : source = ICalendarParser.parse(source);
+
+  static ICalendar parse(String source) {
+    return ICalendar.fromString(source);
+  }
 
   List<CalendarData> get data {
     return source.data.where((element) => element["type"] == "VEVENT").map((e) {
       return CalendarData(
-          location: e["location"].toString(),
-          summary: e["summary"].toString(),
-          start: e["dtstart"],
-          end: e["dtend"],
-          isAllday: e["location"] == null);
+        location: e["location"].toString(),
+        summary: e["summary"].toString(),
+        start: e["dtstart"],
+        end: e["dtend"],
+        teacher: e["description"],
+        week: e["week"],
+        isAllday: e["location"] == null,
+      );
     }).toList();
   }
 }

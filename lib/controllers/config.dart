@@ -19,9 +19,9 @@ Future<Directory> getPlatDirectory() async {
       await getApplicationCacheDirectory());
 }
 
-class ApplicationConfigs {
-  final ConfigEntry<T> Function<T>(String key) generator;
-  const ApplicationConfigs(this.generator);
+class ApplicationConfigs extends AppConfigsBase {
+  ApplicationConfigs(super.config, [super.generateMap = true]);
+
   ConfigEntry<String> get sysfont => generator("sysfont");
 
   ConfigEntryConverter<int, ThemeMode> get themeMode => ConfigEntryConverter(
@@ -58,4 +58,8 @@ class ApplicationConfigs {
   ConfigEntry<bool> get weakAnimation => generator("weak_animation");
   ConfigEntry<bool> get forceTransparent => generator("force_transparent");
   ConfigEntry<bool> get calendarSimple => generator("calendar_simple");
+}
+
+class CalendarConfigs extends AppConfigsBase {
+  CalendarConfigs(super.config, [super.generateMap = true]);
 }
