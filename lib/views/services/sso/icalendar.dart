@@ -88,7 +88,7 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
                         icon: const Icon(Icons.share),
                         label: const SizedBox(
                           width: double.infinity,
-                          child: Center(child: Text("分享")),
+                          child: Center(child: Text("分享至...")),
                         ),
                       ),
                       const SizedBox(
@@ -111,7 +111,7 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
                         icon: const Icon(FontAwesomeIcons.fileImport),
                         label: const SizedBox(
                           width: double.infinity,
-                          child: Center(child: Text("导入应用日历")),
+                          child: Center(child: Text("导入常大助手")),
                         ),
                       ),
                     ],
