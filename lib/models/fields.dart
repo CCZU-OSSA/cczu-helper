@@ -13,4 +13,4 @@ final GlobalKey<CurriculumPageState> curriculmKey = GlobalKey();
 
 final GlobalKey<ScaffoldMessengerState> messagerKey = GlobalKey();
 
-const Version appVersion = (1, 2, 4);
+const Version appVersion = (1, 2, 5);
