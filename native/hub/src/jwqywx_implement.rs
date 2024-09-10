@@ -1,6 +1,8 @@
 use cczuni::{
     base::{app::AppVisitor, client::Account},
-    extension::calendar::{ApplicationCalendarExt, Schedule, TermCalendarParser},
+    extension::calendar::{
+        parse_week_matrix, ApplicationCalendarExt, Schedule, TermCalendarParser,
+    },
     impls::{apps::wechat::jwqywx::JwqywxApplication, client::DefaultClient},
 };
 
@@ -89,13 +91,23 @@ pub async fn generate_icalendar() {
         let calendar = if let Some(term) = message.term {
             let result = app.get_term_classinfo_week_matrix(term).await;
 
-            if let Ok(classlist) = result {
-                app.generate_icalendar_from_classlist(
-                    classlist,
-                    message.firstweekdate,
-                    Schedule::default(),
-                    message.reminder,
-                )
+            if let Ok(raw) = result {
+                let parsed = parse_week_matrix(raw);
+                if let Ok(classlist) = parsed {
+                    app.generate_icalendar_from_classlist(
+                        classlist,
+                        message.firstweekdate,
+                        Schedule::default(),
+                        message.reminder,
+                    )
+                } else {
+                    ICalendarOutput {
+                        ok: false,
+                        data: parsed.unwrap_err().to_string(),
+                    }
+                    .send_signal_to_dart();
+                    continue;
+                }
             } else {
                 ICalendarOutput {
                     ok: false,
