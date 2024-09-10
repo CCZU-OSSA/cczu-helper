@@ -145,9 +145,6 @@ class SettingsPageState extends State<SettingsPage> {
               padding: const EdgeInsets.only(top: 12, bottom: 12),
               child: Column(
                 children: [
-                  const ListTile(
-                    title: Text("应用外观"),
-                  ),
                   ListTile(
                     leading: const Icon(Icons.color_lens),
                     title: const Text("主题"),
