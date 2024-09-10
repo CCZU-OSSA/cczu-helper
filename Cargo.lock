@@ -178,7 +178,7 @@ dependencies = [
 [[package]]
 name = "cczuni"
 version = "0.1.0"
-source = "git+https://github.com/CCZU-OSSA/cczuni.git#219d384ee36cf4dae17718c7b8754a2555b89ef7"
+source = "git+https://github.com/CCZU-OSSA/cczuni.git#9c5a7766ecf333dcec289bb3da4f2a3b9136cdab"
 dependencies = [
  "aes",
  "async-recursion",

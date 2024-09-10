@@ -1,5 +1,4 @@
 import 'package:arche/arche.dart';
-import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/config.dart';
@@ -288,64 +287,78 @@ class CurriculumPageState extends State<CurriculumPage>
                 calendarAppointmentDetails.appointments.first;
             var time =
                 '${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
-            var dialog = Wrap(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.access_time_filled),
-                  title: const Text("时间"),
-                  subtitle: Text(
-                    time,
-                    style: TextStyle(
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.location_on),
-                  title: const Text("地点"),
-                  subtitle: Text(
-                    appointment.location.toString(),
-                    style: TextStyle(
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                ),
-                Visibility(
-                  visible: appointment.teacher != null,
-                  child: ListTile(
-                    leading: const Icon(Icons.person),
-                    title: const Text("教师"),
-                    subtitle: Text(
-                      appointment.teacher.toString(),
-                      style: TextStyle(
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ),
-                Visibility(
-                  visible: appointment.week != null,
-                  child: ListTile(
-                    leading: const Icon(Icons.calendar_month),
-                    title: const Text("工作周"),
-                    subtitle: Text(
-                      appointment.week.toString(),
-                      style: TextStyle(
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            );
+
             return GestureDetector(
               onTap: appointment.isAllday
                   ? null
                   : () {
-                      ComplexDialog.instance.text(
-                        title: Text(appointment.summary),
-                        content: dialog,
+                      showModalBottomSheet(
                         context: context,
+                        builder: (context) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 16, left: 16),
+                              child: Text(
+                                appointment.summary,
+                                style: const TextStyle(fontSize: 24),
+                              ),
+                            ),
+                            Expanded(
+                              child: ListView(
+                                children: [
+                                  ListTile(
+                                    leading:
+                                        const Icon(Icons.access_time_filled),
+                                    title: const Text("时间"),
+                                    subtitle: Text(
+                                      time,
+                                      style: TextStyle(
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.location_on),
+                                    title: const Text("地点"),
+                                    subtitle: Text(
+                                      appointment.location.toString(),
+                                      style: TextStyle(
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible: appointment.teacher != null,
+                                    child: ListTile(
+                                      leading: const Icon(Icons.person),
+                                      title: const Text("教师"),
+                                      subtitle: Text(
+                                        appointment.teacher.toString(),
+                                        style: TextStyle(
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible: appointment.week != null,
+                                    child: ListTile(
+                                      leading: const Icon(Icons.calendar_month),
+                                      title: const Text("工作周"),
+                                      subtitle: Text(
+                                        appointment.week.toString(),
+                                        style: TextStyle(
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       );
                     },
               child: Container(
