@@ -6,7 +6,7 @@ on:
     branches: [main]
     paths:
       - lib/**
-      - .github/workflows/**
+      - .github/workflows/build.yml
       - native/**
   pull_request:
 
