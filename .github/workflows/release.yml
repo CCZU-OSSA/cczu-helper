@@ -3,7 +3,9 @@ name: Release
 on:
   release:
     types: [created]
-  
+    
+permissions: write-all
+
 jobs:
   build:
     name: ${{ matrix.runner }} (${{ matrix.target }})
