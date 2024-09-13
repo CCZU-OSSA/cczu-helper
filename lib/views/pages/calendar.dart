@@ -260,6 +260,7 @@ class CurriculumPageState extends State<CurriculumPage>
         }
 
         var calendar = SfCalendar(
+          backgroundColor: Colors.transparent,
           controller: calendarController,
           initialDisplayDate: _displayDate,
           view: view,
@@ -440,6 +441,7 @@ class CurriculumPageState extends State<CurriculumPage>
           dataSource: CurriculumDataSource(snapshot.data!.get().data),
         );
 
+        // TODO Add Container Background Image here
         return buildHeader(
           calendarController,
           calendar,

@@ -58,6 +58,12 @@ class ApplicationConfigs extends AppConfigsBase {
   ConfigEntry<bool> get weakAnimation => generator("weak_animation");
   ConfigEntry<bool> get forceTransparent => generator("force_transparent");
   ConfigEntry<bool> get calendarSimple => generator("calendar_simple");
+
+  ConfigEntry<bool> get calendarIntervalLine =>
+      generator("calendar_intervalline");
+
+  ConfigEntry<bool> get calendarBackgroundImage =>
+      generator("calendar_background_image");
 }
 
 class CalendarConfigs extends AppConfigsBase {

@@ -44,57 +44,52 @@ class SettingsPageState extends State<SettingsPage> {
           const ListTile(
             title: Text("通用"),
           ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 12),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.perm_identity),
-                    title: const Text("账户"),
-                    subtitle: const Text("Accounts"),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: () {
-                      pushMaterialRoute(
-                        builder: (context) => const AccountManagePage(),
-                      );
-                    },
-                  ),
-                  Visibility(
-                    visible: Platform.isAndroid,
-                    child: ListTile(
-                      leading: const Icon(Icons.notifications),
-                      title: const Text("课程表通知"),
-                      subtitle: const Text("Notifications"),
-                      trailing: const Icon(Icons.arrow_right),
-                      onTap: () => pushMaterialRoute(
-                        builder: (context) => const NotificationsPage(),
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.update),
-                    title: const Text("检查更新"),
-                    subtitle: const Text("Update"),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: () => pushMaterialRoute(
-                      builder: (context) => const CheckUpdatePage(),
-                    ),
-                  ),
-                  SwitchListTile(
-                    secondary: const Icon(Icons.skip_next),
-                    title: const Text("跳过多步确认"),
-                    subtitle: const Text("Skip Confirm"),
-                    value: configs.skipServiceExitConfirm.getOr(false),
-                    onChanged: (value) {
-                      setState(() {
-                        configs.skipServiceExitConfirm.write(value);
-                      });
-                    },
-                  ),
-                ],
+          SettingGroup(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.perm_identity),
+                title: const Text("账户"),
+                subtitle: const Text("Accounts"),
+                trailing: const Icon(Icons.arrow_right),
+                onTap: () {
+                  pushMaterialRoute(
+                    builder: (context) => const AccountManagePage(),
+                  );
+                },
               ),
-            ),
+              Visibility(
+                visible: Platform.isAndroid,
+                child: ListTile(
+                  leading: const Icon(Icons.notifications),
+                  title: const Text("课程表通知"),
+                  subtitle: const Text("Notifications"),
+                  trailing: const Icon(Icons.arrow_right),
+                  onTap: () => pushMaterialRoute(
+                    builder: (context) => const NotificationsPage(),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.update),
+                title: const Text("检查更新"),
+                subtitle: const Text("Update"),
+                trailing: const Icon(Icons.arrow_right),
+                onTap: () => pushMaterialRoute(
+                  builder: (context) => const CheckUpdatePage(),
+                ),
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.skip_next),
+                title: const Text("返回主界面不再确认"),
+                subtitle: const Text("Skip Confirm"),
+                value: configs.skipServiceExitConfirm.getOr(false),
+                onChanged: (value) {
+                  setState(() {
+                    configs.skipServiceExitConfirm.write(value);
+                  });
+                },
+              ),
+            ],
           ),
           // Only avilable in `Android`
           Visibility(
@@ -104,35 +99,29 @@ class SettingsPageState extends State<SettingsPage> {
                 const ListTile(
                   title: Text("网络 (试验)"),
                 ),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 12, bottom: 12),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.network_wifi),
-                          title: const Text("校园VPN服务"),
-                          subtitle: const Text("VPN Service"),
-                          trailing: const Icon(Icons.arrow_right),
-                          onTap: () {
-                            ComplexDialog.instance
-                                .withContext(context: context)
-                                .confirm(
-                                    title: const Text("警告"),
-                                    content:
-                                        const Text("此功能十分不稳定，推荐稳定后使用，确定后继续"))
-                                .then((value) {
-                              if (value) {
-                                pushMaterialRoute(
-                                  builder: (context) => const VPNServicePage(),
-                                );
-                              }
-                            });
-                          },
-                        ),
-                      ],
+                SettingGroup(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.network_wifi),
+                      title: const Text("校园VPN服务"),
+                      subtitle: const Text("VPN Service"),
+                      trailing: const Icon(Icons.arrow_right),
+                      onTap: () {
+                        ComplexDialog.instance
+                            .withContext(context: context)
+                            .confirm(
+                                title: const Text("警告"),
+                                content: const Text("此功能十分不稳定，推荐稳定后使用，确定后继续"))
+                            .then((value) {
+                          if (value) {
+                            pushMaterialRoute(
+                              builder: (context) => const VPNServicePage(),
+                            );
+                          }
+                        });
+                      },
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -140,104 +129,105 @@ class SettingsPageState extends State<SettingsPage> {
           const ListTile(
             title: Text("外观"),
           ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 12),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.color_lens),
-                    title: const Text("主题"),
-                    subtitle: const Text("Theme"),
-                    trailing: Seletor(
-                      itemBuilder: (context) => ThemeMode.values,
-                      translator: themeModeTr,
-                      value: configs.themeMode.getOr(ThemeMode.system),
-                      onSelected: (value) {
-                        configs.themeMode.write(value);
-                        rootKey.currentState?.refreshMounted();
-                      },
-                    ),
-                  ),
-                  Visibility(
-                    visible: Platform.isWindows ||
-                        Platform.isLinux ||
-                        Platform.isMacOS,
-                    child: ListTile(
-                      leading: const Icon(FontAwesomeIcons.font),
-                      title: const Text("字体"),
-                      subtitle: const Text("Font"),
-                      trailing: Seletor(
-                        itemBuilder: (context) {
-                          var fonts = SystemFonts().getFontList();
-                          fonts.sort();
-                          return fonts;
-                        },
-                        tileBuilder: (context, value) {
-                          return FutureBuilder(
-                            future: SystemFonts().loadFont(value),
-                            builder: (context, snapshot) {
-                              var data = snapshot.data;
-                              if (data == null) {
-                                return Text(value);
-                              }
+          SettingGroup(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.color_lens),
+                title: const Text("主题"),
+                subtitle: const Text("Theme"),
+                trailing: Seletor(
+                  itemBuilder: (context) => ThemeMode.values,
+                  translator: themeModeTr,
+                  value: configs.themeMode.getOr(ThemeMode.system),
+                  onSelected: (value) {
+                    configs.themeMode.write(value);
+                    rootKey.currentState?.refreshMounted();
+                  },
+                ),
+              ),
+              Visibility(
+                visible:
+                    Platform.isWindows || Platform.isLinux || Platform.isMacOS,
+                child: ListTile(
+                  leading: const Icon(FontAwesomeIcons.font),
+                  title: const Text("字体"),
+                  subtitle: const Text("Font"),
+                  trailing: Seletor(
+                    itemBuilder: (context) {
+                      var fonts = SystemFonts().getFontList();
+                      fonts.sort();
+                      return fonts;
+                    },
+                    tileBuilder: (context, value) {
+                      return FutureBuilder(
+                        future: SystemFonts().loadFont(value),
+                        builder: (context, snapshot) {
+                          var data = snapshot.data;
+                          if (data == null) {
+                            return Text(value);
+                          }
 
-                              return Text(
-                                data,
-                                style: TextStyle(fontFamily: data),
-                              );
-                            },
+                          return Text(
+                            data,
+                            style: TextStyle(fontFamily: data),
                           );
                         },
-                        value: configs.sysfont.getOr("System Default"),
-                        onSelected: (value) async {
-                          await SystemFonts().loadFont(value);
-                          configs.sysfont.write(value);
-                          rootKey.currentState?.refreshMounted();
-                        },
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.visibility),
-                    title: const Text("导航样式"),
-                    subtitle: const Text("Navigation"),
-                    trailing: Seletor(
-                      itemBuilder: (context) => NavigationStyle.values,
-                      translator: navStyleTr,
-                      value: configs.navStyle.getOr(NavigationStyle.both),
-                      onSelected: (value) {
-                        configs.navStyle.write(value);
-                        viewKey.currentState?.refreshMounted();
-                      },
-                    ),
-                  ),
-                  SwitchListTile(
-                    value: configs.forceTransparent.getOr(true),
-                    secondary: const Icon(Icons.invert_colors_off),
-                    title: const Text("顶栏透明"),
-                    subtitle: const Text("Transparent"),
-                    onChanged: (value) {
-                      setState(() {
-                        configs.forceTransparent.write(value);
-                      });
-                      viewKey.currentState?.refreshMounted();
+                      );
+                    },
+                    value: configs.sysfont.getOr("System Default"),
+                    onSelected: (value) async {
+                      await SystemFonts().loadFont(value);
+                      configs.sysfont.write(value);
+                      rootKey.currentState?.refreshMounted();
                     },
                   ),
-                  SwitchListTile(
-                    value: configs.weakAnimation.getOr(true),
-                    secondary: const Icon(Icons.animation),
-                    title: const Text("弱动画"),
-                    subtitle: const Text("Weak Animation"),
-                    onChanged: (value) {
-                      setState(() {
-                        configs.weakAnimation.write(value);
-                      });
-                    },
-                  ),
-                ],
+                ),
               ),
-            ),
+              ListTile(
+                leading: const Icon(Icons.visibility),
+                title: const Text("导航样式"),
+                subtitle: const Text("Navigation"),
+                trailing: Seletor(
+                  itemBuilder: (context) => NavigationStyle.values,
+                  translator: navStyleTr,
+                  value: configs.navStyle.getOr(NavigationStyle.both),
+                  onSelected: (value) {
+                    configs.navStyle.write(value);
+                    viewKey.currentState?.refreshMounted();
+                  },
+                ),
+              ),
+              SwitchListTile(
+                value: configs.forceTransparent.getOr(true),
+                secondary: const Icon(Icons.invert_colors_off),
+                title: const Text("顶栏透明"),
+                subtitle: const Text("Transparent"),
+                onChanged: (value) {
+                  setState(() {
+                    configs.forceTransparent.write(value);
+                  });
+                  viewKey.currentState?.refreshMounted();
+                },
+              ),
+              SwitchListTile(
+                value: configs.weakAnimation.getOr(true),
+                secondary: const Icon(Icons.animation),
+                title: const Text("弱动画"),
+                subtitle: const Text("Weak Animation"),
+                onChanged: (value) {
+                  setState(() {
+                    configs.weakAnimation.write(value);
+                  });
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.calendar_month),
+                title: const Text("课程表外观"),
+                subtitle: const Text("Calendar Theme"),
+                trailing: const Icon(Icons.arrow_right_rounded),
+                onTap: () {},
+              ),
+            ],
           ),
           const ListTile(
             title: Text("调试"),
@@ -274,95 +264,107 @@ class SettingsPageState extends State<SettingsPage> {
           const ListTile(
             title: Text("关于"),
           ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 12),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(FontAwesomeIcons.github),
-                    title: const Text("开源地址"),
-                    subtitle:
-                        const Text("https://github.com/CCZU-OSSA/cczu-helper"),
-                    onTap: () => launchUrlString(
-                        "https://github.com/CCZU-OSSA/cczu-helper"),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.book),
-                    title: const Text("账户使用指南"),
-                    subtitle: const Text("Account Usage"),
-                    onTap: () => pushMaterialRoute(
-                      context: context,
-                      builder: (context) => Scaffold(
-                        appBar: AppBar(),
-                        body: const TutorialPage(
-                          showFAB: false,
-                        ),
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.home),
-                    title: const Text("官方网站"),
-                    subtitle: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ShaderMask(
-                          shaderCallback: (bounds) => LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Colors.blue,
-                                Colors.yellow,
-                                Colors.pink.shade200,
-                                Colors.red,
-                              ]).createShader(bounds),
-                          child: const Text(
-                            "源神.常州大学.com",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    onTap: () => launchUrlString(
-                      "https://cczu-ossa.github.io/home",
-                      mode: LaunchMode.externalApplication,
-                    ),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.chat),
-                    title: const Text("QQ群"),
-                    subtitle: const Text("947560153"),
-                    onTap: () => launchUrlString(
-                        "http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=6wgGLJ_NmKQl7f9Ws6JAprbTwmG9Ouei&authKey=g7bXX%2Bn2dHlbecf%2B8QfGJ15IFVOmEdGTJuoLYfviLg7TZIsZCu45sngzZfL3KktN&noverify=0&group_code=947560153"),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.library_books),
-                    title: const Text("开源许可"),
-                    subtitle: const Text("License"),
-                    onTap: () => showDialog(
-                      context: context,
-                      builder: (context) => AboutDialog(
-                        applicationVersion: appVersion.format(),
-                        applicationName: "吊大助手",
-                        applicationLegalese: "copyright © 2023-2024 常州大学开源软件协会",
-                        children: const [
-                          Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Text(
-                                "除第三方代码与资源（包括但不限于图片字体）保留原有协议外\n应用本身所有代码以及资源均使用GPLv3开源，请参照协议使用"),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+          SettingGroup(
+            children: [
+              ListTile(
+                leading: const Icon(FontAwesomeIcons.github),
+                title: const Text("开源地址"),
+                subtitle:
+                    const Text("https://github.com/CCZU-OSSA/cczu-helper"),
+                onTap: () =>
+                    launchUrlString("https://github.com/CCZU-OSSA/cczu-helper"),
               ),
-            ),
+              ListTile(
+                leading: const Icon(Icons.book),
+                title: const Text("账户使用指南"),
+                subtitle: const Text("Account Usage"),
+                onTap: () => pushMaterialRoute(
+                  context: context,
+                  builder: (context) => Scaffold(
+                    appBar: AppBar(),
+                    body: const TutorialPage(
+                      showFAB: false,
+                    ),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.home),
+                title: const Text("官方网站"),
+                subtitle: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ShaderMask(
+                      shaderCallback: (bounds) => LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.blue,
+                            Colors.yellow,
+                            Colors.pink.shade200,
+                            Colors.red,
+                          ]).createShader(bounds),
+                      child: const Text(
+                        "源神.常州大学.com",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                onTap: () => launchUrlString(
+                  "https://cczu-ossa.github.io/home",
+                  mode: LaunchMode.externalApplication,
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.chat),
+                title: const Text("QQ群"),
+                subtitle: const Text("947560153"),
+                onTap: () => launchUrlString(
+                    "http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=6wgGLJ_NmKQl7f9Ws6JAprbTwmG9Ouei&authKey=g7bXX%2Bn2dHlbecf%2B8QfGJ15IFVOmEdGTJuoLYfviLg7TZIsZCu45sngzZfL3KktN&noverify=0&group_code=947560153"),
+              ),
+              ListTile(
+                leading: const Icon(Icons.library_books),
+                title: const Text("开源许可"),
+                subtitle: const Text("License"),
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => AboutDialog(
+                    applicationVersion: appVersion.format(),
+                    applicationName: "吊大助手",
+                    applicationLegalese: "copyright © 2023-2024 常州大学开源软件协会",
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Text(
+                            "除第三方代码与资源（包括但不限于图片字体）保留原有协议外\n应用本身所有代码以及资源均使用GPLv3开源，请参照协议使用"),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class SettingGroup extends StatelessWidget {
+  final List<Widget> children;
+  const SettingGroup({super.key, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 12, bottom: 12),
+        child: Column(
+          children: children,
+        ),
       ),
     );
   }
