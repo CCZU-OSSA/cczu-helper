@@ -137,6 +137,9 @@ class InstallAppSelector extends StatefulWidget {
 
 class InstallAppSelectorState extends State<InstallAppSelector> {
   late List<String> selected;
+
+  static List<AppInfo> apps = [];
+
   @override
   void initState() {
     super.initState();
@@ -146,23 +149,41 @@ class InstallAppSelectorState extends State<InstallAppSelector> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text("选择应用"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                apps.clear();
+              });
+            },
+          )
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context).pop(selected),
         child: const Icon(Icons.check),
       ),
-      body: FutureBuilder(
-        future: InstalledApps.getInstalledApps(true, true),
-        builder: (context, snapshot) {
-          var data = snapshot.data;
+      body: apps.isNotEmpty
+          ? AppInfoListView(apps: apps, selected: selected)
+          : FutureBuilder(
+              future: InstalledApps.getInstalledApps(true, true),
+              builder: (context, snapshot) {
+                var data = snapshot.data;
 
-          if (data == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
+                if (data == null) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          return AppInfoListView(apps: data, selected: selected);
-        },
-      ),
+                if (apps.isEmpty) {
+                  apps.addAll(data);
+                }
+
+                return AppInfoListView(apps: data, selected: selected);
+              },
+            ),
     );
   }
 }
@@ -186,7 +207,7 @@ class AppInfoListViewState extends State<AppInfoListView> {
 
         return ListTile(
           leading: app.icon != null
-              ? Image.memory(app.icon!) // TODO Cache AppInfo
+              ? Image.memory(app.icon!)
               : const Icon(Icons.android),
           title: Text(app.name),
           subtitle: Text(app.packageName),
