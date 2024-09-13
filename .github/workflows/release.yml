@@ -152,7 +152,7 @@ jobs:
           flutter build linux --release
           
       - name: Archive (Linux)
-        if: matrix.target == 'windows'
+        if: matrix.target == 'linux'
         uses: thedoctor0/zip-release@0.7.5
         with:
           type: 'zip'
