@@ -58,7 +58,7 @@ class SettingsPageState extends State<SettingsPage> {
               ListTile(
                 leading: const Icon(Icons.calendar_month),
                 title: const Text("课程表设置"),
-                subtitle: const Text("Calendar Theme"),
+                subtitle: const Text("Calendar"),
                 trailing: const Icon(Icons.arrow_right_rounded),
                 onTap: () {
                   pushMaterialRoute(
