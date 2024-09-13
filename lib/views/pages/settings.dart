@@ -28,13 +28,8 @@ class SettingsPage extends StatefulWidget {
   State<StatefulWidget> createState() => SettingsPageState();
 }
 
-class SettingsPageState extends State<SettingsPage> {
-  void refresh() {
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
+class SettingsPageState extends State<SettingsPage>
+    with RefreshMountedStateMixin {
   @override
   Widget build(BuildContext context) {
     ApplicationConfigs configs = ArcheBus.bus.of();

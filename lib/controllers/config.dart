@@ -100,6 +100,8 @@ class ApplicationConfigs extends AppConfigsBase {
 
   ConfigEntry<String> get calendarBackgroundImage =>
       generator("calendar_background_image");
+  ConfigEntry<double> get calendarCellOpacity =>
+      generator("calendar_cell_opacity");
   ConfigEntry<double> get calendarBackgroundImageOpacity =>
       generator("calendar_background_image_opacity");
   ConfigEntry<double> get calendarBackgroundImageBlur =>

@@ -288,6 +288,7 @@ class CurriculumPageState extends State<CurriculumPage>
                 MonthHeaderSettings(backgroundColor: theme.colorScheme.primary),
           ),
           appointmentBuilder: (context, calendarAppointmentDetails) {
+            //FIXME When one slot has more than one appointment, will only take the first...
             CalendarData appointment =
                 calendarAppointmentDetails.appointments.first;
             var time =
@@ -374,9 +375,10 @@ class CurriculumPageState extends State<CurriculumPage>
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(4),
-                  color: appointment.isAllday
-                      ? theme.colorScheme.surfaceContainerHighest
-                      : theme.colorScheme.primaryContainer,
+                  color: (appointment.isAllday
+                          ? theme.colorScheme.surfaceContainerHighest
+                          : theme.colorScheme.primaryContainer)
+                      .withOpacity(configs.calendarCellOpacity.getOr(1)),
                 ),
                 child: appointment.isAllday
                     ? Center(

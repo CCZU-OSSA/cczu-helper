@@ -358,12 +358,12 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
                           configs.themeMode
                               .write(isDark ? ThemeMode.light : ThemeMode.dark);
                           rootKey.currentState?.refreshMounted();
-                          settingKey.currentState?.refresh();
+                          settingKey.currentState?.refreshMounted();
                         }),
                         onLongPress: () => setState(() {
                           configs.themeMode.write(ThemeMode.system);
                           rootKey.currentState?.refreshMounted();
-                          settingKey.currentState?.refresh();
+                          settingKey.currentState?.refreshMounted();
                         }),
                         child: AnimatedRotation(
                           turns: isDark ? 0 : 1,

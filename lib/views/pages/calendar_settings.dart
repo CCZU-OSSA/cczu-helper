@@ -19,6 +19,29 @@ class CalendarSettings extends StatefulWidget {
 }
 
 class _CalendarSettingsState extends State<CalendarSettings> {
+  Future<int?> inputOpacity([String text = ""]) async {
+    var input = await ComplexDialog.instance.input(
+      context: context,
+      title: const Text("透明度 (0~100)%"),
+      controller: TextEditingController(text: text),
+      decoration: const InputDecoration(border: OutlineInputBorder()),
+      keyboardType: const TextInputType.numberWithOptions(),
+    );
+    if (input == null) {
+      return null;
+    }
+
+    var result = int.tryParse(input);
+
+    if (result == null || result < 0 || result > 100) {
+      if (mounted) {
+        showSnackBar(context: context, content: const Text("输入 0-100 的数字"));
+      }
+    } else {
+      return result;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ApplicationConfigs configs = ArcheBus().of();
@@ -39,6 +62,25 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 onChanged: (value) {
                   setState(() {
                     configs.calendarIntervalLine.write(value);
+                  });
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.opacity),
+                title: const Text("日程背景透明度"),
+                subtitle: const Text("Opactiy"),
+                trailing: Text(
+                    "${(configs.calendarCellOpacity.getOr(1) * 100).ceil()}%"),
+                onTap: () {
+                  inputOpacity((configs.calendarCellOpacity.getOr(1) * 100)
+                          .ceil()
+                          .toString())
+                      .then((opacity) {
+                    if (opacity != null) {
+                      setState(() {
+                        configs.calendarCellOpacity.write(opacity / 100);
+                      });
+                    }
                   });
                 },
               ),
@@ -99,35 +141,17 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 trailing: Text(
                     "${(configs.calendarBackgroundImageOpacity.getOr(0.30) * 100).ceil()}%"),
                 onTap: () {
-                  ComplexDialog.instance
-                      .input(
-                    context: context,
-                    title: const Text("透明度 (0~100)%"),
-                    controller: TextEditingController(
-                        text: (configs.calendarBackgroundImageOpacity
-                                    .getOr(0.30) *
-                                100)
-                            .ceil()
-                            .toString()),
-                    decoration:
-                        const InputDecoration(border: OutlineInputBorder()),
-                    keyboardType: const TextInputType.numberWithOptions(),
-                  )
-                      .then((text) {
-                    if (text != null && mounted) {
-                      var value = int.tryParse(text);
-
-                      if (value != null && value <= 100 && value >= 0) {
-                        setState(() {
-                          configs.calendarBackgroundImageOpacity
-                              .write((value / 100));
-                        });
-                      } else {
-                        showSnackBar(
-                          context: this.context,
-                          content: const Text("请输入 0~100 的整数"),
-                        );
-                      }
+                  inputOpacity(
+                          (configs.calendarBackgroundImageOpacity.getOr(0.30) *
+                                  100)
+                              .ceil()
+                              .toString())
+                      .then((opacity) {
+                    if (opacity != null) {
+                      setState(() {
+                        configs.calendarBackgroundImageOpacity
+                            .write(opacity / 100);
+                      });
                     }
                   });
                 },
