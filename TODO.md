@@ -1,9 +1,9 @@
-# 预计在下一个版本制作的内容
-
-欢迎提出issue
-
-# 长期
-
  - [ ] Android/Windows 外其他平台相关功能支持与编译分发
    - [ ] iOS
    - [ ] MacOS
+ - [ ] Linux 平台的分发
+ - [ ] 将 "CCZU EVA" 实现入 CCZUNI，一键评价功能
+ - [ ] 课程表外观的更多可自定义项
+ - [ ] 优化应用列表加载速度
+ - Pending: 拆分 `AppConfigs`
+ - Pending: 添加调休等功能
