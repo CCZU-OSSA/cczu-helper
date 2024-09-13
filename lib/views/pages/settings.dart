@@ -8,10 +8,10 @@ import 'package:cczu_helper/models/navstyle.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/models/version.dart';
+import 'package:cczu_helper/views/pages/calendar_settings.dart';
 import 'package:cczu_helper/views/pages/update.dart';
 import 'package:cczu_helper/views/pages/log.dart';
 import 'package:cczu_helper/views/pages/account.dart';
-import 'package:cczu_helper/views/pages/notifications.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:cczu_helper/views/pages/vpn.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
@@ -41,10 +41,8 @@ class SettingsPageState extends State<SettingsPage> {
     return PaddingScrollView(
       child: Column(
         children: [
-          const ListTile(
-            title: Text("通用"),
-          ),
           SettingGroup(
+            name: "通用",
             children: [
               ListTile(
                 leading: const Icon(Icons.perm_identity),
@@ -57,17 +55,16 @@ class SettingsPageState extends State<SettingsPage> {
                   );
                 },
               ),
-              Visibility(
-                visible: Platform.isAndroid,
-                child: ListTile(
-                  leading: const Icon(Icons.notifications),
-                  title: const Text("课程表通知"),
-                  subtitle: const Text("Notifications"),
-                  trailing: const Icon(Icons.arrow_right),
-                  onTap: () => pushMaterialRoute(
-                    builder: (context) => const NotificationsPage(),
-                  ),
-                ),
+              ListTile(
+                leading: const Icon(Icons.calendar_month),
+                title: const Text("课程表设置"),
+                subtitle: const Text("Calendar Theme"),
+                trailing: const Icon(Icons.arrow_right_rounded),
+                onTap: () {
+                  pushMaterialRoute(
+                    builder: (context) => const CalendarSettings(),
+                  );
+                },
               ),
               ListTile(
                 leading: const Icon(Icons.update),
@@ -92,44 +89,35 @@ class SettingsPageState extends State<SettingsPage> {
             ],
           ),
           // Only avilable in `Android`
-          Visibility(
+
+          SettingGroup(
+            name: "网络 (试验)",
             visible: Platform.isAndroid,
-            child: Column(
-              children: [
-                const ListTile(
-                  title: Text("网络 (试验)"),
-                ),
-                SettingGroup(
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.network_wifi),
-                      title: const Text("校园VPN服务"),
-                      subtitle: const Text("VPN Service"),
-                      trailing: const Icon(Icons.arrow_right),
-                      onTap: () {
-                        ComplexDialog.instance
-                            .withContext(context: context)
-                            .confirm(
-                                title: const Text("警告"),
-                                content: const Text("此功能十分不稳定，推荐稳定后使用，确定后继续"))
-                            .then((value) {
-                          if (value) {
-                            pushMaterialRoute(
-                              builder: (context) => const VPNServicePage(),
-                            );
-                          }
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const ListTile(
-            title: Text("外观"),
+            children: [
+              ListTile(
+                leading: const Icon(Icons.network_wifi),
+                title: const Text("校园VPN服务"),
+                subtitle: const Text("VPN Service"),
+                trailing: const Icon(Icons.arrow_right),
+                onTap: () {
+                  ComplexDialog.instance
+                      .withContext(context: context)
+                      .confirm(
+                          title: const Text("警告"),
+                          content: const Text("此功能十分不稳定，推荐稳定后使用，确定后继续"))
+                      .then((value) {
+                    if (value) {
+                      pushMaterialRoute(
+                        builder: (context) => const VPNServicePage(),
+                      );
+                    }
+                  });
+                },
+              ),
+            ],
           ),
           SettingGroup(
+            name: "外观",
             children: [
               ListTile(
                 leading: const Icon(Icons.color_lens),
@@ -220,51 +208,35 @@ class SettingsPageState extends State<SettingsPage> {
                   });
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.calendar_month),
-                title: const Text("课程表外观"),
-                subtitle: const Text("Calendar Theme"),
-                trailing: const Icon(Icons.arrow_right_rounded),
-                onTap: () {},
-              ),
             ],
           ),
-          const ListTile(
-            title: Text("调试"),
-          ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 12),
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    value: configs.autosavelog.getOr(false),
-                    secondary: const Icon(Icons.error),
-                    title: const Text("自动保存错误日志"),
-                    subtitle: const Text("Auto Save"),
-                    onChanged: (value) {
-                      setState(() {
-                        configs.autosavelog.write(value);
-                      });
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.book),
-                    title: const Text("日志"),
-                    subtitle: const Text("Logs"),
-                    trailing: const Icon(Icons.arrow_right),
-                    onTap: () => pushMaterialRoute(
-                      builder: (context) => const LogPage(),
-                    ),
-                  )
-                ],
+          SettingGroup(
+            name: "调试",
+            children: [
+              SwitchListTile(
+                value: configs.autosavelog.getOr(false),
+                secondary: const Icon(Icons.error),
+                title: const Text("自动保存错误日志"),
+                subtitle: const Text("Auto Save"),
+                onChanged: (value) {
+                  setState(() {
+                    configs.autosavelog.write(value);
+                  });
+                },
               ),
-            ),
-          ),
-          const ListTile(
-            title: Text("关于"),
+              ListTile(
+                leading: const Icon(Icons.book),
+                title: const Text("日志"),
+                subtitle: const Text("Logs"),
+                trailing: const Icon(Icons.arrow_right),
+                onTap: () => pushMaterialRoute(
+                  builder: (context) => const LogPage(),
+                ),
+              )
+            ],
           ),
           SettingGroup(
+            name: "关于",
             children: [
               ListTile(
                 leading: const Icon(FontAwesomeIcons.github),
@@ -354,18 +326,41 @@ class SettingsPageState extends State<SettingsPage> {
 }
 
 class SettingGroup extends StatelessWidget {
+  final String? name;
   final List<Widget> children;
-  const SettingGroup({super.key, required this.children});
+  final bool visible;
+  const SettingGroup({
+    super.key,
+    this.name,
+    required this.children,
+    this.visible = true,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    Widget item = Card(
       child: Padding(
         padding: const EdgeInsets.only(top: 12, bottom: 12),
         child: Column(
           children: children,
         ),
       ),
+    );
+
+    if (name != null) {
+      item = Column(
+        children: [
+          ListTile(
+            title: Text(name!),
+          ),
+          item,
+        ],
+      );
+    }
+
+    return Visibility(
+      visible: visible,
+      child: item,
     );
   }
 }

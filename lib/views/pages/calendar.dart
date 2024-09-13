@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:arche/extensions/iter.dart';
@@ -205,8 +207,8 @@ class CurriculumPageState extends State<CurriculumPage>
 
     return FutureBuilder(
       future: Future<Optional<ICalendarParser>>(() async {
-        var datafile =
-            (await platDirectory.getValue()).subFile("_curriculum.ics");
+        var datafile = (await platCalendarDataDirectory.getValue())
+            .subFile("calendar_curriculum.ics");
 
         if (await datafile.exists()) {
           return Optional(
@@ -276,7 +278,9 @@ class CurriculumPageState extends State<CurriculumPage>
               minutes: configs.calendarSimple.getOr(false) ? 60 : 30,
             ),
           ),
-          cellBorderColor: theme.colorScheme.surfaceContainerHighest,
+          cellBorderColor: configs.calendarIntervalLine.getOr(true)
+              ? theme.colorScheme.surfaceContainerHighest
+              : Colors.transparent,
           cellEndPadding: 0,
           scheduleViewSettings: ScheduleViewSettings(
             hideEmptyScheduleWeek: true,
@@ -335,7 +339,12 @@ class CurriculumPageState extends State<CurriculumPage>
                                       leading: const Icon(Icons.person),
                                       title: const Text("教师"),
                                       subtitle: Text(
-                                        appointment.teacher.toString(),
+                                        appointment.teacher
+                                            .toString()
+                                            .replaceAll("\\;", ",")
+                                            .split(",")
+                                            .where((test) => test.isNotEmpty)
+                                            .join(","),
                                         style: TextStyle(
                                           color: theme.colorScheme.primary,
                                         ),
@@ -440,12 +449,50 @@ class CurriculumPageState extends State<CurriculumPage>
           },
           dataSource: CurriculumDataSource(snapshot.data!.get().data),
         );
-
-        // TODO Add Container Background Image here
-        return buildHeader(
+        var background = configs.calendarBackgroundImage.tryGet();
+        var child = buildHeader(
           calendarController,
           calendar,
         );
+
+        if (background != null) {
+          return FutureBuilder(
+            future: Future(() async =>
+                (await platCalendarDataDirectory.getValue())
+                    .subFile(background)),
+            builder: (context, snapshot) {
+              var data = snapshot.data;
+              if (data != null) {
+                var blur = configs.calendarBackgroundImageBlur.getOr(0);
+                return ClipRect(
+                  child: Stack(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: FileImage(
+                              data,
+                            ),
+                            fit: BoxFit.cover,
+                            opacity: configs.calendarBackgroundImageOpacity
+                                .getOr(0.3),
+                          ),
+                        ),
+                      ),
+                      BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+                        child: child,
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return const CircularProgressIndicator();
+            },
+          );
+        }
+        return child;
       },
     );
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:arche/arche.dart';
+import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/models/navstyle.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,6 +10,41 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 FutureLazyDynamicCan<Directory> platDirectory =
     FutureLazyDynamicCan(builder: getPlatDirectory);
+
+FutureLazyDynamicCan<Directory> platUserDataDirectory = FutureLazyDynamicCan(
+    builder: () async =>
+        (await platDirectory.getValue()).subDirectory("userdata").check());
+
+FutureLazyDynamicCan<Directory> platCalendarDataDirectory =
+    FutureLazyDynamicCan(
+        builder: () async => (await platUserDataDirectory.getValue())
+            .subDirectory("calendar")
+            .check());
+
+Future<void> mirgate(File from, File to) async {
+  if (await from.exists()) {
+    await to.writeAsBytes(await from.readAsBytes());
+    await from.delete();
+  }
+}
+
+Future<void> migrateUserData() async {
+  var platdir = await platDirectory.getValue();
+  var platUserData = await platUserDataDirectory.getValue();
+  var platCalendarData = await platCalendarDataDirectory.getValue();
+  var futures = [
+    // App
+    mirgate(platdir.subFile("app.config.json"),
+        platUserData.subFile("app.config.json")),
+    mirgate(platdir.subFile("accounts.json"),
+        platUserData.subFile("accounts.json")),
+    // Calendar
+    mirgate(platdir.subFile("_curriculum.ics"),
+        platCalendarData.subFile("calendar_curriculum.ics")),
+  ];
+
+  await Future.wait(futures);
+}
 
 Future<Directory> getPlatDirectory() async {
   if (Platform.isWindows || Platform.isLinux) {
@@ -62,10 +98,10 @@ class ApplicationConfigs extends AppConfigsBase {
   ConfigEntry<bool> get calendarIntervalLine =>
       generator("calendar_intervalline");
 
-  ConfigEntry<bool> get calendarBackgroundImage =>
+  ConfigEntry<String> get calendarBackgroundImage =>
       generator("calendar_background_image");
-}
-
-class CalendarConfigs extends AppConfigsBase {
-  CalendarConfigs(super.config, [super.generateMap = true]);
+  ConfigEntry<double> get calendarBackgroundImageOpacity =>
+      generator("calendar_background_image_opacity");
+  ConfigEntry<double> get calendarBackgroundImageBlur =>
+      generator("calendar_background_image_blur");
 }

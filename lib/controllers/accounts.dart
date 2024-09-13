@@ -105,7 +105,7 @@ class MultiAccoutData {
       deleteAccount(data, AccountType.edu);
 
   static Future<File> platAccountsFile() async =>
-      (await platDirectory.getValue()).subFile("accounts.json");
+      (await platUserDataDirectory.getValue()).subFile("accounts.json");
 
   static Future<bool> hasAccountsFile() async {
     return await (await platAccountsFile()).exists();

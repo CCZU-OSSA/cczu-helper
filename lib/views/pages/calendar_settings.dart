@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
@@ -6,26 +8,167 @@ import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
-class NotificationsPage extends StatefulWidget {
-  const NotificationsPage({super.key});
+class CalendarSettings extends StatefulWidget {
+  const CalendarSettings({super.key});
 
   @override
-  State<StatefulWidget> createState() => _NotificationsPageState();
+  State<StatefulWidget> createState() => _CalendarSettingsState();
 }
 
-class _NotificationsPageState extends State<NotificationsPage> {
+class _CalendarSettingsState extends State<CalendarSettings> {
   @override
   Widget build(BuildContext context) {
     ApplicationConfigs configs = ArcheBus().of();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("通知设置"),
+        title: const Text("课程表设置"),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: SettingGroup(
+      body: ListView(
+        children: [
+          SettingGroup(name: "外观", children: [
+            SwitchListTile(
+              secondary: const Icon(Icons.visibility),
+              title: const Text("显示分割线"),
+              subtitle: const Text("Disable Interval Line"),
+              value: configs.calendarIntervalLine.getOr(true),
+              onChanged: (value) {
+                setState(() {
+                  configs.calendarIntervalLine.write(value);
+                });
+              },
+            ),
+            SwitchListTile(
+              secondary: const Icon(Icons.image),
+              title: const Text("启用背景图片"),
+              subtitle: const Text("Enable Background Image"),
+              value: configs.calendarBackgroundImage.has(),
+              onChanged: (value) async {
+                if (value) {
+                  var picker = ImagePicker();
+                  picker
+                      .pickImage(source: ImageSource.gallery)
+                      .then((image) async {
+                    if (image != null) {
+                      var calendarDir =
+                          await platCalendarDataDirectory.getValue();
+
+                      var origin = configs.calendarBackgroundImage.tryGet();
+
+                      if (origin != null) {
+                        var from = calendarDir.subFile(origin);
+                        if (await from.exists()) {
+                          from.delete();
+                        }
+                      }
+                      setState(() {
+                        configs.calendarBackgroundImage.write(image.name);
+                      });
+
+                      await calendarDir
+                          .subFile(image.name)
+                          .writeAsBytes(await image.readAsBytes());
+                    }
+                  });
+                } else {
+                  var calendarDir = await platCalendarDataDirectory.getValue();
+
+                  var origin = configs.calendarBackgroundImage.tryGet();
+
+                  if (origin != null) {
+                    var from = calendarDir.subFile(origin);
+                    if (await from.exists()) {
+                      from.delete();
+                    }
+                  }
+                  setState(() {
+                    configs.calendarBackgroundImage.delete();
+                  });
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.opacity),
+              title: const Text("背景图片透明度"),
+              subtitle: const Text("Background Opactiy"),
+              trailing: Text(
+                  "${(configs.calendarBackgroundImageOpacity.getOr(0.30) * 100).ceil()}%"),
+              onTap: () {
+                ComplexDialog.instance
+                    .input(
+                  context: context,
+                  title: const Text("透明度 (0~100)%"),
+                  controller: TextEditingController(
+                      text:
+                          (configs.calendarBackgroundImageOpacity.getOr(0.30) *
+                                  100)
+                              .ceil()
+                              .toString()),
+                  decoration:
+                      const InputDecoration(border: OutlineInputBorder()),
+                  keyboardType: const TextInputType.numberWithOptions(),
+                )
+                    .then((text) {
+                  if (text != null && mounted) {
+                    var value = int.tryParse(text);
+
+                    if (value != null && value <= 100 && value >= 0) {
+                      setState(() {
+                        configs.calendarBackgroundImageOpacity
+                            .write((value / 100));
+                      });
+                    } else {
+                      showSnackBar(
+                        context: this.context,
+                        content: const Text("请输入 0~100 的整数"),
+                      );
+                    }
+                  }
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.blur_linear),
+              title: const Text("背景模糊"),
+              subtitle: const Text("Background Blur"),
+              trailing: Text(
+                  "Sigma ${(configs.calendarBackgroundImageBlur.getOr(0))}"),
+              onTap: () {
+                ComplexDialog.instance
+                    .input(
+                  context: context,
+                  title: const Text("Sigma"),
+                  controller: TextEditingController(
+                      text: (configs.calendarBackgroundImageBlur.getOr(0))
+                          .toString()),
+                  decoration:
+                      const InputDecoration(border: OutlineInputBorder()),
+                  keyboardType: const TextInputType.numberWithOptions(),
+                )
+                    .then((text) {
+                  if (text != null && mounted) {
+                    var value = double.tryParse(text);
+
+                    if (value != null) {
+                      setState(() {
+                        configs.calendarBackgroundImageBlur.write((value));
+                      });
+                    } else {
+                      showSnackBar(
+                        context: this.context,
+                        content: const Text("请输入数字"),
+                      );
+                    }
+                  }
+                });
+              },
+            )
+          ]),
+          SettingGroup(
+            name: "通知",
+            visible: Platform.isAndroid,
             children: [
               SwitchListTile(
                 secondary: const Icon(Icons.notifications_on),
@@ -45,8 +188,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
                         return;
                       }
-                      var platdir = await platDirectory.getValue();
-                      platdir.subFile("_curriculum.ics").exists().then((value) {
+                      var platdir = await platCalendarDataDirectory.getValue();
+                      platdir
+                          .subFile("calendar_curriculum.ics")
+                          .exists()
+                          .then((value) {
                         if (value) {
                           Scheduler.scheduleAll();
                           setState(() {
@@ -209,7 +355,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               )
             ],
           ),
-        ),
+        ],
       ),
     );
   }

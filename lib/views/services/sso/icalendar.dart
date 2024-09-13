@@ -96,9 +96,9 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
                       ),
                       FilledButton.icon(
                         onPressed: () async {
-                          var dir = await platDirectory.getValue();
+                          var dir = await platCalendarDataDirectory.getValue();
                           await dir
-                              .subFile("_curriculum.ics")
+                              .subFile("calendar_curriculum.ics")
                               .writeAsString(data)
                               .then((value) {
                             if (mounted) {

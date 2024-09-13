@@ -186,7 +186,7 @@ class AppInfoListViewState extends State<AppInfoListView> {
 
         return ListTile(
           leading: app.icon != null
-              ? Image.memory(app.icon!)
+              ? Image.memory(app.icon!) // TODO Cache AppInfo
               : const Icon(Icons.android),
           title: Text(app.name),
           subtitle: Text(app.packageName),

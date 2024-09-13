@@ -53,3 +53,5 @@ target/
 *.jks
 *.ics
 /customfont
+
+/userdata/*

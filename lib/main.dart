@@ -47,8 +47,11 @@ void main() {
       WidgetsFlutterBinding.ensureInitialized();
       await initializeRust(assignRustSignal);
       var logger = ArcheLogger();
-      var platDir = await platDirectory.getValue();
-      var configPath = platDir.subPath("app.config.json");
+      var platUserData = await platUserDataDirectory.getValue();
+      // Migrate
+      await migrateUserData();
+
+      var configPath = platUserData.subPath("app.config.json");
       var config = ArcheConfig.path(configPath);
       logger.info("Application Config Stored in `$configPath`");
 
@@ -71,7 +74,7 @@ void main() {
       var configs = ApplicationConfigs(config);
       bus.provide(ArcheLogger()).provide(config).provide(configs);
       // Custom Font
-      var customfont = platDir.subFile("customfont");
+      var customfont = platUserData.subFile("customfont");
       if (await customfont.exists()) {
         var loader = FontLoader("Custom Font")
           ..addFont(
