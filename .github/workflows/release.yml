@@ -1,15 +1,9 @@
-name: Build
+name: Release
 
 on:
-  workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - lib/**
-      - .github/workflows/build.yml
-      - native/**
-  pull_request:
-
+  release:
+    types: [created]
+  
 jobs:
   build:
     name: ${{ matrix.runner }} (${{ matrix.target }})
@@ -55,12 +49,20 @@ jobs:
       - name: Build windows (Windows)
         if: matrix.target == 'windows'
         run: flutter build windows --release
-      - name: Upload Artifact (Windows)
+        
+      - name: Archive (Windows)
         if: matrix.target == 'windows'
-        uses: actions/upload-artifact@v4
+        uses: thedoctor0/zip-release@0.7.5
         with:
-          name: windows-x64
-          path: build/windows/x64/runner/Release/*
+          type: 'zip'
+          filename: 'windows-x64.zip'
+          directory: 'build/windows/x64/runner/Release'
+          
+      - name: Release (Windows)
+        if: matrix.target == 'windows'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/windows/x64/runner/Release/windows-x64.zip
 
       # Android
       - name: Decode Signing (Android - ALL)
@@ -80,28 +82,28 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-
-      - name: Upload ArmALL Artifact (Android)
+          
+      - name: Release ArmALL (Android)
         if: matrix.target == 'android'
-        uses: actions/upload-artifact@v4
+        uses: softprops/action-gh-release@v2
         with:
-          name: armAll
-          path: build/app/outputs/apk/release/*
+          files: build/app/outputs/apk/release/app-release.apk
 
       - name: Build armAll apk (Android Impeller)
         if: matrix.target == 'android-impeller'
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release
+          mv build/app/outputs/apk/release/app-release.apk build/app/outputs/apk/release/app-release-impeller.apk
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload ArmALL Artifact (Android Impeller)
+      - name: Release ArmALL (Android Impeller)
         if: matrix.target == 'android-impeller'
-        uses: actions/upload-artifact@v4
+        uses: softprops/action-gh-release@v2
         with:
-          name: armAll-impeller
-          path: build/app/outputs/apk/release/*
+          files: build/app/outputs/apk/release/app-release-impeller.apk
 
       - name: Build Split apks (Android)
         if: matrix.target == 'android'
@@ -111,38 +113,54 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload Artifact (Android)
+      - name: Release Spilt apks (Android)
         if: matrix.target == 'android'
-        uses: actions/upload-artifact@v4
+        uses: softprops/action-gh-release@v2
         with:
-          name: apks
-          path: build/app/outputs/apk/release/*
-
+          files: |
+            build/app/outputs/apk/release/app-arm64-v8a-release.apk
+            build/app/outputs/apk/release/app-armeabi-v7a-release.apk
+            build/app/outputs/apk/release/app-x86_64-release.apk
+          
       - name: Build Split apks (Android Impeller)
         if: matrix.target == 'android-impeller'
-        run: flutter build apk --split-per-abi --release
+        run: |
+          flutter build apk --split-per-abi --release
+          mv build/app/outputs/apk/release/app-arm64-v8a-release.apk build/app/outputs/apk/release/app-arm64-v8a-release-impeller.apk
+          mv build/app/outputs/apk/release/app-armeabi-v7a-release.apk build/app/outputs/apk/release/app-armeabi-v7a-release-impeller.apk
+          mv build/app/outputs/apk/release/app-x86_64-release.apk build/app/outputs/apk/release/app-x86_64-release-impeller.apk
+   
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload Artifact (Android Impeller)
+      - name: Release Spilt apks (Android Impeller)
         if: matrix.target == 'android-impeller'
-        uses: actions/upload-artifact@v4
+        uses: softprops/action-gh-release@v2
         with:
-          name: apks-impeller
-          path: build/app/outputs/apk/release/*
-
+          files: |
+            build/app/outputs/apk/release/app-arm64-v8a-release-impeller.apk
+            build/app/outputs/apk/release/app-armeabi-v7a-release-impeller.apk
+            build/app/outputs/apk/release/app-x86_64-release-impeller.apk
+            
       # linux
       - name: Build (Linux)
         if: matrix.target == 'linux'
         run: |
           sudo apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
           flutter build linux --release
-
-      - name: Upload Artifact (Linux)
+          
+      - name: Archive (Linux)
         if: matrix.target == 'linux'
-        uses: actions/upload-artifact@v4
+        uses: thedoctor0/zip-release@0.7.5
         with:
-          name: linux-x64
-          path: build/linux/x64/release/bundle/*
+          type: 'zip'
+          filename: 'linux-x64.zip'
+          directory: 'build/linux/x64/release/bundle'
+          
+      - name: Release (Linux)
+        if: matrix.target == 'linux'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/linux/x64/release/bundle/linux-x64.zip
