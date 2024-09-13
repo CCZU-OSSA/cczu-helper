@@ -1,0 +1,166 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+  
+jobs:
+  build:
+    name: ${{ matrix.runner }} (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            target: android
+          - runner: ubuntu-latest
+            target: android-impeller
+          - runner: windows-latest
+            target: windows
+          - runner: ubuntu-latest
+            target: linux
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Set up JDK 17 (Android - ALL)
+        if: matrix.target == 'android' || matrix.target == 'android-impeller'
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: 17
+
+      - name: Install Rust & Prepare Complie
+        run: |
+          rustup update stable
+          cargo install rinf
+          rinf message
+          dart fix --apply
+
+      - name: Prepare Build (Android - ALL)
+        if: matrix.target == 'android' || matrix.target == 'android-impeller'
+        run: |
+          dart run flutter_native_splash:create
+
+      # Windows
+      - name: Build windows (Windows)
+        if: matrix.target == 'windows'
+        run: flutter build windows --release
+        
+      - name: Archive (Windows)
+        if: matrix.target == 'windows'
+        uses: thedoctor0/zip-release@0.7.5
+        with:
+          type: 'zip'
+          filename: 'windows-x64.zip'
+          directory: 'build/windows/x64/runner/Release'
+          
+      - name: Release (Windows)
+        if: matrix.target == 'windows'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/windows/x64/runner/Release/windows-x64.zip
+
+      # Android
+      - name: Decode Signing (Android - ALL)
+        if: matrix.target == 'android' || matrix.target == 'android-impeller'
+        run: echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
+
+      - name: Enable Impeller (Android Impeller)
+        if: matrix.target == 'android-impeller'
+        run: sed -i 's/<!--Impeller-->/<meta-data android:name="io.flutter.embedding.android.EnableImpeller" android:value="true" \/>/g' android/app/src/main/AndroidManifest.xml
+
+      - name: Build armAll apk (Android)
+        if: matrix.target == 'android'
+        run: flutter build apk --release
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          
+      - name:  Upload ArmALL Artifact (Android)
+        if: matrix.target == 'android'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/app/outputs/apk/release/app-release.apk
+
+      - name: Build armAll apk (Android Impeller)
+        if: matrix.target == 'android-impeller'
+        run: |
+          flutter build apk --release
+          mv build/app/outputs/apk/release/app-release.apk build/app/outputs/apk/release/app-release-impeller.apk
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload ArmALL Artifact (Android Impeller)
+        if: matrix.target == 'android-impeller'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/app/outputs/apk/release/app-release-impeller.apk
+
+      - name: Build Split apks (Android)
+        if: matrix.target == 'android'
+        run: flutter build apk --split-per-abi --release
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload Artifact (Android)
+        if: matrix.target == 'android'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/app/outputs/apk/release/app-arm64-v8a-release.apk
+            build/app/outputs/apk/release/app-armeabi-v7a-release.apk
+            build/app/outputs/apk/release/app-x86_64-release.apk
+          
+      - name: Build Split apks (Android Impeller)
+        if: matrix.target == 'android-impeller'
+        run: |
+          flutter build apk --split-per-abi --release
+          mv build/app/outputs/apk/release/app-arm64-v8a-release.apk build/app/outputs/apk/release/app-arm64-v8a-release-impeller.apk
+          mv build/app/outputs/apk/release/app-armeabi-v7a-release.apk build/app/outputs/apk/release/app-armeabi-v7a-release-impeller.apk
+          mv build/app/outputs/apk/release/app-x86_64-release.apk build/app/outputs/apk/release/app-x86_64-release-impeller.apk
+   
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload Artifact (Android Impeller)
+        if: matrix.target == 'android-impeller'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/app/outputs/apk/release/app-arm64-v8a-release-impeller.apk
+            build/app/outputs/apk/release/app-armeabi-v7a-release-impeller.apk
+            build/app/outputs/apk/release/app-x86_64-release-impeller.apk
+            
+      # linux
+      - name: Build (Linux)
+        if: matrix.target == 'linux'
+        run: |
+          sudo apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+          flutter build linux --release
+          
+      - name: Archive (Linux)
+        if: matrix.target == 'windows'
+        uses: thedoctor0/zip-release@0.7.5
+        with:
+          type: 'zip'
+          filename: 'linux-x64.zip'
+          directory: 'build/linux/x64/release/bundle'
+          
+      - name: Release (Linux)
+        if: matrix.target == 'linux'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/linux/x64/release/bundle/linux-x64.zip
