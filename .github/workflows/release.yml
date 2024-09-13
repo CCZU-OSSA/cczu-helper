@@ -83,7 +83,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           
-      - name:  Upload ArmALL Artifact (Android)
+      - name: Release ArmALL (Android)
         if: matrix.target == 'android'
         uses: softprops/action-gh-release@v2
         with:
@@ -99,7 +99,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload ArmALL Artifact (Android Impeller)
+      - name: Release ArmALL (Android Impeller)
         if: matrix.target == 'android-impeller'
         uses: softprops/action-gh-release@v2
         with:
@@ -113,7 +113,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload Artifact (Android)
+      - name: Release Spilt apks (Android)
         if: matrix.target == 'android'
         uses: softprops/action-gh-release@v2
         with:
@@ -135,7 +135,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Upload Artifact (Android Impeller)
+      - name: Release Spilt apks (Android Impeller)
         if: matrix.target == 'android-impeller'
         uses: softprops/action-gh-release@v2
         with:
