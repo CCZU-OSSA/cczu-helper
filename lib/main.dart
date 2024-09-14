@@ -395,7 +395,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           var backto = navKey.currentState?.popIndex();
-          if (backto != null && backto != 0) {
+          if (backto != null && currentIndex != 0) {
             setState(() {
               currentIndex = backto;
             });
