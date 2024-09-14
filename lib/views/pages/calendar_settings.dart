@@ -59,7 +59,7 @@ class _CalendarSettingsState extends State<CalendarSettings> {
               SwitchListTile(
                 secondary: const Icon(Icons.visibility),
                 title: const Text("显示分割线"),
-                subtitle: const Text("Disable Interval Line"),
+                subtitle: const Text("Interval Line"),
                 value: configs.calendarIntervalLine.getOr(true),
                 onChanged: (value) {
                   setState(() {
@@ -67,10 +67,66 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                   });
                 },
               ),
+              SwitchListTile(
+                secondary: const Icon(Icons.visibility),
+                title: const Text("显示时间标尺"),
+                subtitle: const Text("Time Ruler"),
+                value: configs.calendarShowTimeRule.getOr(true),
+                onChanged: (value) {
+                  setState(() {
+                    configs.calendarShowTimeRule.write(value);
+                  });
+                },
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.visibility),
+                title: const Text("显示控制栏"),
+                subtitle: const Text("Controller"),
+                value: configs.calendarShowController.getOr(true),
+                onChanged: (value) {
+                  setState(() {
+                    configs.calendarShowController.write(value);
+                  });
+                },
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.visibility),
+                title: const Text("显示视图标题"),
+                subtitle: const Text("View Header"),
+                value: configs.calendarShowViewHeader.getOr(true),
+                onChanged: (value) {
+                  setState(() {
+                    configs.calendarShowViewHeader.write(value);
+                  });
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.access_time_filled),
+                title: const Text("时间间隔"),
+                subtitle: const Text("Time Interval"),
+                trailing:
+                    Text("${configs.calendarTimeIntervalMinutes.getOr(30)}min"),
+                onTap: () {
+                  showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay(
+                              hour: 0,
+                              minute: configs.calendarTimeIntervalMinutes
+                                  .getOr(30)))
+                      .then((data) {
+                    if (data != null) {
+                      setState(() {
+                        configs.calendarTimeIntervalMinutes
+                            .write(data.hour * 60 + data.minute);
+                      });
+                    }
+                  });
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.opacity),
-                title: const Text("日程背景透明度"),
-                subtitle: const Text("Opactiy"),
+                title: const Text("日程透明度"),
+                subtitle: const Text("Appionment Opacity"),
                 trailing: Text(
                     "${(configs.calendarCellOpacity.getOr(1) * 100).ceil()}%"),
                 onTap: () {
@@ -140,7 +196,7 @@ class _CalendarSettingsState extends State<CalendarSettings> {
               ListTile(
                 leading: const Icon(Icons.opacity),
                 title: const Text("背景图片透明度"),
-                subtitle: const Text("Opactiy"),
+                subtitle: const Text("Background Opacity"),
                 trailing: Text(
                     "${(configs.calendarBackgroundImageOpacity.getOr(0.30) * 100).ceil()}%"),
                 onTap: () {
@@ -162,7 +218,7 @@ class _CalendarSettingsState extends State<CalendarSettings> {
               ListTile(
                 leading: const Icon(Icons.blur_linear),
                 title: const Text("背景模糊"),
-                subtitle: const Text("Blur"),
+                subtitle: const Text("Background Blur"),
                 trailing: Text(
                     "Sigma ${(configs.calendarBackgroundImageBlur.getOr(0))}"),
                 onTap: () {
@@ -345,6 +401,7 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                                       child: ListTile(
                                         title: Text(e.title.toString()),
                                         subtitle: Text(e.body.toString()),
+                                        trailing: Text(e.payload.toString()),
                                       ),
                                     ),
                                   )

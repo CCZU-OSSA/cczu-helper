@@ -4,8 +4,9 @@
  - [x] Linux 平台的分发
  - [ ] 将 "CCZU EVA" 实现入 CCZUNI，一键评价功能
  - [x] 课程表外观的更多可自定义项
- - [ ] 课程表外观的更更多可自定义项
+ - [x] 课程表外观的更更多可自定义项
  - [x] 优化应用列表加载速度
  - [ ] 权限申请优化
  - [ ] 添加调休、支持其他 ICalendar 导入
  - Pending: 完善VPN
+ - Pending: HomeWidget

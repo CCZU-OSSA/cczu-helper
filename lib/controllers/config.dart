@@ -93,7 +93,6 @@ class ApplicationConfigs extends AppConfigsBase {
   ConfigEntry<bool> get firstUse => generator("first_use");
   ConfigEntry<bool> get weakAnimation => generator("weak_animation");
   ConfigEntry<bool> get forceTransparent => generator("force_transparent");
-  ConfigEntry<bool> get calendarSimple => generator("calendar_simple");
 
   ConfigEntry<bool> get calendarIntervalLine =>
       generator("calendar_intervalline");
@@ -106,4 +105,12 @@ class ApplicationConfigs extends AppConfigsBase {
       generator("calendar_background_image_opacity");
   ConfigEntry<double> get calendarBackgroundImageBlur =>
       generator("calendar_background_image_blur");
+  ConfigEntry<bool> get calendarShowViewHeader =>
+      generator("calendar_show_view_header");
+  ConfigEntry<bool> get calendarShowController =>
+      generator("calendar_show_controller");
+  ConfigEntry<bool> get calendarShowTimeRule =>
+      generator("calendar_show_time_rule");
+  ConfigEntry<int> get calendarTimeIntervalMinutes =>
+      generator("calendar_time_interval_minutes");
 }

@@ -125,6 +125,7 @@ class CalendarHeaderState extends State<CalendarHeader> {
                 },
               ),
               PopupMenuButton(
+                position: PopupMenuPosition.under,
                 initialValue: configs.calendarView.getOr(CalendarView.week),
                 icon: Icon(
                   Icons.view_comfortable,
@@ -132,21 +133,12 @@ class CalendarHeaderState extends State<CalendarHeader> {
                 ),
                 onSelected: (value) {
                   configs.calendarView.write(value);
-
-                  if (value == CalendarView.workWeek) {
-                    configs.calendarSimple.write(true);
-                    controller.view = CalendarView.week;
-                  } else {
-                    configs.calendarSimple.write(false);
-                    controller.view = value;
-                  }
-
+                  controller.view = value;
                   widget.refresh();
                 },
                 itemBuilder: (context) => [
                   CalendarView.day,
                   CalendarView.week,
-                  CalendarView.workWeek, // Week Simple ...
                   CalendarView.schedule,
                 ]
                     .map((view) => PopupMenuItem(
@@ -177,6 +169,13 @@ class CurriculumPageState extends State<CurriculumPage>
     CalendarController controller,
     Widget child,
   ) {
+    if (!ArcheBus.bus
+        .of<ApplicationConfigs>()
+        .calendarShowController
+        .getOr(true)) {
+      return SafeArea(bottom: false, child: child);
+    }
+
     return Column(
       children: [
         SafeArea(
@@ -188,6 +187,169 @@ class CurriculumPageState extends State<CurriculumPage>
         ),
         Expanded(child: child)
       ],
+    );
+  }
+
+  Widget buildAppointment(
+    CalendarData appointment,
+    ApplicationConfigs configs,
+    bool isWeekView,
+  ) {
+    final theme = Theme.of(context);
+    final time =
+        '${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
+
+    return GestureDetector(
+      onTap: appointment.isAllday
+          ? null
+          : () {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16, left: 16),
+                      child: Text(
+                        appointment.summary,
+                        style: const TextStyle(fontSize: 24),
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.access_time_filled),
+                            title: const Text("时间"),
+                            subtitle: Text(
+                              time,
+                              style: TextStyle(
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.location_on),
+                            title: const Text("地点"),
+                            subtitle: Text(
+                              appointment.location.toString(),
+                              style: TextStyle(
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                          Visibility(
+                            visible: appointment.teacher != null,
+                            child: ListTile(
+                              leading: const Icon(Icons.person),
+                              title: const Text("教师"),
+                              subtitle: Text(
+                                appointment.teacher
+                                    .toString()
+                                    .replaceAll("\\;", ",")
+                                    .split(",")
+                                    .where((test) => test.isNotEmpty)
+                                    .join(","),
+                                style: TextStyle(
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Visibility(
+                            visible: appointment.week != null,
+                            child: ListTile(
+                              leading: const Icon(Icons.calendar_month),
+                              title: const Text("工作周"),
+                              subtitle: Text(
+                                appointment.week.toString(),
+                                style: TextStyle(
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              );
+            },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4),
+          color: (appointment.isAllday
+                  ? theme.colorScheme.surfaceContainerHighest
+                  : theme.colorScheme.primaryContainer)
+              .withOpacity(configs.calendarCellOpacity.getOr(1)),
+        ),
+        child: appointment.isAllday
+            ? Center(
+                child: Text(
+                  appointment.summary,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(2),
+                child: isWeekView
+                    ? Text.rich(
+                        TextSpan(
+                          text: "${appointment.summary}\n",
+                          style: const TextStyle(fontSize: 12),
+                          children: [
+                            TextSpan(
+                              text: appointment.location,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: theme.colorScheme.primary,
+                              ),
+                            )
+                          ],
+                        ),
+                        overflow: TextOverflow.fade,
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    appointment.summary,
+                                    overflow: TextOverflow.fade,
+                                  ),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  Text(
+                                    time,
+                                    overflow: TextOverflow.fade,
+                                    style: TextStyle(
+                                      color: theme.colorScheme.secondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              appointment.location.toString(),
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: theme.colorScheme.primary,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+              ),
+      ),
     );
   }
 
@@ -265,6 +427,7 @@ class CurriculumPageState extends State<CurriculumPage>
         }
 
         var calendar = SfCalendar(
+          viewHeaderHeight: configs.calendarShowViewHeader.getOr(true) ? -1 : 0,
           backgroundColor: Colors.transparent,
           controller: calendarController,
           initialDisplayDate: _displayDate,
@@ -274,11 +437,11 @@ class CurriculumPageState extends State<CurriculumPage>
           timeSlotViewSettings: TimeSlotViewSettings(
             startHour: 8,
             endHour: 21,
-            timeFormat: configs.calendarSimple.getOr(false) ? "" : "H:mm",
-            timeRulerSize: configs.calendarSimple.getOr(false) ? 0 : -1,
+            timeFormat: "H:mm",
+            timeRulerSize: configs.calendarShowTimeRule.getOr(true) ? -1 : 0,
             timeIntervalHeight: 40,
             timeInterval: Duration(
-              minutes: configs.calendarSimple.getOr(false) ? 60 : 30,
+              minutes: configs.calendarTimeIntervalMinutes.getOr(30),
             ),
           ),
           cellBorderColor: configs.calendarIntervalLine.getOr(true)
@@ -291,165 +454,20 @@ class CurriculumPageState extends State<CurriculumPage>
                 MonthHeaderSettings(backgroundColor: theme.colorScheme.primary),
           ),
           appointmentBuilder: (context, calendarAppointmentDetails) {
-            //FIXME When one slot has more than one appointment, will only take the first...
-            CalendarData appointment =
-                calendarAppointmentDetails.appointments.first;
-            var time =
-                '${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
-
-            return GestureDetector(
-              onTap: appointment.isAllday
-                  ? null
-                  : () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 16, left: 16),
-                              child: Text(
-                                appointment.summary,
-                                style: const TextStyle(fontSize: 24),
-                              ),
-                            ),
-                            Expanded(
-                              child: ListView(
-                                children: [
-                                  ListTile(
-                                    leading:
-                                        const Icon(Icons.access_time_filled),
-                                    title: const Text("时间"),
-                                    subtitle: Text(
-                                      time,
-                                      style: TextStyle(
-                                        color: theme.colorScheme.primary,
-                                      ),
-                                    ),
-                                  ),
-                                  ListTile(
-                                    leading: const Icon(Icons.location_on),
-                                    title: const Text("地点"),
-                                    subtitle: Text(
-                                      appointment.location.toString(),
-                                      style: TextStyle(
-                                        color: theme.colorScheme.primary,
-                                      ),
-                                    ),
-                                  ),
-                                  Visibility(
-                                    visible: appointment.teacher != null,
-                                    child: ListTile(
-                                      leading: const Icon(Icons.person),
-                                      title: const Text("教师"),
-                                      subtitle: Text(
-                                        appointment.teacher
-                                            .toString()
-                                            .replaceAll("\\;", ",")
-                                            .split(",")
-                                            .where((test) => test.isNotEmpty)
-                                            .join(","),
-                                        style: TextStyle(
-                                          color: theme.colorScheme.primary,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Visibility(
-                                    visible: appointment.week != null,
-                                    child: ListTile(
-                                      leading: const Icon(Icons.calendar_month),
-                                      title: const Text("工作周"),
-                                      subtitle: Text(
-                                        appointment.week.toString(),
-                                        style: TextStyle(
-                                          color: theme.colorScheme.primary,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  color: (appointment.isAllday
-                          ? theme.colorScheme.surfaceContainerHighest
-                          : theme.colorScheme.primaryContainer)
-                      .withOpacity(configs.calendarCellOpacity.getOr(1)),
-                ),
-                child: appointment.isAllday
-                    ? Center(
-                        child: Text(
-                          appointment.summary,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.all(2),
-                        child: calendarController.view == CalendarView.week
-                            ? Text.rich(
-                                TextSpan(
-                                  text: "${appointment.summary}\n",
-                                  style: const TextStyle(fontSize: 12),
-                                  children: [
-                                    TextSpan(
-                                      text: appointment.location,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: theme.colorScheme.primary,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                overflow: TextOverflow.fade,
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.all(2),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            appointment.summary,
-                                            overflow: TextOverflow.fade,
-                                          ),
-                                          const SizedBox(
-                                            width: 8,
-                                          ),
-                                          Text(
-                                            time,
-                                            overflow: TextOverflow.fade,
-                                            style: TextStyle(
-                                              color:
-                                                  theme.colorScheme.secondary,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Text(
-                                      appointment.location.toString(),
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: theme.colorScheme.primary,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
+            final isWeekView = calendarController.view == CalendarView.week;
+            return Flex(
+              direction: Axis.horizontal,
+              children: calendarAppointmentDetails.appointments
+                  .map(
+                    (appointment) => Expanded(
+                      child: SizedBox(
+                        height: double.infinity,
+                        child:
+                            buildAppointment(appointment, configs, isWeekView),
                       ),
-              ),
+                    ),
+                  )
+                  .toList(),
             );
           },
           dataSource: CurriculumDataSource(snapshot.data!.get().data),
@@ -565,7 +583,10 @@ class ICalendarParser {
   }
 
   List<CalendarData> get data {
-    return source.data.where((element) => element["type"] == "VEVENT").map((e) {
+    return source.data
+        .where((element) =>
+            element["type"] == "VEVENT" && element["location"] != null)
+        .map((e) {
       return CalendarData(
         location: e["location"].toString(),
         summary: e["summary"].toString(),

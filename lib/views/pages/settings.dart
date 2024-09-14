@@ -72,8 +72,8 @@ class SettingsPageState extends State<SettingsPage>
               ),
               SwitchListTile(
                 secondary: const Icon(Icons.skip_next),
-                title: const Text("返回主界面不再确认"),
-                subtitle: const Text("Skip Confirm"),
+                title: const Text("跳过确认"),
+                subtitle: const Text("Always Skip Confirm"),
                 value: configs.skipServiceExitConfirm.getOr(false),
                 onChanged: (value) {
                   setState(() {
