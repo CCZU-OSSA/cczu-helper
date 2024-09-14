@@ -1,0 +1,57 @@
+name: PR Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  build:
+    name: ${{ matrix.runner }} (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            target: android
+          - runner: windows-latest
+            target: windows
+          - runner: ubuntu-latest
+            target: linux
+    steps:
+      # Prepare
+      - uses: actions/checkout@v4
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Set up JDK 17
+        if: matrix.target == 'android'
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: 17
+
+      - name: Install Rust & Prepare Complie
+        run: |
+          rustup update stable
+          cargo install rinf
+          rinf message
+          dart fix --apply
+
+      # Windows
+      - name: Build Windows
+        if: matrix.target == 'windows'
+        run: flutter build windows --debug
+
+      # Android
+      - name: Build APK
+        if: matrix.target == 'android'
+        run: flutter build apk --debug
+
+      # Linux
+      - name: Build Linux
+        if: matrix.target == 'linux'
+        run: |
+          sudo apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+          flutter build linux --debug
