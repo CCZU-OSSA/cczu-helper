@@ -386,7 +386,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
             )
           : null,
       body: SafeArea(
-        top: currentIndex != 0,
+        top: true,
         child: NavigationView(
           key: navKey,
           transitionBuilder: (child, animation) {
