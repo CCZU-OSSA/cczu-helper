@@ -243,6 +243,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     const NavigationItem(
       icon: Icon(Icons.school),
       page: SafeArea(
+        bottom: false,
         key: ValueKey(1),
         child: ServicePage(),
       ),
@@ -251,6 +252,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     NavigationItem(
       icon: const Icon(Icons.settings),
       page: SafeArea(
+        bottom: false,
         key: const ValueKey(2),
         child: SettingsPage(
           key: settingKey,
@@ -400,15 +402,23 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
               currentIndex = backto;
             });
           } else {
+            void exitApp() {
+              if (Platform.isAndroid || Platform.isIOS) {
+                SystemNavigator.pop();
+              } else {
+                exit(0);
+              }
+            }
+
+            if (configs.skipServiceExitConfirm.getOr(false)) {
+              exitApp();
+            }
+
             ComplexDialog.instance
                 .confirm(context: context, content: const Text("确认退出应用?"))
                 .then((result) {
               if (result) {
-                if (Platform.isAndroid || Platform.isIOS) {
-                  SystemNavigator.pop();
-                } else {
-                  exit(0);
-                }
+                exitApp();
               }
             });
           }
