@@ -208,10 +208,7 @@ class CurriculumPageState extends State<CurriculumPage>
     var theme = Theme.of(context);
     var configs = ArcheBus().of<ApplicationConfigs>();
 
-    return MediaQuery.removePadding(
-      removeTop: true,
-      context: context,
-      child: FutureBuilder(
+    return FutureBuilder(
         future: Future<Optional<ICalendarParser>>(() async {
           var datafile = (await platCalendarDataDirectory.getValue())
               .subFile("calendar_curriculum.ics");
@@ -505,7 +502,6 @@ class CurriculumPageState extends State<CurriculumPage>
           }
           return child;
         },
-      ),
     );
   }
 }

@@ -126,7 +126,7 @@ void main() {
       }
     },
     (error, stack) async {
-      var logger = ArcheBus.bus.provideof<ArcheLogger>(instance: ArcheLogger());
+      var logger = ArcheBus.bus.provideof(instance: ArcheLogger());
       logger.error(error);
       logger.error(stack);
 
@@ -386,36 +386,70 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
             )
           : null,
       body: SafeArea(
-        top: true,
-        child: NavigationView(
-          key: navKey,
-          transitionBuilder: (child, animation) {
-            if (configs.weakAnimation.getOr(true)) {
-              return AnimatedSwitcher.defaultTransitionBuilder(
-                  child, animation);
+        top: currentIndex != 0,
+        child: PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            var backto = navKey.currentState?.popIndex();
+            if (backto != null) {
+              setState(() {
+                currentIndex = backto;
+              });
+            } else {
+              ComplexDialog.instance
+                  .confirm(context: context, content: const Text("确认退出应用?"))
+                  .then((result) {
+                if (result) {
+                  if (Platform.isAndroid || Platform.isIOS) {
+                    SystemNavigator.pop();
+                  } else {
+                    exit(0);
+                  }
+                }
+              });
             }
-
-            const begin = Offset(1, 0);
-            const end = Offset.zero;
-            final tween = Tween(begin: begin, end: end)
-                .chain(CurveTween(curve: Curves.fastLinearToSlowEaseIn));
-            final offsetAnimation = animation.drive(tween);
-            return SlideTransition(
-              position: offsetAnimation,
-              child: Container(
-                color: theme.scaffoldBackgroundColor,
-                child: child,
-              ),
-            );
           },
-          backgroundColor: Colors.transparent,
-          showBar: navStyle == NavigationStyle.nav ||
-              navStyle == NavigationStyle.both,
-          direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
-          pageViewCurve: Curves.fastLinearToSlowEaseIn,
-          onPageChanged: (value) => setState(() => currentIndex = value),
-          items: viewItems,
-          labelType: NavigationLabelType.selected,
+          child: NavigationView(
+            key: navKey,
+            builder: (context, vertical, horizontal, state) {
+              return NavigationViewState.defaultBuilder(
+                  context,
+                  () => MediaQuery.removePadding(
+                        removeTop: true,
+                        context: context,
+                        child: vertical(),
+                      ),
+                  horizontal,
+                  state);
+            },
+            transitionBuilder: (child, animation) {
+              if (configs.weakAnimation.getOr(true)) {
+                return AnimatedSwitcher.defaultTransitionBuilder(
+                    child, animation);
+              }
+
+              const begin = Offset(1, 0);
+              const end = Offset.zero;
+              final tween = Tween(begin: begin, end: end)
+                  .chain(CurveTween(curve: Curves.fastLinearToSlowEaseIn));
+              final offsetAnimation = animation.drive(tween);
+              return SlideTransition(
+                position: offsetAnimation,
+                child: Container(
+                  color: theme.scaffoldBackgroundColor,
+                  child: child,
+                ),
+              );
+            },
+            backgroundColor: Colors.transparent,
+            showBar: navStyle == NavigationStyle.nav ||
+                navStyle == NavigationStyle.both,
+            direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
+            pageViewCurve: Curves.fastLinearToSlowEaseIn,
+            onPageChanged: (value) => setState(() => currentIndex = value),
+            items: viewItems,
+            labelType: NavigationLabelType.selected,
+          ),
         ),
       ),
     );
