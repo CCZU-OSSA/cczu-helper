@@ -166,24 +166,27 @@ class InstallAppSelectorState extends State<InstallAppSelector> {
         onPressed: () => Navigator.of(context).pop(selected),
         child: const Icon(Icons.check),
       ),
-      body: apps.isNotEmpty
-          ? AppInfoListView(apps: apps, selected: selected)
-          : FutureBuilder(
-              future: InstalledApps.getInstalledApps(true, true),
-              builder: (context, snapshot) {
-                var data = snapshot.data;
+      body: SizedBox(
+        key: ValueKey(apps.isNotEmpty), // Force to Rebuild
+        child: apps.isNotEmpty
+            ? AppInfoListView(apps: apps, selected: selected)
+            : FutureBuilder(
+                future: InstalledApps.getInstalledApps(true, true),
+                builder: (context, snapshot) {
+                  var data = snapshot.data;
 
-                if (data == null) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+                  if (data == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                if (apps.isEmpty) {
-                  apps.addAll(data);
-                }
+                  if (apps.isEmpty) {
+                    apps.addAll(data);
+                  }
 
-                return AppInfoListView(apps: data, selected: selected);
-              },
-            ),
+                  return AppInfoListView(apps: data, selected: selected);
+                },
+              ),
+      ),
     );
   }
 }
