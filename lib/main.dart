@@ -243,6 +243,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     const NavigationItem(
       icon: Icon(Icons.school),
       page: SafeArea(
+        key: ValueKey(1),
         child: ServicePage(),
       ),
       label: "服务",
@@ -250,6 +251,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
     NavigationItem(
       icon: const Icon(Icons.settings),
       page: SafeArea(
+        key: const ValueKey(2),
         child: SettingsPage(
           key: settingKey,
         ),
