@@ -583,10 +583,15 @@ class ICalendarParser {
   }
 
   List<CalendarData> get data {
-    return source.data
-        .where((element) =>
-            element["type"] == "VEVENT" && element["location"] != null)
-        .map((e) {
+    final filter = ArcheBus()
+            .of<ApplicationConfigs>()
+            .calendarShowAlldayAppionments
+            .getOr(true)
+        ? (element) => element["type"] == "VEVENT"
+        : (element) =>
+            element["type"] == "VEVENT" && element["location"] != null;
+
+    return source.data.where(filter).map((e) {
       return CalendarData(
         location: e["location"].toString(),
         summary: e["summary"].toString(),

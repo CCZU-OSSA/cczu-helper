@@ -100,6 +100,17 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                   });
                 },
               ),
+              SwitchListTile(
+                secondary: const Icon(Icons.visibility),
+                title: const Text("显示全天日程"),
+                subtitle: const Text("View Header"),
+                value: configs.calendarShowAlldayAppionments.getOr(true),
+                onChanged: (value) {
+                  setState(() {
+                    configs.calendarShowAlldayAppionments.write(value);
+                  });
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.access_time_filled),
                 title: const Text("时间间隔"),

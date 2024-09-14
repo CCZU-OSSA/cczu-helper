@@ -113,4 +113,6 @@ class ApplicationConfigs extends AppConfigsBase {
       generator("calendar_show_time_rule");
   ConfigEntry<int> get calendarTimeIntervalMinutes =>
       generator("calendar_time_interval_minutes");
+  ConfigEntry<bool> get calendarShowAlldayAppionments =>
+      generator("calendar_show_allday_appionments");
 }
