@@ -237,18 +237,22 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
   static var viewItems = [
     const NavigationItem(
       icon: Icon(Icons.calendar_month),
-      page: CurriculumPage(),
+      page: CurriculumPage(), // SafeArea inside
       label: "课表",
     ),
     const NavigationItem(
       icon: Icon(Icons.school),
-      page: ServicePage(),
+      page: SafeArea(
+        child: ServicePage(),
+      ),
       label: "服务",
     ),
     NavigationItem(
       icon: const Icon(Icons.settings),
-      page: SettingsPage(
-        key: settingKey,
+      page: SafeArea(
+        child: SettingsPage(
+          key: settingKey,
+        ),
       ),
       label: "设置",
     ),
@@ -385,71 +389,68 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
                       .toList(),
             )
           : null,
-      body: SafeArea(
-        top: currentIndex != 0,
-        child: PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, result) {
-            var backto = navKey.currentState?.popIndex();
-            if (backto != null) {
-              setState(() {
-                currentIndex = backto;
-              });
-            } else {
-              ComplexDialog.instance
-                  .confirm(context: context, content: const Text("确认退出应用?"))
-                  .then((result) {
-                if (result) {
-                  if (Platform.isAndroid || Platform.isIOS) {
-                    SystemNavigator.pop();
-                  } else {
-                    exit(0);
-                  }
+      body: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          var backto = navKey.currentState?.popIndex();
+          if (backto != null && backto != 0) {
+            setState(() {
+              currentIndex = backto;
+            });
+          } else {
+            ComplexDialog.instance
+                .confirm(context: context, content: const Text("确认退出应用?"))
+                .then((result) {
+              if (result) {
+                if (Platform.isAndroid || Platform.isIOS) {
+                  SystemNavigator.pop();
+                } else {
+                  exit(0);
                 }
-              });
-            }
-          },
-          child: NavigationView(
-            key: navKey,
-            builder: (context, vertical, horizontal, state) {
-              return NavigationViewState.defaultBuilder(
-                  context,
-                  () => MediaQuery.removePadding(
-                        removeTop: true,
-                        context: context,
-                        child: vertical(),
-                      ),
-                  horizontal,
-                  state);
-            },
-            transitionBuilder: (child, animation) {
-              if (configs.weakAnimation.getOr(true)) {
-                return AnimatedSwitcher.defaultTransitionBuilder(
-                    child, animation);
               }
+            });
+          }
+        },
+        child: NavigationView(
+          key: navKey,
+          builder: (context, vertical, horizontal, state) {
+            return NavigationViewState.defaultBuilder(
+                context,
+                () => MediaQuery.removePadding(
+                      removeTop: true,
+                      context: context,
+                      child: vertical(),
+                    ),
+                horizontal,
+                state);
+          },
+          transitionBuilder: (child, animation) {
+            if (configs.weakAnimation.getOr(true)) {
+              return AnimatedSwitcher.defaultTransitionBuilder(
+                  child, animation);
+            }
 
-              const begin = Offset(1, 0);
-              const end = Offset.zero;
-              final tween = Tween(begin: begin, end: end)
-                  .chain(CurveTween(curve: Curves.fastLinearToSlowEaseIn));
-              final offsetAnimation = animation.drive(tween);
-              return SlideTransition(
-                position: offsetAnimation,
-                child: Container(
-                  color: theme.scaffoldBackgroundColor,
-                  child: child,
-                ),
-              );
-            },
-            backgroundColor: Colors.transparent,
-            showBar: navStyle == NavigationStyle.nav ||
-                navStyle == NavigationStyle.both,
-            direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
-            pageViewCurve: Curves.fastLinearToSlowEaseIn,
-            onPageChanged: (value) => setState(() => currentIndex = value),
-            items: viewItems,
-            labelType: NavigationLabelType.selected,
-          ),
+            const begin = Offset(1, 0);
+            const end = Offset.zero;
+            final tween = Tween(begin: begin, end: end)
+                .chain(CurveTween(curve: Curves.fastLinearToSlowEaseIn));
+            final offsetAnimation = animation.drive(tween);
+            return SlideTransition(
+              position: offsetAnimation,
+              child: Container(
+                color: theme.scaffoldBackgroundColor,
+                child: child,
+              ),
+            );
+          },
+          backgroundColor: Colors.transparent,
+          showBar: navStyle == NavigationStyle.nav ||
+              navStyle == NavigationStyle.both,
+          direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
+          pageViewCurve: Curves.fastLinearToSlowEaseIn,
+          onPageChanged: (value) => setState(() => currentIndex = value),
+          items: viewItems,
+          labelType: NavigationLabelType.selected,
         ),
       ),
     );

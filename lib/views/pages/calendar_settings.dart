@@ -92,6 +92,7 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 subtitle: const Text("Background Image"),
                 value: configs.calendarBackgroundImage.has(),
                 onChanged: (value) async {
+                  // TODO Request Image Gallery Permission here...
                   if (value) {
                     var picker = ImagePicker();
                     picker
