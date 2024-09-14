@@ -8,7 +8,6 @@ on:
       - lib/**
       - .github/workflows/build.yml
       - native/**
-  pull_request:
 
 jobs:
   build:

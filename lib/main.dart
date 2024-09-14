@@ -235,29 +235,20 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
   int currentIndex = 0;
 
   static var viewItems = [
-    NavigationItem(
-      icon: const Icon(Icons.calendar_month),
-      page: CurriculumPage(
-        // SafeArea -> goto calendar L182
-        key: curriculmKey,
-      ),
+    const NavigationItem(
+      icon: Icon(Icons.calendar_month),
+      page: CurriculumPage(),
       label: "课表",
     ),
     const NavigationItem(
       icon: Icon(Icons.school),
-      page: SafeArea(
-        top: true,
-        child: ServicePage(),
-      ),
+      page: ServicePage(),
       label: "服务",
     ),
     NavigationItem(
       icon: const Icon(Icons.settings),
-      page: SafeArea(
-        top: true,
-        child: SettingsPage(
-          key: settingKey,
-        ),
+      page: SettingsPage(
+        key: settingKey,
       ),
       label: "设置",
     ),
@@ -394,34 +385,38 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
                       .toList(),
             )
           : null,
-      body: NavigationView(
-        key: navKey,
-        transitionBuilder: (child, animation) {
-          if (configs.weakAnimation.getOr(true)) {
-            return AnimatedSwitcher.defaultTransitionBuilder(child, animation);
-          }
+      body: SafeArea(
+        top: currentIndex != 0,
+        child: NavigationView(
+          key: navKey,
+          transitionBuilder: (child, animation) {
+            if (configs.weakAnimation.getOr(true)) {
+              return AnimatedSwitcher.defaultTransitionBuilder(
+                  child, animation);
+            }
 
-          const begin = Offset(1, 0);
-          const end = Offset.zero;
-          final tween = Tween(begin: begin, end: end)
-              .chain(CurveTween(curve: Curves.fastLinearToSlowEaseIn));
-          final offsetAnimation = animation.drive(tween);
-          return SlideTransition(
-            position: offsetAnimation,
-            child: Container(
-              color: theme.scaffoldBackgroundColor,
-              child: child,
-            ),
-          );
-        },
-        backgroundColor: Colors.transparent,
-        showBar:
-            navStyle == NavigationStyle.nav || navStyle == NavigationStyle.both,
-        direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
-        pageViewCurve: Curves.fastLinearToSlowEaseIn,
-        onPageChanged: (value) => setState(() => currentIndex = value),
-        items: viewItems,
-        labelType: NavigationLabelType.selected,
+            const begin = Offset(1, 0);
+            const end = Offset.zero;
+            final tween = Tween(begin: begin, end: end)
+                .chain(CurveTween(curve: Curves.fastLinearToSlowEaseIn));
+            final offsetAnimation = animation.drive(tween);
+            return SlideTransition(
+              position: offsetAnimation,
+              child: Container(
+                color: theme.scaffoldBackgroundColor,
+                child: child,
+              ),
+            );
+          },
+          backgroundColor: Colors.transparent,
+          showBar: navStyle == NavigationStyle.nav ||
+              navStyle == NavigationStyle.both,
+          direction: isWideScreen(context) ? Axis.horizontal : Axis.vertical,
+          pageViewCurve: Curves.fastLinearToSlowEaseIn,
+          onPageChanged: (value) => setState(() => currentIndex = value),
+          items: viewItems,
+          labelType: NavigationLabelType.selected,
+        ),
       ),
     );
   }
