@@ -40,6 +40,8 @@ class _CalendarSettingsState extends State<CalendarSettings> {
     } else {
       return result;
     }
+
+    return null;
   }
 
   @override

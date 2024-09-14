@@ -179,9 +179,12 @@ class CurriculumPageState extends State<CurriculumPage>
   ) {
     return Column(
       children: [
-        CalendarHeader(
-          controller: controller,
-          refresh: refreshMounted,
+        SafeArea(
+          top: true,
+          child: CalendarHeader(
+            controller: controller,
+            refresh: refreshMounted,
+          ),
         ),
         Expanded(child: child)
       ],
