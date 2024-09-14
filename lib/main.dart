@@ -412,6 +412,7 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
 
             if (configs.skipServiceExitConfirm.getOr(false)) {
               exitApp();
+              return;
             }
 
             ComplexDialog.instance
