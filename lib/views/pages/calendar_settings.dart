@@ -55,6 +55,20 @@ class _CalendarSettingsState extends State<CalendarSettings> {
       body: PaddingScrollView(
         child: Column(
           children: [
+            const SettingGroup(name: "通用", children: [
+              ListTile(
+                leading: Icon(Icons.work_off),
+                title: Text("调休"),
+                subtitle: Text("Shift"),
+                trailing: Icon(Icons.arrow_right_rounded),
+              ),
+              ListTile(
+                leading: Icon(Icons.download),
+                title: Text("导入日历 (TODO)"),
+                subtitle: Text("Import Calendar"),
+                trailing: Icon(Icons.arrow_right_rounded),
+              )
+            ]),
             SettingGroup(name: "外观", children: [
               SwitchListTile(
                 secondary: const Icon(Icons.visibility),

@@ -2,6 +2,7 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/messages/grades.pb.dart';
+import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 
 class WeChatGradeQueryServicePage extends StatefulWidget {
@@ -144,7 +145,7 @@ class WeChatGradeQueryServicePageState
         }).toList();
         List<Widget> children = [
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.only(top: 8, bottom: 8),
             child: Wrap(
               spacing: 8,
               runSpacing: 6,
@@ -236,8 +237,10 @@ class WeChatGradeQueryServicePageState
               ? Center(
                   child: Text(message.error.toString()),
                 )
-              : ListView(
-                  children: children,
+              : PaddingScrollView(
+                  child: Column(
+                    children: children,
+                  ),
                 ),
         );
       },

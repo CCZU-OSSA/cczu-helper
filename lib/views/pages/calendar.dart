@@ -487,7 +487,10 @@ class CurriculumPageState extends State<CurriculumPage>
               var data = snapshot.data;
               if (data != null) {
                 var blur = configs.calendarBackgroundImageBlur.getOr(0);
-                return ClipRect(
+                return ClipRRect(
+                  borderRadius: isWideScreen(context)
+                      ? BorderRadius.circular(8)
+                      : BorderRadius.zero,
                   child: Stack(
                     children: [
                       Container(
@@ -504,7 +507,12 @@ class CurriculumPageState extends State<CurriculumPage>
                       ),
                       BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-                        child: child,
+                        child: Padding(
+                          padding: isWideScreen(context)
+                              ? const EdgeInsets.only(left: 8)
+                              : EdgeInsets.zero,
+                          child: child,
+                        ),
                       ),
                     ],
                   ),
