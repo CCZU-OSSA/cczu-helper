@@ -396,11 +396,10 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
       body: PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
-          var backto = navKey.currentState?.popIndex();
-          if (backto != null && currentIndex != 0) {
-            setState(() {
-              currentIndex = backto;
-            });
+          final current = currentIndex;
+
+          if (current != 0) {
+            navKey.currentState?.popIndex();
           } else {
             void exitApp() {
               if (Platform.isAndroid || Platform.isIOS) {
