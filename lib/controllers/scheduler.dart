@@ -93,13 +93,16 @@ class Scheduler {
     var configs = ArcheBus().of<ApplicationConfigs>();
 
     if (configs.notificationsEnable.getOr(false)) {
-      var sourcefile =
-          (await platDirectory.getValue()).subFile("_curriculum.ics");
+      var sourcefile = (await platCalendarDataDirectory.getValue())
+          .subFile("calendar_curriculum.ics");
       var reminder =
           Duration(minutes: configs.notificationsReminder.getOr(15) * -1);
       var schedulerDay = configs.notificationsDay.getOr(true);
       if (await sourcefile.exists()) {
-        ICalendarParser(await sourcefile.readAsString())
+        ICalendarParser(
+          await sourcefile.readAsString(),
+          CalendarSource.curriculum,
+        )
             .data
             .where(
               (element) =>

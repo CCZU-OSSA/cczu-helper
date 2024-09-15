@@ -239,17 +239,22 @@ class CurriculumPageState extends State<CurriculumPage>
                             ),
                           ),
                           Visibility(
-                            visible: appointment.teacher != null,
+                            visible: appointment.description != null,
                             child: ListTile(
                               leading: const Icon(Icons.person),
-                              title: const Text("教师"),
+                              title: appointment.source ==
+                                      CalendarSource.curriculum
+                                  ? const Text("教师")
+                                  : const Text("简述"),
                               subtitle: Text(
-                                appointment.teacher
-                                    .toString()
-                                    .replaceAll("\\;", ",")
-                                    .split(",")
-                                    .where((test) => test.isNotEmpty)
-                                    .join(","),
+                                appointment.source == CalendarSource.curriculum
+                                    ? appointment.description
+                                        .toString()
+                                        .replaceAll("\\;", ",")
+                                        .split(",")
+                                        .where((test) => test.isNotEmpty)
+                                        .join(",")
+                                    : appointment.description.toString(),
                                 style: TextStyle(
                                   color: theme.colorScheme.primary,
                                 ),
@@ -377,7 +382,10 @@ class CurriculumPageState extends State<CurriculumPage>
 
         if (await datafile.exists()) {
           return Optional(
-              value: ICalendarParser(await datafile.readAsString()));
+              value: ICalendarParser(
+            await datafile.readAsString(),
+            CalendarSource.curriculum,
+          ));
         }
 
         return const Optional.none();
@@ -557,11 +565,14 @@ class CurriculumDataSource extends CalendarDataSource {
   }
 }
 
+enum CalendarSource { curriculum, other }
+
 @immutable
 class CalendarData {
+  final CalendarSource source;
   final String? location;
   final String summary;
-  final String? teacher;
+  final String? description;
   final String? week;
   final IcsDateTime start;
   final IcsDateTime end;
@@ -571,20 +582,23 @@ class CalendarData {
     required this.summary,
     required this.start,
     required this.end,
-    this.teacher,
+    this.description,
     this.week,
     this.isAllday = false,
+    this.source = CalendarSource.other,
   });
 
   @override
   String toString() {
-    return "CourseData { summary: $summary, location: $location, dtstart: $start teacher: $teacher }";
+    return "CourseData { summary: $summary, location: $location, dtstart: $start}";
   }
 }
 
 class ICalendarParser {
-  final ICalendar source;
-  ICalendarParser(String source) : source = ICalendarParser.parse(source);
+  final ICalendar calendar;
+  final CalendarSource source;
+  ICalendarParser(String raw, this.source)
+      : calendar = ICalendarParser.parse(raw);
 
   static ICalendar parse(String source) {
     return ICalendar.fromString(source);
@@ -599,15 +613,16 @@ class ICalendarParser {
         : (element) =>
             element["type"] == "VEVENT" && element["location"] != null;
 
-    return source.data.where(filter).map((e) {
+    return calendar.data.where(filter).map((e) {
       return CalendarData(
         location: e["location"].toString(),
         summary: e["summary"].toString(),
         start: e["dtstart"],
+        description: e["description"],
         end: e["dtend"],
-        teacher: e["description"],
         week: e["week"],
         isAllday: e["location"] == null,
+        source: source,
       );
     }).toList();
   }
