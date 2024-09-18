@@ -4,12 +4,15 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
+import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' show basenameWithoutExtension, extension;
 
 class CalendarSettings extends StatefulWidget {
   const CalendarSettings({super.key});
@@ -55,18 +58,22 @@ class _CalendarSettingsState extends State<CalendarSettings> {
       body: PaddingScrollView(
         child: Column(
           children: [
-            const SettingGroup(name: "通用", children: [
-              ListTile(
+            SettingGroup(name: "通用", children: [
+              const ListTile(
                 leading: Icon(Icons.work_off),
-                title: Text("调休"),
+                title: Text("调休(TODO)"),
                 subtitle: Text("Shift"),
                 trailing: Icon(Icons.arrow_right_rounded),
               ),
               ListTile(
-                leading: Icon(Icons.download),
-                title: Text("导入日历 (TODO)"),
-                subtitle: Text("Import Calendar"),
-                trailing: Icon(Icons.arrow_right_rounded),
+                leading: const Icon(Icons.calendar_month),
+                title: const Text("管理日历文件"),
+                subtitle: const Text("Manager"),
+                trailing: const Icon(Icons.arrow_right_rounded),
+                onTap: () => pushMaterialRoute(
+                  builder: (BuildContext context) =>
+                      const CalendarsManagerPage(),
+                ),
               )
             ]),
             SettingGroup(name: "外观", children: [
@@ -471,6 +478,97 @@ class _CalendarSettingsState extends State<CalendarSettings> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class CalendarsManagerPage extends StatefulWidget {
+  const CalendarsManagerPage({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _CalendarsManagerPageState();
+}
+
+class _CalendarsManagerPageState extends State<CalendarsManagerPage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          FilePicker.platform
+              .pickFiles(
+            type: FileType.custom,
+            allowedExtensions: ["ics"],
+            withData: true,
+          )
+              .then((file) {
+            if (file != null) {
+              platCalendarDataDirectory.getValue().then((platdir) {
+                for (var single in file.files) {
+                  var bytes = single.bytes;
+                  if (bytes != null) {
+                    platdir.subFile(single.name).writeAsBytes(bytes).then((_) {
+                      setState(() {});
+                    });
+                  }
+                }
+              });
+            }
+          });
+        },
+        child: const Icon(Icons.add),
+      ),
+      body: PaddingScrollView(
+        child: FutureBuilder(
+          future: Future(() async {
+            var calendarDir = await platCalendarDataDirectory.getValue();
+            return calendarDir.listSync();
+          }),
+          builder: (context, snapshot) {
+            var data = snapshot.data;
+
+            if (data == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            data.sort((a, b) => a.path.compareTo(b.path));
+
+            return Column(
+              children: data
+                  .where((item) => extension(item.path) == ".ics")
+                  .map(
+                    (item) => Card.filled(
+                      child: ListTile(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        leading: const Icon(Icons.calendar_month),
+                        title: Text(basenameWithoutExtension(item.path)),
+                        onLongPress: () {
+                          ComplexDialog.instance
+                              .withContext(context: context)
+                              .confirm(content: const Text("确认删除?"))
+                              .then((result) {
+                            if (result) {
+                              File(item.absolute.path).delete().then((_) {
+                                setState(() {});
+                              });
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+          },
         ),
       ),
     );

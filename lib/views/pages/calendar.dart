@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:arche/arche.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' show basename, extension;
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class CurriculumPage extends StatefulWidget {
@@ -376,34 +378,37 @@ class CurriculumPageState extends State<CurriculumPage>
     var configs = ArcheBus().of<ApplicationConfigs>();
 
     return FutureBuilder(
-      future: Future<Optional<ICalendarParser>>(() async {
-        var datafile = (await platCalendarDataDirectory.getValue())
-            .subFile("calendar_curriculum.ics");
+      future: Future<List<ICalendarParser>>(() async {
+        var platdir = (await platCalendarDataDirectory.getValue());
 
-        if (await datafile.exists()) {
-          return Optional(
-              value: ICalendarParser(
-            await datafile.readAsString(),
-            CalendarSource.curriculum,
-          ));
-        }
+        // .subFile("calendar_curriculum.ics");
+        return platdir
+            .listSync()
+            .where((item) => extension(item.path) == ".ics")
+            .map((item) {
+          final calendar = File(item.path);
 
-        return const Optional.none();
+          return ICalendarParser(
+              calendar.readAsStringSync(),
+              basename(item.path) == "calendar_curriculum.ics"
+                  ? CalendarSource.curriculum
+                  : CalendarSource.other);
+        }).toList();
       }),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(
-            child: ProgressIndicatorWidget(),
-          );
-        }
-
         if (snapshot.hasError) {
           return Center(
             child: Text(snapshot.error.toString()),
           );
         }
+        var data = snapshot.data;
+        if (!snapshot.hasData || data == null) {
+          return const Center(
+            child: ProgressIndicatorWidget(),
+          );
+        }
 
-        if (snapshot.data!.isNull()) {
+        if (data.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -478,7 +483,10 @@ class CurriculumPageState extends State<CurriculumPage>
                   .toList(),
             );
           },
-          dataSource: CurriculumDataSource(snapshot.data!.get().data),
+          dataSource: CurriculumDataSource(data.fold([], (data, parser) {
+            data.addAll(parser.data);
+            return data;
+          })),
         );
         var background = configs.calendarBackgroundImage.tryGet();
         var child = buildHeader(
