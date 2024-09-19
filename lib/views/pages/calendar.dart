@@ -16,6 +16,7 @@ import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' show basename, extension;
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class CurriculumPage extends StatefulWidget {
   const CurriculumPage({super.key});
@@ -223,7 +224,7 @@ class CurriculumPageState extends State<CurriculumPage>
                           ListTile(
                             leading: const Icon(Icons.access_time_filled),
                             title: const Text("时间"),
-                            subtitle: Text(
+                            subtitle: SelectableText(
                               time,
                               style: TextStyle(
                                 color: theme.colorScheme.primary,
@@ -233,7 +234,7 @@ class CurriculumPageState extends State<CurriculumPage>
                           ListTile(
                             leading: const Icon(Icons.location_on),
                             title: const Text("地点"),
-                            subtitle: Text(
+                            subtitle: SelectableText(
                               appointment.location.toString(),
                               style: TextStyle(
                                 color: theme.colorScheme.primary,
@@ -243,12 +244,15 @@ class CurriculumPageState extends State<CurriculumPage>
                           Visibility(
                             visible: appointment.description != null,
                             child: ListTile(
-                              leading: const Icon(Icons.person),
+                              leading: appointment.source ==
+                                      CalendarSource.curriculum
+                                  ? const Icon(Icons.person)
+                                  : const Icon(Icons.description),
                               title: appointment.source ==
                                       CalendarSource.curriculum
                                   ? const Text("教师")
                                   : const Text("简述"),
-                              subtitle: Text(
+                              subtitle: SelectableText(
                                 appointment.source == CalendarSource.curriculum
                                     ? appointment.description
                                         .toString()
@@ -268,7 +272,7 @@ class CurriculumPageState extends State<CurriculumPage>
                             child: ListTile(
                               leading: const Icon(Icons.calendar_month),
                               title: const Text("工作周"),
-                              subtitle: Text(
+                              subtitle: SelectableText(
                                 appointment.week.toString(),
                                 style: TextStyle(
                                   color: theme.colorScheme.primary,
@@ -387,7 +391,6 @@ class CurriculumPageState extends State<CurriculumPage>
             .where((item) => extension(item.path) == ".ics")
             .map((item) {
           final calendar = File(item.path);
-
           return ICalendarParser(
               calendar.readAsStringSync(),
               basename(item.path) == "calendar_curriculum.ics"
@@ -438,6 +441,10 @@ class CurriculumPageState extends State<CurriculumPage>
         if (view == CalendarView.workWeek) {
           view = CalendarView.week;
         }
+        final start = configs.calendarTimeStart
+            .getOr(const TimeOfDay(hour: 8, minute: 0));
+        final end =
+            configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0));
 
         var calendar = SfCalendar(
           viewHeaderHeight: configs.calendarShowViewHeader.getOr(true) ? -1 : 0,
@@ -448,11 +455,11 @@ class CurriculumPageState extends State<CurriculumPage>
           firstDayOfWeek: 1,
           headerHeight: 0,
           timeSlotViewSettings: TimeSlotViewSettings(
-            startHour: 8,
-            endHour: 21,
             timeFormat: "H:mm",
             timeRulerSize: configs.calendarShowTimeRule.getOr(true) ? -1 : 0,
             timeIntervalHeight: 40,
+            startHour: start.hour + start.minute / 60,
+            endHour: end.hour + end.minute / 60,
             timeInterval: Duration(
               minutes: configs.calendarTimeIntervalMinutes.getOr(30),
             ),
@@ -612,6 +619,17 @@ class ICalendarParser {
     return ICalendar.fromString(source);
   }
 
+  static IcsDateTime localize(IcsDateTime icstime) {
+    if (!icstime.dt.endsWith("Z")) {
+      return icstime;
+    }
+
+    var convert =
+        (tz.TZDateTime.parse(tz.getLocation("Asia/Shanghai"), icstime.dt));
+    return IcsDateTime(
+        dt: "${convert.year}${convert.month.toString().padLeft(2, "0")}${convert.day.toString().padLeft(2, "0")}T${convert.hour.toString().padLeft(2, "0")}${convert.minute.toString().padLeft(2, "0")}");
+  }
+
   List<CalendarData> get data {
     final filter = ArcheBus()
             .of<ApplicationConfigs>()
@@ -625,9 +643,9 @@ class ICalendarParser {
       return CalendarData(
         location: e["location"].toString(),
         summary: e["summary"].toString(),
-        start: e["dtstart"],
+        start: localize(e["dtstart"]),
         description: e["description"],
-        end: e["dtend"],
+        end: localize(e["dtend"]),
         week: e["week"],
         isAllday: e["location"] == null,
         source: source,

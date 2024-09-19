@@ -115,4 +115,30 @@ class ApplicationConfigs extends AppConfigsBase {
       generator("calendar_time_interval_minutes");
   ConfigEntry<bool> get calendarShowAlldayAppionments =>
       generator("calendar_show_allday_appionments");
+  ConfigEntryConverter<double, TimeOfDay> get calendarTimeStart =>
+      ConfigEntryConverter(
+        generator("calendar_time_start"),
+        forward: (value) {
+          final integer = value.toInt();
+          final float = value - integer;
+
+          return TimeOfDay(hour: integer, minute: (float * 60).toInt());
+        },
+        reverse: (value) {
+          return value.hour + value.minute / 60;
+        },
+      );
+  ConfigEntryConverter<double, TimeOfDay> get calendarTimeEnd =>
+      ConfigEntryConverter(
+        generator("calendar_time_end"),
+        forward: (value) {
+          final integer = value.toInt();
+          final float = value - integer;
+
+          return TimeOfDay(hour: integer, minute: (float * 60).toInt());
+        },
+        reverse: (value) {
+          return value.hour + value.minute / 60;
+        },
+      );
 }

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
@@ -47,6 +46,11 @@ class _CalendarSettingsState extends State<CalendarSettings> {
     return null;
   }
 
+  static String formatDoubleTime(double time) {
+    var stime = time.toStringAsFixed(1).split(".");
+    return "${stime[0].toString().padLeft(2, "0")}:${(double.parse(stime[1]) * 60).toInt().toString().padLeft(2, "0")}";
+  }
+
   @override
   Widget build(BuildContext context) {
     ApplicationConfigs configs = ArcheBus().of();
@@ -59,16 +63,10 @@ class _CalendarSettingsState extends State<CalendarSettings> {
         child: Column(
           children: [
             SettingGroup(name: "通用", children: [
-              const ListTile(
-                leading: Icon(Icons.work_off),
-                title: Text("调休(TODO)"),
-                subtitle: Text("Shift"),
-                trailing: Icon(Icons.arrow_right_rounded),
-              ),
               ListTile(
                 leading: const Icon(Icons.calendar_month),
                 title: const Text("管理日历文件"),
-                subtitle: const Text("Manager"),
+                subtitle: const Text("Calendar Manager"),
                 trailing: const Icon(Icons.arrow_right_rounded),
                 onTap: () => pushMaterialRoute(
                   builder: (BuildContext context) =>
@@ -77,6 +75,48 @@ class _CalendarSettingsState extends State<CalendarSettings> {
               )
             ]),
             SettingGroup(name: "外观", children: [
+              ListTile(
+                leading: const Icon(Icons.sunny),
+                title: const Text("日历开始时间"),
+                subtitle: const Text("Calendar Start"),
+                trailing: Text(configs.calendarTimeStart
+                    .getOr(const TimeOfDay(hour: 8, minute: 0))
+                    .format(context)),
+                onTap: () {
+                  showTimePicker(
+                          context: context,
+                          initialTime: configs.calendarTimeStart
+                              .getOr(const TimeOfDay(hour: 8, minute: 0)))
+                      .then((time) {
+                    if (time != null) {
+                      setState(() {
+                        configs.calendarTimeStart.write(time);
+                      });
+                    }
+                  });
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.nightlife),
+                title: const Text("日历结束时间"),
+                subtitle: const Text("Calendar End"),
+                trailing: Text(configs.calendarTimeEnd
+                    .getOr(const TimeOfDay(hour: 21, minute: 0))
+                    .format(context)),
+                onTap: () {
+                  showTimePicker(
+                          context: context,
+                          initialTime: configs.calendarTimeEnd
+                              .getOr(const TimeOfDay(hour: 21, minute: 0)))
+                      .then((time) {
+                    if (time != null) {
+                      setState(() {
+                        configs.calendarTimeEnd.write(time);
+                      });
+                    }
+                  });
+                },
+              ),
               SwitchListTile(
                 secondary: const Icon(Icons.visibility),
                 title: const Text("显示分割线"),
@@ -341,7 +381,7 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                   visible: configs.notificationsEnable.getOr(false),
                   child: SwitchListTile(
                     secondary: const Icon(Icons.notifications_on),
-                    title: const Text("仅计划今日通知"),
+                    title: const Text("仅计划今日日程通知"),
                     subtitle: const Text("Day Schedule"),
                     value: configs.notificationsDay.getOr(false),
                     onChanged: (bool value) async {
@@ -368,7 +408,7 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.timer),
-                  title: const Text("课前提醒"),
+                  title: const Text("日程提醒"),
                   subtitle: const Text("Course Reminder"),
                   trailing:
                       Text("${configs.notificationsReminder.getOr(15)} 分钟"),
@@ -378,7 +418,7 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                           autofocus: true,
                           title: const Text("输入整数"),
                           decoration: const InputDecoration(
-                            labelText: "课前提醒(分钟)",
+                            labelText: "日程提醒(分钟)",
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number)
@@ -500,9 +540,12 @@ class _CalendarsManagerPageState extends State<CalendarsManagerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text("管理日历"),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          // TODO Request ExternalStorage Permission here
           FilePicker.platform
               .pickFiles(
             type: FileType.custom,

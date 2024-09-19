@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
+import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/models/navstyle.dart';
@@ -16,6 +17,7 @@ import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:cczu_helper/views/pages/vpn.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:cczu_helper/views/widgets/seletor.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:system_fonts/system_fonts.dart';
@@ -131,6 +133,51 @@ class SettingsPageState extends State<SettingsPage>
               Visibility(
                 visible:
                     Platform.isWindows || Platform.isLinux || Platform.isMacOS,
+                replacement: SwitchListTile(
+                  secondary: const Icon(FontAwesomeIcons.font),
+                  title: const Text("自定义字体"),
+                  subtitle: const Text("需重新启动"),
+                  value: platUserDataDirectory.value
+                          ?.subFile("customfont")
+                          .existsSync() ??
+                      false, // Unsafe Getter here, lol
+                  onChanged: (value) {
+                    if (value) {
+                      // External Storage in Android
+                      FilePicker.platform
+                          .pickFiles(
+                        type: FileType.custom,
+                        allowedExtensions: [
+                          "otf",
+                          "ttf"
+                        ], // May be more ext should be allowed
+                        withData: true,
+                      )
+                          .then((result) {
+                        var files = result?.files;
+                        if (files != null && files.isNotEmpty) {
+                          final data = files.first.bytes;
+
+                          if (data != null) {
+                            platUserDataDirectory.getValue().then((platdir) {
+                              final file = platdir.subFile("customfont");
+                              file.writeAsBytesSync(data);
+                              setState(() {});
+                            });
+                          }
+                        }
+                      });
+                    } else {
+                      platUserDataDirectory.getValue().then((platdir) {
+                        final file = platdir.subFile("customfont");
+                        if (file.existsSync()) {
+                          file.deleteSync();
+                          setState(() {});
+                        }
+                      });
+                    }
+                  },
+                ),
                 child: ListTile(
                   leading: const Icon(FontAwesomeIcons.font),
                   title: const Text("字体"),

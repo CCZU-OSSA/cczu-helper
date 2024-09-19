@@ -25,6 +25,7 @@ import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:rinf/rinf.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:system_fonts/system_fonts.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
   void catchError([ArcheLogger? logger]) async {
@@ -62,6 +63,7 @@ void main() {
       };
 
       //Calendar
+      tz.initializeTimeZones();
       ICalendar.registerField(
         field: "WEEK",
         function: (value, params, event, lastEvent) {

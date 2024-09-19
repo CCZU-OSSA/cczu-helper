@@ -44,7 +44,7 @@ https://github.com/CCZU-OSSA/cczu-helper/issues
     - messages 由rinf生成
  - messages 存放用于生成沟通Rust与Flutter的proto文件
  - assets 存放应用资源文件
- - native 存放Rust代码(Powered by `CCZU-Client-API`)
+ - native 存放Rust代码(Powered by `CCZUNI`)
 
 ### 如何编译
 

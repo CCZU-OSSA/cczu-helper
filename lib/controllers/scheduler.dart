@@ -1,5 +1,6 @@
+import 'dart:io';
+
 import 'package:arche/arche.dart';
-import 'package:arche/extensions/io.dart';
 import 'package:arche/modules/application.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/models/fields.dart';
@@ -7,6 +8,7 @@ import 'package:cczu_helper/views/pages/calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart';
 import 'package:timezone/data/latest.dart';
 import 'package:timezone/timezone.dart';
 
@@ -93,31 +95,40 @@ class Scheduler {
     var configs = ArcheBus().of<ApplicationConfigs>();
 
     if (configs.notificationsEnable.getOr(false)) {
-      var sourcefile = (await platCalendarDataDirectory.getValue())
-          .subFile("calendar_curriculum.ics");
       var reminder =
           Duration(minutes: configs.notificationsReminder.getOr(15) * -1);
+
+      var platdir = (await platCalendarDataDirectory.getValue());
       var schedulerDay = configs.notificationsDay.getOr(true);
-      if (await sourcefile.exists()) {
-        ICalendarParser(
-          await sourcefile.readAsString(),
-          CalendarSource.curriculum,
-        )
-            .data
-            .where(
-              (element) =>
-                  !element.isAllday &&
-                  element.start
-                      .toDateTime()!
-                      .add(reminder)
-                      .isAfter(now.toLocal()) &&
-                  (schedulerDay
-                      ? now.isSameDay(element.start.toDateTime()!)
-                      : true),
-            )
-            .indexed
-            .forEach((data) => scheduleCalendar(data.$1, data.$2, reminder));
-      }
+
+      platdir
+          .listSync()
+          .where((item) => extension(item.path) == ".ics")
+          .map((item) {
+            final calendar = File(item.path);
+            return ICalendarParser(
+                calendar.readAsStringSync(),
+                basename(item.path) == "calendar_curriculum.ics"
+                    ? CalendarSource.curriculum
+                    : CalendarSource.other);
+          })
+          .fold(<CalendarData>[], (collect, parser) {
+            collect.addAll(parser.data);
+            return collect;
+          })
+          .where(
+            (element) =>
+                !element.isAllday &&
+                element.start
+                    .toDateTime()!
+                    .add(reminder)
+                    .isAfter(now.toLocal()) &&
+                (schedulerDay
+                    ? now.isSameDay(element.start.toDateTime()!)
+                    : true),
+          )
+          .indexed
+          .forEach((data) => scheduleCalendar(data.$1, data.$2, reminder));
     }
   }
 }
