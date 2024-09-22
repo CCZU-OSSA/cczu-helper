@@ -2,12 +2,12 @@ syntax = "proto3";
 package update;
 
 
-// [RINF:DART-SIGNAL]
+// [DART-SIGNAL]
 message GetVersionInput {
 
 }
 
-// [RINF:RUST-SIGNAL]
+// [RUST-SIGNAL]
 message GetVersionOutput {
     bool ok = 1;
     optional VersionInfo data = 2;

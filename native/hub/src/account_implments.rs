@@ -1,3 +1,4 @@
+use crate::messages::{AccountLoginCallback, EduAccountLoginInput, SsoAccountLoginInput};
 use cczuni::{
     base::{app::AppVisitor, client::Account},
     impls::{
@@ -6,10 +7,8 @@ use cczuni::{
     },
 };
 
-use crate::messages::account::{AccountLoginCallback, EduAccountLoginInput, SsoAccountLoginInput};
-
 pub async fn sso_login() {
-    let mut rev = SsoAccountLoginInput::get_dart_signal_receiver().unwrap();
+    let rev = SsoAccountLoginInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
         let account = signal.message.account.unwrap();
         let login =
@@ -33,7 +32,7 @@ pub async fn sso_login() {
 }
 
 pub async fn edu_login() {
-    let mut rev = EduAccountLoginInput::get_dart_signal_receiver().unwrap();
+    let rev = EduAccountLoginInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
         let account = signal.message.account.unwrap();
         let app = DefaultClient::new(Account::new(account.user.clone(), account.password.clone()))

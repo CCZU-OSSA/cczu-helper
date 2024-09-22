@@ -4,7 +4,7 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
-import 'package:cczu_helper/messages/vpn.pb.dart';
+import 'package:cczu_helper/messages/all.dart';
 import 'package:cczu_helper/plugins/enlink_vpn.dart';
 import 'package:flutter/material.dart';
 import 'package:installed_apps/app_info.dart';

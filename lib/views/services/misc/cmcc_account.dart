@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
-import 'package:cczu_helper/messages/cmcc.pb.dart';
+import 'package:cczu_helper/messages/all.dart';
 import 'package:cczu_helper/views/widgets/adaptive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';

@@ -22,6 +22,7 @@ rinf::write_interface!();
 // such as `tokio::fs::File::open`.
 // If you really need to use blocking code,
 // use `tokio::task::spawn_blocking`.
+#[tokio::main(flavor = "current_thread")]
 async fn main() {
     // Repeat `tokio::spawn` anywhere in your code
     // if more concurrent tasks are needed.
@@ -46,4 +47,6 @@ async fn main() {
     }
 
     tokio::spawn(app_implements::get_app_version());
+
+    rinf::dart_shutdown().await;
 }

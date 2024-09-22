@@ -9,13 +9,12 @@ use cczuni::{
 };
 
 use crate::messages::{
-    grades::{GradeData, GradesInput, GradesOutput},
-    icalendar::{ICalendarInput, ICalendarOutput},
-    lab::{LabDurationUserInput, LabDurationUserOutput},
+    GradeData, GradesInput, GradesOutput, ICalendarInput, ICalendarOutput, LabDurationUserInput,
+    LabDurationUserOutput,
 };
 
 pub async fn generate_icalendar() {
-    let mut rev = ICalendarInput::get_dart_signal_receiver().unwrap();
+    let rev = ICalendarInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
         let account = message.account.unwrap();
@@ -63,7 +62,7 @@ pub async fn generate_icalendar() {
     }
 }
 pub async fn get_grades() {
-    let mut rev = GradesInput::get_dart_signal_receiver().unwrap();
+    let rev = GradesInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
         let account = message.account.unwrap();
@@ -109,7 +108,7 @@ pub async fn get_grades() {
 }
 
 pub async fn lab_durations() {
-    let mut rev = LabDurationUserInput::get_dart_signal_receiver().unwrap();
+    let rev = LabDurationUserInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
         let account = message.account.unwrap();

@@ -4,21 +4,21 @@ package icalendar;
 import "account.proto";
 
 
-// [RINF:DART-SIGNAL]
+// [DART-SIGNAL]
 message ICalendarInput {
     string firstweekdate = 1;
     optional int32 reminder = 2;
     account.AccountData account = 3;
 }
 
-// [RINF:RUST-SIGNAL]
+// [RUST-SIGNAL]
 message ICalendarOutput {
     bool ok = 1;
     string data = 2;
 }
 
 
-// [RINF:DART-SIGNAL]
+// [DART-SIGNAL]
 message ICalendarWxInput {
     string firstweekdate = 1;
     optional int32 reminder = 2;
@@ -26,10 +26,10 @@ message ICalendarWxInput {
     optional string term = 4;
 }
 
-// [RINF:DART-SIGNAL]
+// [DART-SIGNAL]
 message WxTermsInput {}
 
-// [RINF:RUST-SIGNAL]
+// [RUST-SIGNAL]
 message WxTermsOutput {
     bool ok = 1;
     repeated string terms = 2;

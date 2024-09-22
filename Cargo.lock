@@ -1357,16 +1357,15 @@ dependencies = [
 
 [[package]]
 name = "rinf"
-version = "6.15.0"
+version = "7.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f3e58a88b1d366e17e6ab9e09d81bc1bf22017333d94fee58a8c1739baa11ce5"
+checksum = "ad46fc2f91aef84e125195d3b9ed9dc5acad998262929d2f7c46690ff4f31e1f"
 dependencies = [
  "allo-isolate",
  "home",
  "js-sys",
  "os-thread-local",
  "protoc-prebuilt",
- "tokio",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "which",

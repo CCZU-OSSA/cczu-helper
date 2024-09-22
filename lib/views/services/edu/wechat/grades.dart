@@ -1,7 +1,7 @@
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
-import 'package:cczu_helper/messages/grades.pb.dart';
+import 'package:cczu_helper/messages/all.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 

@@ -4,7 +4,7 @@ package grades;
 import "account.proto";
 
 
-// [RINF:DART-SIGNAL]
+// [DART-SIGNAL]
 message GradesInput {
     account.AccountData account = 3;
 }
@@ -15,14 +15,14 @@ message GradeData {
     string grade = 3;
 }
 
-// [RINF:RUST-SIGNAL]
+// [RUST-SIGNAL]
 message GradesOutput {
     bool ok = 1;
     repeated GradeData data = 2;
     optional string error = 3;
 }
 
-// [RINF:DART-SIGNAL]
+// [DART-SIGNAL]
 message WeChatGradesInput {
     account.AccountData account = 3;
 }
@@ -39,7 +39,7 @@ message WeChatGradeData {
     string exam_type = 9;
 }
 
-// [RINF:RUST-SIGNAL]
+// [RUST-SIGNAL]
 message WeChatGradesOutput {
     bool ok = 1;
     repeated WeChatGradeData data = 2;

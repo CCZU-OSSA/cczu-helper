@@ -49,6 +49,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  chalkdart:
+    dependency: transitive
+    description:
+      name: chalkdart
+      sha256: "0b7ec5c6a6bafd1445500632c00c573722bd7736e491675d4ac3fe560bbd9cfe"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.1"
   characters:
     dependency: transitive
     description:
@@ -397,14 +405,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  internet_connection_checker:
-    dependency: transitive
-    description:
-      name: internet_connection_checker
-      sha256: "1c683e63e89c9ac66a40748b1b20889fd9804980da732bf2b58d6d5456c8e876"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.0+1"
   intl:
     dependency: "direct main"
     description:
@@ -641,10 +641,10 @@ packages:
     dependency: "direct main"
     description:
       name: rinf
-      sha256: "824599d8c4cfc3c5be1cdbd5c53f849eca93ed332bbb30bff60c3778454a26af"
+      sha256: "5039394b836a05eac6386e9b147688840879ed7680ec7b2c3535308dc5600aee"
       url: "https://pub.dev"
     source: hosted
-    version: "6.15.0"
+    version: "7.0.0"
   share_plus:
     dependency: "direct main"
     description:

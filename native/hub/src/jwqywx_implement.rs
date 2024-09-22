@@ -7,12 +7,12 @@ use cczuni::{
 };
 
 use crate::messages::{
-    grades::{WeChatGradeData, WeChatGradesInput, WeChatGradesOutput},
-    icalendar::{ICalendarOutput, ICalendarWxInput, WxTermsInput, WxTermsOutput},
+    ICalendarOutput, ICalendarWxInput, WeChatGradeData, WeChatGradesInput, WeChatGradesOutput,
+    WxTermsInput, WxTermsOutput,
 };
 
 pub async fn get_grades() {
-    let mut rev = WeChatGradesInput::get_dart_signal_receiver().unwrap();
+    let rev = WeChatGradesInput::get_dart_signal_receiver();
 
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
@@ -67,7 +67,7 @@ pub async fn get_grades() {
 }
 
 pub async fn generate_icalendar() {
-    let mut rev = ICalendarWxInput::get_dart_signal_receiver().unwrap();
+    let rev = ICalendarWxInput::get_dart_signal_receiver();
 
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
@@ -138,7 +138,7 @@ pub async fn generate_icalendar() {
 }
 
 pub async fn get_terms() {
-    let mut rev = WxTermsInput::get_dart_signal_receiver().unwrap();
+    let rev = WxTermsInput::get_dart_signal_receiver();
 
     while let Some(_) = rev.recv().await {
         let client = DefaultClient::default();

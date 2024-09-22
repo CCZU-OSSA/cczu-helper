@@ -5,10 +5,10 @@ use cczuni::{
     },
 };
 
-use crate::messages::vpn::{VpnServiceUserInput, VpnServiceUserOutput};
+use crate::messages::{VpnServiceUserInput, VpnServiceUserOutput};
 
 pub async fn get_vpn_data() {
-    let mut rev = VpnServiceUserInput::get_dart_signal_receiver().unwrap();
+    let rev = VpnServiceUserInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
         let account = message.account.unwrap();

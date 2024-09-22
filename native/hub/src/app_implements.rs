@@ -1,8 +1,8 @@
-use crate::messages::update::{AssetInfo, GetVersionInput, GetVersionOutput, VersionInfo};
+use crate::messages::{AssetInfo, GetVersionInput, GetVersionOutput, VersionInfo};
 use cczuni::internals::fields::DEFAULT_HEADERS;
 use reqwest::Client;
 pub async fn get_app_version() {
-    let mut rev = GetVersionInput::get_dart_signal_receiver().unwrap();
+    let rev = GetVersionInput::get_dart_signal_receiver();
     while let Some(_) = rev.recv().await {
         if let Ok(response) = Client::new()
             .get("https://api.github.com/repos/CCZU-OSSA/cczu-helper/releases/latest")

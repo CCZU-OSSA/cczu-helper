@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:arche/arche.dart';
-import 'package:cczu_helper/messages/update.pb.dart';
-import 'package:cczu_helper/messages/update.pbserver.dart';
+import 'package:cczu_helper/messages/all.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/version.dart';
 import 'package:cczu_helper/views/widgets/adaptive.dart';

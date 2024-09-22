@@ -8,18 +8,18 @@ message AccountData {
     string password = 2;
 }
 
-// [RINF:DART-SIGNAL]
+// [DART-SIGNAL]
 message SSOAccountLoginInput {
     AccountData account = 1;
 }
 
 
-// [RINF:DART-SIGNAL]
+// [DART-SIGNAL]
 message EDUAccountLoginInput {
     AccountData account = 1;
 }
 
-// [RINF:RUST-SIGNAL]
+// [RUST-SIGNAL]
 message AccountLoginCallback {
     bool ok = 1;
     optional string error = 3;
