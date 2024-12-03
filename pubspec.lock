@@ -410,12 +410,11 @@ packages:
   installed_apps:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: ecb42694d9175171c5eee0da1be4bf0a093bd2ff
-      url: "https://github.com/CCZU-OSSA/installed_apps.git"
-    source: git
-    version: "1.5.0"
+      name: installed_apps
+      sha256: "34d001c74632fe4f10aa460a143d73050ea666f8f83d05a2bc84b2a0a91cf897"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.2"
   integration_test:
     dependency: "direct dev"
     description: flutter
