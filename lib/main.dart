@@ -202,6 +202,10 @@ class MainApplicationState extends State<MainApplication>
           Locale.fromSubtags(languageCode: 'zh'), // generic Chinese 'zh'
         ],
         darkTheme: ThemeData(
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+          ),
           brightness: Brightness.dark,
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
@@ -210,6 +214,10 @@ class MainApplicationState extends State<MainApplication>
           typography: Typography.material2021(),
         ),
         theme: ThemeData(
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+          ),
           brightness: Brightness.light,
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
@@ -336,17 +344,15 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
       return const TutorialPage();
     }
     var theme = Theme.of(context);
-    var colorScheme = theme.colorScheme;
     var navStyle = configs.navStyle.getOr(NavigationStyle.both);
     var showTop =
         navStyle == NavigationStyle.top || navStyle == NavigationStyle.both;
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
       appBar: showTop
           ? AppBar(
               title: Text(viewItems[currentIndex].label),
-              surfaceTintColor: Colors.transparent,
-              backgroundColor: colorScheme.surfaceContainer,
-              forceMaterialTransparency: configs.forceTransparent.getOr(true),
             )
           : null,
       drawer: showTop

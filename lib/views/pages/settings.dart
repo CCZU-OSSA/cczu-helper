@@ -19,6 +19,7 @@ import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:cczu_helper/views/widgets/seletor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:system_fonts/system_fonts.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -228,18 +229,6 @@ class SettingsPageState extends State<SettingsPage>
                 ),
               ),
               SwitchListTile(
-                value: configs.forceTransparent.getOr(true),
-                secondary: const Icon(Icons.invert_colors_off),
-                title: const Text("顶栏透明"),
-                subtitle: const Text("Transparent"),
-                onChanged: (value) {
-                  setState(() {
-                    configs.forceTransparent.write(value);
-                  });
-                  viewKey.currentState?.refreshMounted();
-                },
-              ),
-              SwitchListTile(
                 value: configs.weakAnimation.getOr(true),
                 secondary: const Icon(Icons.animation),
                 title: const Text("弱动画"),
@@ -305,28 +294,24 @@ class SettingsPageState extends State<SettingsPage>
               ListTile(
                 leading: const Icon(Icons.home),
                 title: const Text("官方网站"),
-                subtitle: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ShaderMask(
-                      shaderCallback: (bounds) => LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.blue,
-                            Colors.yellow,
-                            Colors.pink.shade200,
-                            Colors.red,
-                          ]).createShader(bounds),
-                      child: const Text(
-                        "源神.常州大学.com",
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                subtitle: const Text(
+                  "源神.常州大学.com",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                )
+                    .animate(
+                      onPlay: (controller) => controller.repeat(reverse: true),
+                    )
+                    .shimmer(
+                        duration: 1200.ms,
+                        colors: [
+                          Colors.blue.shade300,
+                          Colors.yellow,
+                          Colors.pink.shade200,
+                          Colors.red,
+                        ],
+                        curve: Curves.linear),
                 onTap: () => launchUrlString(
                   "https://cczu-ossa.github.io/home",
                   mode: LaunchMode.externalApplication,
