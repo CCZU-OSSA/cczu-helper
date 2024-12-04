@@ -40,10 +40,6 @@ async fn main() {
     {
         tokio::spawn(windows::cmcc_account());
     }
-    #[cfg(target_os = "android")]
-    {
-        tokio::spawn(android::get_vpn_data());
-    }
 
     tokio::spawn(app_implements::get_app_version());
 
