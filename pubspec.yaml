@@ -45,7 +45,7 @@ dependencies:
   protobuf: ^3.1.0
   rinf: ^7.0.0
   share_plus: ^10.0.2
-  file_picker: ^8.1.2 # READ_EXTERNAL_STORAGE
+  file_picker: ^8.1.2
   flutter_markdown: ^0.7.3
   syncfusion_flutter_calendar: ^27.1.48
   icalendar_parser: ^2.0.0
@@ -53,8 +53,6 @@ dependencies:
   timezone: ^0.9.3
   flutter_native_splash: ^2.4.1
   system_fonts: ^1.0.1
-  installed_apps: ^1.5.2
-  permission_handler: ^11.3.1
   image_picker: ^1.1.2
   path: ^1.9.0
   flutter_animate: ^4.5.2

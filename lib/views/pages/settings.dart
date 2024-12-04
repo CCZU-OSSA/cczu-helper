@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:arche/arche.dart';
-import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
+import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/models/navstyle.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
@@ -14,7 +14,6 @@ import 'package:cczu_helper/views/pages/update.dart';
 import 'package:cczu_helper/views/pages/log.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
-import 'package:cczu_helper/views/pages/vpn.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:cczu_helper/views/widgets/seletor.dart';
 import 'package:file_picker/file_picker.dart';
@@ -98,18 +97,8 @@ class SettingsPageState extends State<SettingsPage>
                 subtitle: const Text("VPN Service"),
                 trailing: const Icon(Icons.arrow_right),
                 onTap: () {
-                  ComplexDialog.instance
-                      .withContext(context: context)
-                      .confirm(
-                          title: const Text("警告"),
-                          content: const Text("此功能十分不稳定，推荐稳定后使用，确定后继续"))
-                      .then((value) {
-                    if (value) {
-                      pushMaterialRoute(
-                        builder: (context) => const VPNServicePage(),
-                      );
-                    }
-                  });
+                  showSnackBar(
+                      context: context, content: const Text("敬请期待..."));
                 },
               ),
             ],

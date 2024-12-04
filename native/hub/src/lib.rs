@@ -7,8 +7,7 @@
 use tokio;
 
 mod account_implments;
-#[cfg(target_os = "android")]
-mod android;
+
 mod app_implements;
 mod jwcas_implments;
 mod jwqywx_implement;
