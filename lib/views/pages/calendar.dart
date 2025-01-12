@@ -9,7 +9,7 @@ import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
-import 'package:cczu_helper/views/services/sso/icalendar.dart';
+import 'package:cczu_helper/views/services/common/icalendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
@@ -293,7 +293,7 @@ class CurriculumPageState extends State<CurriculumPage>
           color: (appointment.isAllday
                   ? theme.colorScheme.surfaceContainerHighest
                   : theme.colorScheme.primaryContainer)
-              .withOpacity(configs.calendarCellOpacity.getOr(1)),
+              .withValues(alpha: configs.calendarCellOpacity.getOr(1)),
         ),
         child: appointment.isAllday
             ? Center(

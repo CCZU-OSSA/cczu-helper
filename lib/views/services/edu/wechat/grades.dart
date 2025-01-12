@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
@@ -101,7 +103,7 @@ class WeChatGradeQueryServicePageState
                 children: [
                   ListTile(
                     title: Text(course.courseName),
-                    trailing: Text(course.term.toString()),
+                    trailing: Text(course.teacherName.trim()),
                   ),
                   const Divider(),
                   ListTile(
@@ -209,6 +211,40 @@ class WeChatGradeQueryServicePageState
         return Scaffold(
           appBar: AppBar(
             actions: [
+              IconButton(
+                onPressed: () {
+                  Map<String, double> data = HashMap();
+                  double total = 0;
+                  for (var e in message.data) {
+                    var name = e.courseTypeName.trim();
+                    if (data.containsKey(name)) {
+                      data[name] = data[name]! + e.credits;
+                    } else {
+                      data[name] = e.credits;
+                    }
+                    total += e.credits;
+                  }
+                  data["总计"] = total;
+                  var sorted = data.entries.toList();
+                  sorted.sort((a, b) => a.value.compareTo(b.value));
+
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Scaffold(
+                        appBar: AppBar(
+                          title: Text("已修学分"),
+                        ),
+                        body: ListView(
+                          children: sorted
+                              .map((e) => ListTile(
+                                    title: Text(e.key),
+                                    trailing: Text(e.value.toString()),
+                                  ))
+                              .toList(),
+                        )),
+                  ));
+                },
+                icon: Icon(Icons.pie_chart),
+              ),
               SearchAnchor(
                 builder: (context, controller) => IconButton(
                   onPressed: () {

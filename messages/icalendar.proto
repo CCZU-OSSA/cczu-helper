@@ -27,10 +27,10 @@ message ICalendarWxInput {
 }
 
 // [DART-SIGNAL]
-message WxTermsInput {}
+message WeChatTermsInput {}
 
 // [RUST-SIGNAL]
-message WxTermsOutput {
+message WeChatTermsOutput {
     bool ok = 1;
     repeated string terms = 2;
 }

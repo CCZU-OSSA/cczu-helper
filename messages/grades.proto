@@ -37,11 +37,33 @@ message WeChatGradeData {
     float end_grade = 7;
     string exam_grade = 8;
     string exam_type = 9;
+    string teacher_name = 10;
+    string course_type_name = 11;
 }
 
 // [RUST-SIGNAL]
 message WeChatGradesOutput {
     bool ok = 1;
     repeated WeChatGradeData data = 2;
+    optional string error = 3;
+}
+
+
+// [DART-SIGNAL]
+message WeChatRankInput {
+    account.AccountData account = 3;
+}
+
+message WeChatRankData {
+    string rank = 1;
+    string major_rank = 2;
+    string gpa = 3;
+    string total_credits = 4;
+}
+
+// [RUST-SIGNAL]
+message WeChatRankDataOutput {
+    bool ok = 1;
+    optional WeChatRankData data = 2;
     optional string error = 3;
 }

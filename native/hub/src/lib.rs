@@ -34,6 +34,7 @@ async fn main() {
 
     tokio::spawn(jwqywx_implement::get_grades());
     tokio::spawn(jwqywx_implement::get_terms());
+    tokio::spawn(jwqywx_implement::get_rank());
     tokio::spawn(jwqywx_implement::generate_icalendar());
 
     #[cfg(windows)]

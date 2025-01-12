@@ -8,7 +8,7 @@ use cczuni::{
 
 use crate::messages::{
     ICalendarOutput, ICalendarWxInput, WeChatGradeData, WeChatGradesInput, WeChatGradesOutput,
-    WxTermsInput, WxTermsOutput,
+    WeChatRankData, WeChatRankDataOutput, WeChatRankInput, WeChatTermsInput, WeChatTermsOutput,
 };
 
 pub async fn get_grades() {
@@ -42,6 +42,8 @@ pub async fn get_grades() {
                             end_grade: e.end_exam_grade,
                             exam_grade: e.exam_grade,
                             exam_type: e.exam_type,
+                            teacher_name: e.teacher_name,
+                            course_type_name: e.course_type_name,
                         })
                         .collect(),
                     error: None,
@@ -138,24 +140,89 @@ pub async fn generate_icalendar() {
 }
 
 pub async fn get_terms() {
-    let rev = WxTermsInput::get_dart_signal_receiver();
+    let rev = WeChatTermsInput::get_dart_signal_receiver();
 
     while let Some(_) = rev.recv().await {
         let client = DefaultClient::default();
         let app = client.visit::<JwqywxApplication<_>>().await;
 
         if let Ok(terms) = app.terms().await {
-            WxTermsOutput {
+            WeChatTermsOutput {
                 ok: true,
                 terms: terms.message.into_iter().map(|t| t.term).collect(),
             }
             .send_signal_to_dart()
         } else {
-            WxTermsOutput {
+            WeChatTermsOutput {
                 ok: false,
                 terms: vec![],
             }
             .send_signal_to_dart()
+        }
+    }
+}
+
+pub async fn get_rank() {
+    let rev = WeChatRankInput::get_dart_signal_receiver();
+
+    while let Some(data) = rev.recv().await {
+        let message = data.message;
+        let account = message.account.unwrap();
+
+        let client =
+            DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
+
+        let app = client.visit::<JwqywxApplication<_>>().await;
+
+        let login = app.login().await;
+        if let Err(message) = login {
+            WeChatRankDataOutput {
+                ok: false,
+                data: None,
+                error: Some(message.to_string()),
+            }
+            .send_signal_to_dart();
+            continue;
+        }
+
+        if let Ok(_) = login {
+            if let Ok(data) = app.get_credits_and_rank().await {
+                let got = data.message.first();
+                if let Some(data) = got {
+                    WeChatRankDataOutput {
+                        ok: true,
+                        data: Some(WeChatRankData {
+                            gpa: data.grade_points.clone(),
+                            major_rank: data.major_rank.clone(),
+                            rank: data.rank.clone(),
+                            total_credits: data.total_credits.clone(),
+                        }),
+                        error: None,
+                    }
+                    .send_signal_to_dart();
+                } else {
+                    WeChatRankDataOutput {
+                        ok: false,
+                        data: None,
+                        error: Some("Data is Empty".to_owned()),
+                    }
+                    .send_signal_to_dart();
+                }
+            } else {
+                WeChatRankDataOutput {
+                    ok: false,
+                    data: None,
+                    error: Some("Get Data Failed".to_owned()),
+                }
+                .send_signal_to_dart();
+            }
+        } else {
+            WeChatRankDataOutput {
+                ok: false,
+                data: None,
+                error: Some("Login Failed".to_owned()),
+            }
+            .send_signal_to_dart();
         }
     }
 }

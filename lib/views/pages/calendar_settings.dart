@@ -215,7 +215,6 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 subtitle: const Text("Background Image"),
                 value: configs.calendarBackgroundImage.has(),
                 onChanged: (value) async {
-                  // TODO Request Image Gallery Permission here...
                   if (value) {
                     var picker = ImagePicker();
                     picker
@@ -540,7 +539,6 @@ class _CalendarsManagerPageState extends State<CalendarsManagerPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO Request ExternalStorage Permission here
           FilePicker.platform
               .pickFiles(
             type: FileType.custom,

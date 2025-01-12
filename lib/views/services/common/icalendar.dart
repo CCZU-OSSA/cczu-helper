@@ -338,12 +338,12 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
                       }),
                       itemBuilder: (context) {
                         if (terms == null || terms!.isEmpty) {
-                          WxTermsOutput.rustSignalStream.listen((data) {
+                          WeChatTermsOutput.rustSignalStream.listen((data) {
                             terms = (data.message.terms);
                             termPopMenuKey.currentState?.showButtonMenu();
                           });
 
-                          WxTermsInput().sendSignalToRust();
+                          WeChatTermsInput().sendSignalToRust();
                           terms = [];
                         }
 
