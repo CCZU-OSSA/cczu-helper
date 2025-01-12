@@ -34,6 +34,13 @@ jobs:
           distribution: "zulu"
           java-version: 17
 
+      # Macos Have some prob to install
+      - name: Set up Protoc
+        if: matrix.target == 'macos'
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "28.2"
+
       - name: Install Rust & Prepare Complie
         run: |
           rustup update stable
