@@ -125,13 +125,13 @@ jobs:
           path: build/linux/x64/release/bundle/*
 
       # MacOS
-      - name: Build macOS App without code signing (macOS)
+      - name: Build MacOS (MacOS)
         if: matrix.target == 'macos'
         run: |
           export CSC_IDENTITY_AUTO_DISCOVERY=false
           flutter build macos --release
 
-      - name: Upload macOS Artifact (macOS)
+      - name: Upload macOS Artifact (MacOS)
         if: matrix.target == 'macos'
         uses: actions/upload-artifact@v4
         with:

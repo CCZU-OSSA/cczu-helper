@@ -114,7 +114,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      # linux
+      # Linux
       - name: Build (Linux)
         if: matrix.target == 'linux'
         run: |
@@ -134,3 +134,16 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: build/linux/x64/release/bundle/linux-x64.zip
+
+      # MacOS
+      - name: Build (MacOS)
+        if: matrix.target == 'macos'
+        run: |
+          export CSC_IDENTITY_AUTO_DISCOVERY=false
+          flutter build macos --release
+
+      - name: Release (MacOS)
+        if: matrix.target == 'macos'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
