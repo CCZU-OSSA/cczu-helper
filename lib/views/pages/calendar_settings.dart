@@ -46,11 +46,6 @@ class _CalendarSettingsState extends State<CalendarSettings> {
     return null;
   }
 
-  static String formatDoubleTime(double time) {
-    var stime = time.toStringAsFixed(1).split(".");
-    return "${stime[0].toString().padLeft(2, "0")}:${(double.parse(stime[1]) * 60).toInt().toString().padLeft(2, "0")}";
-  }
-
   @override
   Widget build(BuildContext context) {
     ApplicationConfigs configs = ArcheBus().of();

@@ -43,19 +43,20 @@ dependencies:
     sdk: flutter
   intl: any
   protobuf: ^3.1.0
-  rinf: ^7.0.0
+  rinf: ^7.1.0
   share_plus: ^10.0.2
   file_picker: ^8.1.2
   flutter_markdown: ^0.7.3
-  syncfusion_flutter_calendar: ^27.1.48
+  syncfusion_flutter_calendar: ^28.1.38
   icalendar_parser: ^2.0.0
-  flutter_local_notifications: ^17.2.2
-  timezone: ^0.9.3
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0
   flutter_native_splash: ^2.4.1
   system_fonts: ^1.0.1
   image_picker: ^1.1.2
   path: ^1.9.0
   flutter_animate: ^4.5.2
+  fl_chart: ^0.70.1
 
 dev_dependencies:
   flutter_test:
@@ -66,7 +67,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
   integration_test:
     sdk: flutter
 

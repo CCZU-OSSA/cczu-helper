@@ -18,12 +18,12 @@ jobs:
         include:
           - runner: ubuntu-latest
             target: android
-          - runner: ubuntu-latest
-            target: android-impeller
           - runner: windows-latest
             target: windows
           - runner: ubuntu-latest
             target: linux
+          - runner: macos-latest
+            target: macos
     steps:
       - uses: actions/checkout@v4
       - name: Setup Flutter
@@ -31,12 +31,16 @@ jobs:
         with:
           channel: "stable"
 
-      - name: Set up JDK 17 (Android - ALL)
-        if: matrix.target == 'android' || matrix.target == 'android-impeller'
+      - name: Set up JDK 17 (Android)
+        if: matrix.target == 'android'
         uses: actions/setup-java@v4
         with:
           distribution: "zulu"
           java-version: 17
+
+      - name: Set up Protoc
+        if: matrix.target == 'macos'
+        run: brew install protoc
 
       - name: Install Rust & Prepare Complie
         run: |
@@ -45,8 +49,8 @@ jobs:
           rinf message
           dart fix --apply
 
-      - name: Prepare Build (Android - ALL)
-        if: matrix.target == 'android' || matrix.target == 'android-impeller'
+      - name: Prepare Build (Android)
+        if: matrix.target == 'android'
         run: |
           dart run flutter_native_splash:create
 
@@ -62,15 +66,11 @@ jobs:
           path: build/windows/x64/runner/Release/*
 
       # Android
-      - name: Decode Signing (Android - ALL)
-        if: matrix.target == 'android' || matrix.target == 'android-impeller'
+      - name: Decode Signing (Android)
+        if: matrix.target == 'android'
         run: echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
         env:
           ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
-
-      - name: Enable Impeller (Android Impeller)
-        if: matrix.target == 'android-impeller'
-        run: sed -i 's/<!--Impeller-->/<meta-data android:name="io.flutter.embedding.android.EnableImpeller" android:value="true" \/>/g' android/app/src/main/AndroidManifest.xml
 
       - name: Build armAll apk (Android)
         if: matrix.target == 'android'
@@ -85,21 +85,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: armAll
-          path: build/app/outputs/apk/release/*
-
-      - name: Build armAll apk (Android Impeller)
-        if: matrix.target == 'android-impeller'
-        run: flutter build apk --release
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-
-      - name: Upload ArmALL Artifact (Android Impeller)
-        if: matrix.target == 'android-impeller'
-        uses: actions/upload-artifact@v4
-        with:
-          name: armAll-impeller
           path: build/app/outputs/apk/release/*
 
       - name: Build Split apks (Android)
@@ -117,20 +102,10 @@ jobs:
           name: apks
           path: build/app/outputs/apk/release/*
 
-      - name: Build Split apks (Android Impeller)
-        if: matrix.target == 'android-impeller'
-        run: flutter build apk --split-per-abi --release
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-
-      - name: Upload Artifact (Android Impeller)
-        if: matrix.target == 'android-impeller'
-        uses: actions/upload-artifact@v4
-        with:
-          name: apks-impeller
-          path: build/app/outputs/apk/release/*
 
       # linux
       - name: Build (Linux)
@@ -145,3 +120,17 @@ jobs:
         with:
           name: linux-x64
           path: build/linux/x64/release/bundle/*
+
+      # MacOS
+      - name: Build macOS App without code signing (macOS)
+        if: matrix.target == 'macos'
+        run: |
+          export CSC_IDENTITY_AUTO_DISCOVERY=false
+          flutter build macos --release
+
+      - name: Upload macOS Artifact (macOS)
+        if: matrix.target == 'macos'
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: build/macos/Build/Products/Release/*.app

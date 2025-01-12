@@ -17,6 +17,8 @@ jobs:
             target: windows
           - runner: ubuntu-latest
             target: linux
+          - runner: macos-latest
+            target: macos
     steps:
       # Prepare
       - uses: actions/checkout@v4
@@ -55,3 +57,10 @@ jobs:
         run: |
           sudo apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
           flutter build linux --debug
+
+      # MacOS
+      - name: Build macOS App without code signing (macOS)
+        if: matrix.target == 'macos'
+        run: |
+          export CSC_IDENTITY_AUTO_DISCOVERY=false
+          flutter build macos --debug
