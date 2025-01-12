@@ -130,10 +130,10 @@ jobs:
         run: |
           export CSC_IDENTITY_AUTO_DISCOVERY=false
           flutter build macos --release
-
+          zip -qq -r -9 build/macos/Build/Products/Release/cczu-helper.app build/macos/Build/Products/Release/cczu_helper.app
       - name: Upload macOS Artifact (MacOS)
         if: matrix.target == 'macos'
         uses: actions/upload-artifact@v4
         with:
           name: macos
-          path: build/macos/Build/Products/Release/cczu_helper.app
+          path: build/macos/Build/Products/Release/cczu-helper.app
