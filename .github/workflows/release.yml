@@ -142,8 +142,16 @@ jobs:
           export CSC_IDENTITY_AUTO_DISCOVERY=false
           flutter build macos --release
 
+      - name: Archive (MacOS)
+        if: matrix.target == 'macos'
+        uses: thedoctor0/zip-release@0.7.5
+        with:
+          type: "zip"
+          filename: "macos.zip"
+          directory: "build/macos/Build/Products/Release/cczu_helper.app"
+
       - name: Release (MacOS)
         if: matrix.target == 'macos'
         uses: softprops/action-gh-release@v2
         with:
-          files: |
+          files: build/macos/Build/Products/Release/cczu_helper.app/macos.zip

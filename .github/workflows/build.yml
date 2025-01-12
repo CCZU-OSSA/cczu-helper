@@ -110,7 +110,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      # linux
+      # Linux
       - name: Build (Linux)
         if: matrix.target == 'linux'
         run: |
@@ -136,4 +136,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos
-          path: build/macos/Build/Products/Release/*.app
+          path: build/macos/Build/Products/Release/cczu_helper.app

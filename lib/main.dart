@@ -17,7 +17,7 @@ import 'package:cczu_helper/views/pages/calendar.dart';
 import 'package:cczu_helper/views/pages/services.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
-import 'package:dynamic_color/dynamic_color.dart';
+import 'package:dynamic_system_colors/dynamic_system_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -174,20 +174,6 @@ class MainApplicationState extends State<MainApplication>
     super.dispose();
   }
 
-  ColorScheme _generateColorScheme(ColorScheme? scheme,
-      [Brightness? brightness]) {
-    ColorScheme newScheme;
-    if (scheme case final scheme?) {
-      newScheme = ColorScheme.fromSeed(
-          seedColor: scheme.primary, brightness: scheme.brightness);
-    } else {
-      newScheme = ColorScheme.fromSeed(
-          seedColor: Colors.blue, brightness: brightness ?? Brightness.light);
-    }
-
-    return newScheme.harmonized();
-  }
-
   @override
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
@@ -209,8 +195,7 @@ class MainApplicationState extends State<MainApplication>
           brightness: Brightness.dark,
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
-          colorScheme: _generateColorScheme(
-              darkDynamic ?? _defaultDarkColorScheme, Brightness.dark),
+          colorScheme: darkDynamic ?? _defaultDarkColorScheme,
           typography: Typography.material2021(),
         ),
         theme: ThemeData(
@@ -221,8 +206,7 @@ class MainApplicationState extends State<MainApplication>
           brightness: Brightness.light,
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
-          colorScheme:
-              _generateColorScheme(lightDynamic ?? _defaultLightColorScheme),
+          colorScheme: lightDynamic ?? _defaultLightColorScheme,
           typography: Typography.material2021(),
         ),
         themeMode: configs.themeMode.getOr(ThemeMode.system),
