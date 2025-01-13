@@ -1,5 +1,7 @@
 import 'package:arche/arche.dart';
+import 'package:cczu_helper/animation/rainbow.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
+import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/messages/all.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +23,8 @@ class WeChatRankServicePageState extends State<WeChatRankServicePage> {
 
   @override
   Widget build(BuildContext context) {
+    ApplicationConfigs configs = ArcheBus().of();
+    bool dream = configs.funDream.getOr(false);
     return StreamBuilder(
         stream: WeChatRankDataOutput.rustSignalStream,
         builder: (context, snapshot) {
@@ -44,26 +48,27 @@ class WeChatRankServicePageState extends State<WeChatRankServicePage> {
             );
           }
           var data = message.data;
+
           return Scaffold(
             appBar: AppBar(),
             body: ListView(
               children: [
                 ListTile(
                   title: Text("绩点"),
-                  trailing: Text(data.gpa),
-                ),
+                  trailing: dream ? Text("5.00") : Text(data.gpa),
+                ).rainbowWhen(dream),
                 ListTile(
                   title: Text("总学分"),
                   trailing: Text(data.totalCredits),
                 ),
                 ListTile(
                   title: Text("排名"),
-                  trailing: Text(data.rank),
-                ),
+                  trailing: dream ? Text("1") : Text(data.rank),
+                ).rainbowWhen(dream),
                 ListTile(
                   title: Text("专业排名"),
-                  trailing: Text(data.majorRank),
-                ),
+                  trailing: dream ? Text("1") : Text(data.majorRank),
+                ).rainbowWhen(dream),
               ],
             ),
           );

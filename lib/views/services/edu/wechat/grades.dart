@@ -2,7 +2,9 @@ import 'dart:collection';
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/iter.dart';
+import 'package:cczu_helper/animation/rainbow.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
+import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/messages/all.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +36,8 @@ class WeChatGradeQueryServicePageState
 
   @override
   Widget build(BuildContext context) {
+    ApplicationConfigs configs = ArcheBus().of();
+    bool dream = configs.funDream.getOr(false);
     return StreamBuilder(
       stream: WeChatGradesOutput.rustSignalStream,
       builder: (context, snapshot) {
@@ -114,32 +118,35 @@ class WeChatGradeQueryServicePageState
                     visible: course.usualGrade != 0,
                     child: ListTile(
                       title: const Text("平时成绩"),
-                      trailing: Text(course.usualGrade.toStringAsFixed(1)),
-                    ),
+                      trailing: Text(dream
+                          ? "100.0"
+                          : course.usualGrade.toStringAsFixed(1)),
+                    ).rainbowWhen(dream),
                   ),
                   Visibility(
                     visible: course.midGrade != 0,
                     child: ListTile(
                       title: const Text("期中成绩"),
-                      trailing: Text(course.midGrade.toStringAsFixed(1)),
-                    ),
+                      trailing: Text(
+                          dream ? "100.0" : course.midGrade.toStringAsFixed(1)),
+                    ).rainbowWhen(dream),
                   ),
                   Visibility(
                     visible: course.endGrade != 0,
                     child: ListTile(
                       title: const Text("期末成绩"),
                       trailing: Text(
-                        course.endGrade.toStringAsFixed(1),
+                        dream ? "100.0" : course.endGrade.toStringAsFixed(1),
                       ),
-                    ),
+                    ).rainbowWhen(dream),
                   ),
                   ListTile(
                     title: const Text("总评"),
                     trailing: Text(
-                      course.examGrade,
+                      dream ? "100.0" : course.examGrade,
                       style: TextStyle(color: examColor),
                     ),
-                  ),
+                  ).rainbowWhen(dream),
                 ],
               ),
             ),

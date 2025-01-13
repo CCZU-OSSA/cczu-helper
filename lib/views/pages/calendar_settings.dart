@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:app_settings/app_settings.dart';
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/io.dart';
@@ -334,31 +335,16 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                           if (mounted) {
                             showSnackBar(
                               context: this.context,
-                              content: const Text("尚未生成课表"),
+                              content: const Text("暂无通知权限"),
                             );
                           }
 
                           return;
                         }
-                        var platdir =
-                            await platCalendarDataDirectory.getValue();
-                        platdir
-                            .subFile("calendar_curriculum.ics")
-                            .exists()
-                            .then((value) {
-                          if (value) {
-                            Scheduler.scheduleAll();
-                            setState(() {
-                              configs.notificationsEnable.write(true);
-                            });
-                          } else {
-                            if (mounted) {
-                              showSnackBar(
-                                context: this.context,
-                                content: const Text("尚未生成课表"),
-                              );
-                            }
-                          }
+
+                        Scheduler.scheduleAll();
+                        setState(() {
+                          configs.notificationsEnable.write(true);
                         });
                       });
 
@@ -508,7 +494,15 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                   onTap: () {
                     Scheduler.scheduleTest();
                   },
-                )
+                ),
+                ListTile(
+                  leading: const Icon(Icons.settings),
+                  title: const Text("系统设置"),
+                  subtitle: const Text("如果应用无法正常通知，请检查耗电管理并允许后台行为"),
+                  onTap: () {
+                    AppSettings.openAppSettings();
+                  },
+                ),
               ],
             ),
           ],

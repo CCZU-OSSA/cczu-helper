@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
+import 'package:cczu_helper/animation/rainbow.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/snackbar.dart';
@@ -29,6 +30,7 @@ class SettingsPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => SettingsPageState();
 }
+
 
 class SettingsPageState extends State<SettingsPage>
     with RefreshMountedStateMixin {
@@ -103,6 +105,7 @@ class SettingsPageState extends State<SettingsPage>
               ),
             ],
           ),
+
           SettingGroup(
             name: "外观",
             children: [
@@ -255,6 +258,19 @@ class SettingsPageState extends State<SettingsPage>
               )
             ],
           ),
+          SettingGroup(name: "娱乐", children: [
+            SwitchListTile(
+              value: configs.funDream.getOr(false),
+              secondary: const Icon(Icons.bed),
+              title: const Text("一键幻想"),
+              subtitle: rainbow(const Text("你的所有查询到的成绩都会变成满分"), 900.ms),
+              onChanged: (value) {
+                setState(() {
+                  configs.funDream.write(value);
+                });
+              },
+            ),
+          ]),
           SettingGroup(
             name: "关于",
             children: [
@@ -283,24 +299,12 @@ class SettingsPageState extends State<SettingsPage>
               ListTile(
                 leading: const Icon(Icons.home),
                 title: const Text("官方网站"),
-                subtitle: const Text(
+                subtitle: rainbow(const Text(
                   "源神.常州大学.com",
                   style: TextStyle(
                     color: Colors.white,
                   ),
-                )
-                    .animate(
-                      onPlay: (controller) => controller.repeat(reverse: true),
-                    )
-                    .shimmer(
-                        duration: 1200.ms,
-                        colors: [
-                          Colors.blue.shade300,
-                          Colors.yellow,
-                          Colors.pink.shade200,
-                          Colors.red,
-                        ],
-                        curve: Curves.linear),
+                )),
                 onTap: () => launchUrlString(
                   "https://cczu-ossa.github.io/home",
                   mode: LaunchMode.externalApplication,

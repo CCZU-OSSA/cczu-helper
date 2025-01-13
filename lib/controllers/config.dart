@@ -92,6 +92,7 @@ class ApplicationConfigs extends AppConfigsBase {
   ConfigEntry<bool> get notificationsDay => generator("notifications_day");
   ConfigEntry<bool> get firstUse => generator("first_use");
   ConfigEntry<bool> get weakAnimation => generator("weak_animation");
+  ConfigEntry<bool> get funDream => generator("fun_dream");
 
   ConfigEntry<bool> get calendarIntervalLine =>
       generator("calendar_intervalline");
