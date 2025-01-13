@@ -40,10 +40,11 @@ pub async fn get_grades() {
                             usual_grade: e.usual_grade,
                             mid_grade: e.mid_exam_grade,
                             end_grade: e.end_exam_grade,
-                            exam_grade: e.exam_grade,
+                            grade: e.grade,
                             exam_type: e.exam_type,
                             teacher_name: e.teacher_name,
                             course_type_name: e.course_type_name,
+                            grade_points: e.grade_points,
                         })
                         .collect(),
                     error: None,

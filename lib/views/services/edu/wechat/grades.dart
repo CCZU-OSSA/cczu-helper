@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:arche/arche.dart';
+import 'package:arche/extensions/dialogs.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/animation/rainbow.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
@@ -69,9 +70,8 @@ class WeChatGradeQueryServicePageState
         }
 
         List<Widget> items = message.data.map((course) {
-          var examGrade = double.tryParse(course.examGrade) ?? 100;
-          var resit = examGrade < 60;
-          var rebuild = examGrade < 45;
+          var resit = course.grade < 60;
+          var rebuild = course.grade < 45;
           bool visible = showTerm[course.term - 1];
           curTerm = curTerm < course.term ? course.term : curTerm;
           Color? examColor;
@@ -103,51 +103,80 @@ class WeChatGradeQueryServicePageState
           return Visibility(
             visible: visible,
             child: Card(
-              child: Column(
-                children: [
-                  ListTile(
-                    title: Text(course.courseName),
-                    trailing: Text(course.teacherName.trim()),
-                  ),
-                  const Divider(),
-                  ListTile(
-                    title: const Text("考试类型"),
-                    trailing: Text(course.examType),
-                  ),
-                  Visibility(
-                    visible: course.usualGrade != 0,
-                    child: ListTile(
-                      title: const Text("平时成绩"),
-                      trailing: Text(dream
-                          ? "100.0"
-                          : course.usualGrade.toStringAsFixed(1)),
-                    ).rainbowWhen(dream),
-                  ),
-                  Visibility(
-                    visible: course.midGrade != 0,
-                    child: ListTile(
-                      title: const Text("期中成绩"),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () {
+                  ComplexDialog.instance.withContext(context: context).text(
+                      title: Text("信息"),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            title: Text("学期"),
+                            trailing: Text(course.term.toString()),
+                          ),
+                          ListTile(
+                            title: Text("学分"),
+                            trailing: Text(course.credits.toString()),
+                          ),
+                          ListTile(
+                            title: Text("绩点"),
+                            trailing: Text(course.gradePoints.toString()),
+                          ),
+                          ListTile(
+                            title: Text("课程类型"),
+                            trailing: Text(course.courseTypeName),
+                          ),
+                        ],
+                      ));
+                },
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Text(course.courseName),
+                      trailing: Text(course.teacherName.trim()),
+                    ),
+                    const Divider(),
+                    ListTile(
+                      title: const Text("考试类型"),
+                      trailing: Text(course.examType),
+                    ),
+                    Visibility(
+                      visible: course.usualGrade != 0,
+                      child: ListTile(
+                        title: const Text("平时成绩"),
+                        trailing: Text(dream
+                            ? "100.0"
+                            : course.usualGrade.toStringAsFixed(1)),
+                      ).rainbowWhen(dream),
+                    ),
+                    Visibility(
+                      visible: course.midGrade != 0,
+                      child: ListTile(
+                        title: const Text("期中成绩"),
+                        trailing: Text(dream
+                            ? "100.0"
+                            : course.midGrade.toStringAsFixed(1)),
+                      ).rainbowWhen(dream),
+                    ),
+                    Visibility(
+                      visible: course.endGrade != 0,
+                      child: ListTile(
+                        title: const Text("期末成绩"),
+                        trailing: Text(
+                          dream ? "100.0" : course.endGrade.toStringAsFixed(1),
+                        ),
+                      ).rainbowWhen(dream),
+                    ),
+                    ListTile(
+                      title: const Text("总评"),
                       trailing: Text(
-                          dream ? "100.0" : course.midGrade.toStringAsFixed(1)),
-                    ).rainbowWhen(dream),
-                  ),
-                  Visibility(
-                    visible: course.endGrade != 0,
-                    child: ListTile(
-                      title: const Text("期末成绩"),
-                      trailing: Text(
-                        dream ? "100.0" : course.endGrade.toStringAsFixed(1),
+                        dream ? "100.0" : course.grade.toString(),
+                        style: TextStyle(color: examColor),
                       ),
                     ).rainbowWhen(dream),
-                  ),
-                  ListTile(
-                    title: const Text("总评"),
-                    trailing: Text(
-                      dream ? "100.0" : course.examGrade,
-                      style: TextStyle(color: examColor),
-                    ),
-                  ).rainbowWhen(dream),
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -223,6 +252,10 @@ class WeChatGradeQueryServicePageState
                   Map<String, double> data = HashMap();
                   double total = 0;
                   for (var e in message.data) {
+                    if (e.grade < 60) {
+                      continue;
+                    }
+
                     var name = e.courseTypeName.trim();
                     if (data.containsKey(name)) {
                       data[name] = data[name]! + e.credits;
@@ -241,12 +274,16 @@ class WeChatGradeQueryServicePageState
                           title: Text("已修学分"),
                         ),
                         body: ListView(
-                          children: sorted
-                              .map((e) => ListTile(
-                                    title: Text(e.key),
-                                    trailing: Text(e.value.toString()),
-                                  ))
-                              .toList(),
+                          children: [
+                            ListTile(
+                              leading: Icon(Icons.info),
+                              title: Text("仅供参考，已扣除不及格科目"),
+                            ),
+                            ...sorted.map((e) => ListTile(
+                                  title: Text(e.key),
+                                  trailing: Text(e.value.toString()),
+                                ))
+                          ],
                         )),
                   ));
                 },
@@ -269,7 +306,7 @@ class WeChatGradeQueryServicePageState
                         (e) => ListTile(
                           title: Text(e.courseName),
                           subtitle: Text(e.credits.toStringAsFixed(1)),
-                          trailing: Text(e.examGrade),
+                          trailing: Text(e.grade.toString()),
                         ),
                       );
                 },
