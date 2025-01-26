@@ -18,7 +18,7 @@ tokio = { version = "1", features = ["rt-multi-thread", "sync", "macros"] }
 cczuni = { git = "https://github.com/CCZU-OSSA/cczuni.git", default-features = false, features = [
     "calendar",
     "internals",
-    "vendored",
+    "rustls-tls",
 ] }
 serde = "*"
 serde_json = "*"
