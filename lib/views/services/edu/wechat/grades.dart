@@ -121,7 +121,8 @@ class WeChatGradeQueryServicePageState
                           ),
                           ListTile(
                             title: Text("绩点"),
-                            trailing: Text(course.gradePoints.toString()),
+                            trailing:
+                                Text(course.gradePoints.toStringAsFixed(2)),
                           ),
                           ListTile(
                             title: Text("课程类型"),
