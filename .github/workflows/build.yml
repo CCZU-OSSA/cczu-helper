@@ -22,8 +22,8 @@ jobs:
             target: windows
           - runner: ubuntu-latest
             target: linux
-          - runner: macos-latest
-            target: macos
+          #- runner: macos-latest
+          #  target: macos
     steps:
       - uses: actions/checkout@v4
       - name: Setup Flutter
