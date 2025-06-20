@@ -57,8 +57,6 @@ class Scheduler {
       "${data.location} ($time)",
       TZDateTime.from(start.add(add), getLocation("Asia/Shanghai")),
       notificationDetails,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
@@ -75,8 +73,6 @@ class Scheduler {
       TZDateTime.from(DateTime.now().add(const Duration(seconds: 1)),
           getLocation("Asia/Shanghai")),
       notificationDetails,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
