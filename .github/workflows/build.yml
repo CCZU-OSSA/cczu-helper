@@ -48,7 +48,7 @@ jobs:
       - name: Install Rust & Prepare Complie
         run: |
           rustup update stable
-          cargo install rinf
+          cargo install rinf@7.1.0
           rinf message
           dart fix --apply
 
