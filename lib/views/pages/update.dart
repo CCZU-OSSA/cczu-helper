@@ -119,7 +119,7 @@ class CheckUpdatePageState extends State<CheckUpdatePage> {
                                           message: "镜像下载",
                                           child: IconButton(
                                             onPressed: () => launchUrlString(
-                                              "https://ghfast.top/${e.browserDownloadUrl}",
+                                              "https://ghproxy.net/${e.browserDownloadUrl}",
                                               mode: LaunchMode
                                                   .externalApplication,
                                             ),
