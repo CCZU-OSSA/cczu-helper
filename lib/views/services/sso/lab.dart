@@ -4,7 +4,8 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/snackbar.dart';
-import 'package:cczu_helper/messages/all.dart';
+import 'package:cczu_helper/src/bindings/bindings.dart';
+
 import 'package:cczu_helper/views/widgets/adaptive.dart';
 import 'package:flutter/material.dart';
 import 'package:rinf/rinf.dart';
@@ -19,7 +20,7 @@ class LabServicePage extends StatefulWidget {
 class LabServicePageState extends State<LabServicePage> {
   int count = 960;
   bool working = false;
-  late StreamSubscription<RustSignal<LabDurationUserOutput>> _output;
+  late StreamSubscription<RustSignalPack<LabDurationUserOutput>> _output;
 
   @override
   void initState() {
@@ -29,8 +30,8 @@ class LabServicePageState extends State<LabServicePage> {
         if (data.message.ok) {
           showSnackBar(context: context, content: const Text("完成"));
         } else {
-          ComplexDialog.instance
-              .text(context: context, content: Text(data.message.err));
+          ComplexDialog.instance.text(
+              context: context, content: Text(data.message.error.toString()));
         }
 
         setState(() {

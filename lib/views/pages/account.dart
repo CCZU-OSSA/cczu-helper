@@ -1,7 +1,8 @@
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
-import 'package:cczu_helper/messages/all.dart';
+import 'package:cczu_helper/src/bindings/bindings.dart';
+
 import 'package:flutter/material.dart';
 
 class AccountManagePage extends StatefulWidget {

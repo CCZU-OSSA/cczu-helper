@@ -50,10 +50,10 @@ class _LogPageState extends State<LogPage> with TickerProviderStateMixin {
               var file = await writeStringToPlatDirectory(
                   logger.getLogs().join("\n"),
                   filename: "application.log");
-              await Share.shareXFiles([
+              await SharePlus.instance.share(ShareParams(files: [
                 XFile(file.path,
                     name: "application.log", mimeType: "text/plain")
-              ]);
+              ]));
             },
             icon: const Icon(Icons.share),
           ),

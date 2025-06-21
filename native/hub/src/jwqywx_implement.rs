@@ -5,8 +5,9 @@ use cczuni::{
     },
     impls::{apps::wechat::jwqywx::JwqywxApplication, client::DefaultClient},
 };
+use rinf::{DartSignal, RustSignal};
 
-use crate::messages::{
+use crate::signals::{
     ICalendarOutput, ICalendarWxInput, WeChatGradeData, WeChatGradesInput, WeChatGradesOutput,
     WeChatRankData, WeChatRankDataOutput, WeChatRankInput, WeChatTermsInput, WeChatTermsOutput,
 };
@@ -16,7 +17,7 @@ pub async fn get_grades() {
 
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
-        let account = message.account.unwrap();
+        let account = message.account;
 
         let client =
             DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
@@ -74,7 +75,7 @@ pub async fn generate_icalendar() {
 
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
-        let account = message.account.unwrap();
+        let account = message.account;
 
         let client =
             DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
@@ -168,7 +169,7 @@ pub async fn get_rank() {
 
     while let Some(data) = rev.recv().await {
         let message = data.message;
-        let account = message.account.unwrap();
+        let account = message.account;
 
         let client =
             DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));

@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:arche/arche.dart';
-import 'package:cczu_helper/messages/all.dart';
+import 'package:cczu_helper/src/bindings/bindings.dart';
+
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/version.dart';
 import 'package:cczu_helper/views/widgets/adaptive.dart';
@@ -19,7 +20,8 @@ class CheckUpdatePage extends StatefulWidget {
 }
 
 class CheckUpdatePageState extends State<CheckUpdatePage> {
-  late StreamSubscription<RustSignal<GetVersionOutput>> _streamVersionOutput;
+  late StreamSubscription<RustSignalPack<GetVersionOutput>>
+      _streamVersionOutput;
   VersionInfo? data;
 
   @override

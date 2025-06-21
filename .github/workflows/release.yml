@@ -45,8 +45,8 @@ jobs:
       - name: Install Rust & Prepare Complie
         run: |
           rustup update stable
-          cargo install rinf
-          rinf message
+          cargo install rinf_cli
+          rinf gen
           dart fix --apply
 
       - name: Prepare Build (Android)

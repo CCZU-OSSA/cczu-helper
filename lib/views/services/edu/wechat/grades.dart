@@ -6,7 +6,8 @@ import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/animation/rainbow.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/config.dart';
-import 'package:cczu_helper/messages/all.dart';
+import 'package:cczu_helper/src/bindings/bindings.dart';
+
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:flutter/material.dart';
 
@@ -57,7 +58,7 @@ class WeChatGradeQueryServicePageState
           return Scaffold(
             appBar: AppBar(),
             body: Center(
-              child: Text(message.error),
+              child: Text(message.error.toString()),
             ),
           );
         }

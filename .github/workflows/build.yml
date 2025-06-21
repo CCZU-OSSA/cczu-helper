@@ -48,8 +48,8 @@ jobs:
       - name: Install Rust & Prepare Complie
         run: |
           rustup update stable
-          cargo install rinf@7.1.0
-          rinf message
+          cargo install rinf_cli
+          rinf gen
           dart fix --apply
 
       - name: Prepare Build (Android)

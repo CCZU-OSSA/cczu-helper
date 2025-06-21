@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
-import 'package:cczu_helper/messages/all.dart';
+import 'package:cczu_helper/src/bindings/bindings.dart';
 
 extension MapSerializer on AccountData {
   Map toMap() {

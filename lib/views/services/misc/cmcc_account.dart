@@ -3,7 +3,8 @@ import 'dart:io';
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
-import 'package:cczu_helper/messages/all.dart';
+import 'package:cczu_helper/src/bindings/bindings.dart';
+
 import 'package:cczu_helper/views/widgets/adaptive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class CMCCAccountServiceState extends State<CMCCAccoutService> {
   late TextEditingController _pwdTextController;
   late TextEditingController _nameTextController;
 
-  late StreamSubscription<RustSignal<CMCCAccountGenerateOutput>>
+  late StreamSubscription<RustSignalPack<CMCCAccountGenerateOutput>>
       _streamAccountGenerateOutput;
   bool _existError = false;
   bool _generatebat = true;

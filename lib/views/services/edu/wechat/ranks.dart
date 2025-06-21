@@ -2,7 +2,8 @@ import 'package:arche/arche.dart';
 import 'package:cczu_helper/animation/rainbow.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/config.dart';
-import 'package:cczu_helper/messages/all.dart';
+import 'package:cczu_helper/src/bindings/bindings.dart';
+
 import 'package:flutter/material.dart';
 
 class WeChatRankServicePage extends StatefulWidget {
@@ -38,16 +39,16 @@ class WeChatRankServicePageState extends State<WeChatRankServicePage> {
             );
           }
           var message = signal.message;
+          var data = message.data;
 
-          if (!message.ok) {
+          if (data == null || !message.ok) {
             return Scaffold(
               appBar: AppBar(),
               body: Center(
-                child: Text(message.error),
+                child: Text(message.error.toString()),
               ),
             );
           }
-          var data = message.data;
 
           return Scaffold(
             appBar: AppBar(),

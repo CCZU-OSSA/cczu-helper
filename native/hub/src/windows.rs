@@ -1,4 +1,5 @@
-use crate::messages::{CmccAccountGenerateInput, CmccAccountGenerateOutput};
+use crate::signals::{CMCCAccountGenerateInput, CMCCAccountGenerateOutput};
+use rinf::{DartSignal, RustSignal};
 
 fn win_guid() -> String {
     use guid_create::GUID;
@@ -19,9 +20,9 @@ fn generate_account(phone: &str) -> String {
 }
 
 pub async fn cmcc_account() {
-    let rev = CmccAccountGenerateInput::get_dart_signal_receiver();
+    let rev = CMCCAccountGenerateInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
-        CmccAccountGenerateOutput {
+        CMCCAccountGenerateOutput {
             account: generate_account(&signal.message.phone),
         }
         .send_signal_to_dart()

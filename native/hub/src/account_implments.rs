@@ -1,4 +1,4 @@
-use crate::messages::{AccountLoginCallback, EduAccountLoginInput, SsoAccountLoginInput};
+use crate::signals::{AccountLoginCallback, EDUAccountLoginInput, SSOAccountLoginInput};
 use cczuni::{
     base::{app::AppVisitor, client::Account},
     impls::{
@@ -6,11 +6,12 @@ use cczuni::{
         login::sso::SSOUniversalLogin,
     },
 };
+use rinf::{DartSignal, RustSignal};
 
 pub async fn sso_login() {
-    let rev = SsoAccountLoginInput::get_dart_signal_receiver();
+    let rev = SSOAccountLoginInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
-        let account = signal.message.account.unwrap();
+        let account = signal.message.account;
         let login =
             DefaultClient::new(Account::new(account.user.clone(), account.password.clone()))
                 .sso_universal_login()
@@ -32,9 +33,9 @@ pub async fn sso_login() {
 }
 
 pub async fn edu_login() {
-    let rev = EduAccountLoginInput::get_dart_signal_receiver();
+    let rev = EDUAccountLoginInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
-        let account = signal.message.account.unwrap();
+        let account = signal.message.account;
         let app = DefaultClient::new(Account::new(account.user.clone(), account.password.clone()))
             .visit::<JwqywxApplication<_>>()
             .await;

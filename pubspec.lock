@@ -57,14 +57,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
-  chalkdart:
-    dependency: transitive
-    description:
-      name: chalkdart
-      sha256: "82dfa884e3cf97641eb0742a3b9ffd41490666b9ece548b2e32cbfefe540bf86"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.0"
   characters:
     dependency: transitive
     description:
@@ -508,14 +500,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  package_config:
-    dependency: transitive
-    description:
-      name: package_config
-      sha256: f096c55ebb7deb7e384101542bfba8c52696c1b56fca2eb62827989ef2353bbc
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.0"
   path:
     dependency: "direct main"
     description:
@@ -624,10 +608,10 @@ packages:
     dependency: "direct main"
     description:
       name: rinf
-      sha256: "099eb9ed3f2995bbcafba0cf85d2fc5ccd7505d4ed1f41d346ef3630c321cce5"
+      sha256: da36f773a8e03a2465ce999622d5af74aa74b433a5d5b319ec874de207e3abe2
       url: "https://pub.dev"
     source: hosted
-    version: "7.3.1"
+    version: "8.6.0"
   share_plus:
     dependency: "direct main"
     description:
@@ -761,6 +745,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.10.0"
+  tuple:
+    dependency: "direct main"
+    description:
+      name: tuple
+      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   typed_data:
     dependency: transitive
     description:
@@ -865,14 +857,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "15.0.0"
-  watcher:
-    dependency: transitive
-    description:
-      name: watcher
-      sha256: "0b7fd4a0bbc4b92641dbf20adfd7e3fd1398fe17102d94b674234563e110088a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.2"
   web:
     dependency: transitive
     description:

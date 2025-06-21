@@ -1,5 +1,6 @@
-use crate::messages::{AssetInfo, GetVersionInput, GetVersionOutput, VersionInfo};
+use crate::signals::{AssetInfo, GetVersionInput, GetVersionOutput, VersionInfo};
 use cczuni::internals::fields::DEFAULT_HEADERS;
+use rinf::{DartSignal, RustSignal};
 use reqwest::Client;
 pub async fn get_app_version() {
     let rev = GetVersionInput::get_dart_signal_receiver();

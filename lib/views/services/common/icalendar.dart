@@ -8,7 +8,8 @@ import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
-import 'package:cczu_helper/messages/all.dart';
+import 'package:cczu_helper/src/bindings/bindings.dart';
+
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/widgets/adaptive.dart';
 import 'package:cczu_helper/views/widgets/markdown.dart';
@@ -32,7 +33,8 @@ class ICalendarServicePage extends StatefulWidget {
 class ICalendarServicePageState extends State<ICalendarServicePage> {
   final GlobalKey<ProgressiveViewState> _progressiveKey = GlobalKey();
   ICalendarAPIType? api;
-  late StreamSubscription<RustSignal<ICalendarOutput>> _streamICalendarOutput;
+  late StreamSubscription<RustSignalPack<ICalendarOutput>>
+      _streamICalendarOutput;
   late DateTime firstweekdate;
   int? reminder;
   bool _underGenerating = false;
@@ -79,11 +81,11 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
                       const Divider(),
                       FilledButton.icon(
                         onPressed: () {
-                          Share.shareXFiles([
+                          SharePlus.instance.share(ShareParams(files: [
                             XFile.fromData(utf8.encode(data),
                                 mimeType: "text/calendar",
                                 name: "Curriculum.ics")
-                          ]);
+                          ]));
                         },
                         icon: const Icon(Icons.share),
                         label: const SizedBox(

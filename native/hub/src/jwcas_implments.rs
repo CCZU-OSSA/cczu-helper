@@ -7,8 +7,9 @@ use cczuni::{
         login::sso::SSOUniversalLogin,
     },
 };
+use rinf::{DartSignal, RustSignal};
 
-use crate::messages::{
+use crate::signals::{
     GradeData, GradesInput, GradesOutput, ICalendarInput, ICalendarOutput, LabDurationUserInput,
     LabDurationUserOutput,
 };
@@ -17,7 +18,7 @@ pub async fn generate_icalendar() {
     let rev = ICalendarInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
-        let account = message.account.unwrap();
+        let account = message.account;
         let client =
             DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
         let login = client.sso_universal_login().await;
@@ -65,7 +66,7 @@ pub async fn get_grades() {
     let rev = GradesInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
-        let account = message.account.unwrap();
+        let account = message.account;
         let client =
             DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
         let login = client.sso_universal_login().await;
@@ -111,14 +112,14 @@ pub async fn lab_durations() {
     let rev = LabDurationUserInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
         let message = signal.message;
-        let account = message.account.unwrap();
+        let account = message.account;
 
         let client = DefaultClient::account(account.user, account.password);
         let app = client.visit::<LabApplication<_>>().await;
         if let Err(message) = app.exam_login().await {
             LabDurationUserOutput {
                 ok: false,
-                err: Some(message.to_string()),
+                error: Some(message.to_string()),
             }
             .send_signal_to_dart();
             continue;
@@ -129,7 +130,7 @@ pub async fn lab_durations() {
             if let Err(message) = app.exam_increase_thirty_secs().await {
                 LabDurationUserOutput {
                     ok: false,
-                    err: Some(message.to_string()),
+                    error: Some(message.to_string()),
                 }
                 .send_signal_to_dart();
                 flag = false;
@@ -140,7 +141,7 @@ pub async fn lab_durations() {
         if flag {
             LabDurationUserOutput {
                 ok: true,
-                err: None,
+                error: None,
             }
             .send_signal_to_dart();
         }

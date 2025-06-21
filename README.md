@@ -58,7 +58,7 @@ https://github.com/CCZU-OSSA/cczu-helper/issues
 ```sh
 git clone https://github.com/CCZU-OSSA/cczu-helper.git
 cd cczu-helper
-cargo install rinf
-rinf message
+cargo install rinf_cli
+rinf gen
 flutter build <target-platform> --release
 ```

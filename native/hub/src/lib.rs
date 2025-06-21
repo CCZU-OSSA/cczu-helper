@@ -11,7 +11,8 @@ mod account_implments;
 mod app_implements;
 mod jwcas_implments;
 mod jwqywx_implement;
-mod messages;
+mod signals;
+
 #[cfg(windows)]
 mod windows;
 
