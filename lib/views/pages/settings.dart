@@ -306,12 +306,12 @@ class SettingsPageState extends State<SettingsPage>
                   builder: (context) => AboutDialog(
                     applicationVersion: appVersion.format(),
                     applicationName: "吊大助手",
-                    applicationLegalese: "copyright © 2023-2024 常州大学开源软件协会",
+                    applicationLegalese: "copyright © 2023-2025 常州大学开源软件协会",
                     children: const [
                       Padding(
                         padding: EdgeInsets.all(8),
                         child: Text(
-                            "除第三方代码与资源（包括但不限于图片字体）保留原有协议外\n应用本身所有代码以及资源均使用GPLv3开源，请参照协议使用"),
+                            "除第三方代码与资源（包括但不限于图片字体）保留原有协议外\n应用本身所有代码以及资源均使用AGPLv3开源，请参照协议使用"),
                       )
                     ],
                   ),
