@@ -85,11 +85,7 @@ class ApplicationConfigs extends AppConfigsBase {
   ConfigEntry<bool> get autosavelog => generator("autosavelog");
   ConfigEntry<bool> get skipServiceExitConfirm =>
       generator("skipserviceexitconfirm");
-  ConfigEntry<bool> get notificationsEnable =>
-      generator("notifications_enable");
-  ConfigEntry<int> get notificationsReminder =>
-      generator("notifications_reminder");
-  ConfigEntry<bool> get notificationsDay => generator("notifications_day");
+
   ConfigEntry<bool> get firstUse => generator("first_use");
   ConfigEntry<bool> get weakAnimation => generator("weak_animation");
   ConfigEntry<bool> get funDream => generator("fun_dream");
@@ -115,30 +111,24 @@ class ApplicationConfigs extends AppConfigsBase {
       generator("calendar_time_interval_minutes");
   ConfigEntry<bool> get calendarShowAlldayAppionments =>
       generator("calendar_show_allday_appionments");
-  ConfigEntryConverter<double, TimeOfDay> get calendarTimeStart =>
+  ConfigEntryConverter<int, TimeOfDay> get calendarTimeStart =>
       ConfigEntryConverter(
-        generator("calendar_time_start"),
+        generator("calendar_time_start_v2"),
         forward: (value) {
-          final integer = value.toInt();
-          final float = value - integer;
-
-          return TimeOfDay(hour: integer, minute: (float * 60).toInt());
+          return TimeOfDay(hour: value ~/ 100, minute: value % 100);
         },
         reverse: (value) {
-          return value.hour + value.minute / 60;
+          return value.hour * 100 + value.minute;
         },
       );
-  ConfigEntryConverter<double, TimeOfDay> get calendarTimeEnd =>
+  ConfigEntryConverter<int, TimeOfDay> get calendarTimeEnd =>
       ConfigEntryConverter(
-        generator("calendar_time_end"),
+        generator("calendar_time_end_v2"),
         forward: (value) {
-          final integer = value.toInt();
-          final float = value - integer;
-
-          return TimeOfDay(hour: integer, minute: (float * 60).toInt());
+          return TimeOfDay(hour: value ~/ 100, minute: value % 100);
         },
         reverse: (value) {
-          return value.hour + value.minute / 60;
+          return value.hour * 100 + value.minute;
         },
       );
 }

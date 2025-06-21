@@ -5,7 +5,6 @@ import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/animation/rainbow.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
-import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/models/navstyle.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
@@ -30,7 +29,6 @@ class SettingsPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => SettingsPageState();
 }
-
 
 class SettingsPageState extends State<SettingsPage>
     with RefreshMountedStateMixin {
@@ -87,25 +85,6 @@ class SettingsPageState extends State<SettingsPage>
               ),
             ],
           ),
-          // Only avilable in `Android`
-
-          SettingGroup(
-            name: "网络 (试验)",
-            visible: Platform.isAndroid,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.network_wifi),
-                title: const Text("校园VPN服务"),
-                subtitle: const Text("VPN Service"),
-                trailing: const Icon(Icons.arrow_right),
-                onTap: () {
-                  showSnackBar(
-                      context: context, content: const Text("敬请期待..."));
-                },
-              ),
-            ],
-          ),
-
           SettingGroup(
             name: "外观",
             children: [

@@ -9,9 +9,7 @@ import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/platform.dart';
-import 'package:cczu_helper/controllers/scheduler.dart';
 import 'package:cczu_helper/src/bindings/bindings.dart';
-
 import 'package:cczu_helper/models/navstyle.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/calendar.dart';
@@ -99,10 +97,6 @@ void main() {
         }
       }
 
-      if (Platform.isAndroid) {
-        await Scheduler.init();
-      }
-
       logger.info("Run Application in `main`...");
       logger.info("Try to load `MultiAccountData`");
 
@@ -116,17 +110,6 @@ void main() {
       runApp(
         MainApplication(key: rootKey),
       );
-
-      if (Platform.isAndroid) {
-        SystemChrome.setSystemUIOverlayStyle(
-          const SystemUiOverlayStyle(
-            systemNavigationBarColor: Colors.transparent,
-            statusBarColor: Colors.transparent,
-            systemNavigationBarContrastEnforced: false,
-          ),
-        );
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      }
     },
     (error, stack) async {
       var logger = ArcheBus.bus.provideof(instance: ArcheLogger());
@@ -261,11 +244,6 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
   void initState() {
     super.initState();
     configs = ArcheBus().of();
-    if (configs.notificationsEnable.getOr(false) &&
-        configs.notificationsDay.getOr(true)) {
-      ArcheBus.logger.info("try to `reScheduleAll` Notifications");
-      Scheduler.reScheduleAll();
-    }
 
     platDirectory.then((subdir) {
       var subfile = subdir.subFile("error.log");
@@ -320,6 +298,16 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isAndroid) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.transparent,
+          statusBarColor: Colors.transparent,
+          systemNavigationBarContrastEnforced: false,
+        ),
+      );
+    }
     var themeMode = configs.themeMode.getOr(ThemeMode.system);
     bool isDark = themeMode == ThemeMode.system
         ? MediaQuery.of(context).platformBrightness == Brightness.dark
