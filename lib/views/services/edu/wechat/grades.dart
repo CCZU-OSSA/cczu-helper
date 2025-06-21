@@ -54,7 +54,7 @@ class WeChatGradeQueryServicePageState
         }
         var message = signal.message;
 
-        if (!message.ok) {
+        if (!message.ok || message.data.isEmpty) {
           return Scaffold(
             appBar: AppBar(),
             body: Center(
