@@ -25,11 +25,12 @@ class Seletor<T> extends StatefulWidget {
 
 class EnumSeletorState<T> extends State<Seletor<T>> {
   late T value;
+  late GlobalKey<PopupMenuButtonState> buttonKey;
 
   @override
   void initState() {
     super.initState();
-
+    this.buttonKey = GlobalKey();
     this.value = widget.value;
   }
 
@@ -38,9 +39,8 @@ class EnumSeletorState<T> extends State<Seletor<T>> {
     var translator = widget.translator;
     var labelBuilder = widget.labelBuilder;
     var tileBuilder = widget.tileBuilder;
-    GlobalKey<PopupMenuButtonState> key = GlobalKey();
     return PopupMenuButton<T>(
-      key: key,
+      key: buttonKey,
       initialValue: value,
       position: PopupMenuPosition.under,
       onSelected: (value) {
@@ -68,7 +68,7 @@ class EnumSeletorState<T> extends State<Seletor<T>> {
           .toList(),
       child: ActionChip(
         onPressed: () {
-          key.currentState?.showButtonMenu();
+          buttonKey.currentState?.showButtonMenu();
         },
         label: Row(
           mainAxisSize: MainAxisSize.min,

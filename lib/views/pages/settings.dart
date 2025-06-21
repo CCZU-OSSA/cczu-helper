@@ -93,6 +93,7 @@ class SettingsPageState extends State<SettingsPage>
                 title: const Text("主题"),
                 subtitle: const Text("Theme"),
                 trailing: Seletor(
+                  key: ValueKey(configs.themeMode.getOr(ThemeMode.system)),
                   itemBuilder: (context) => ThemeMode.values,
                   translator: themeModeTr,
                   value: configs.themeMode.getOr(ThemeMode.system),
