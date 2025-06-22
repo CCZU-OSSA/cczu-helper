@@ -503,9 +503,15 @@ class CurriculumPageState extends State<CurriculumPage>
 
         if (background != null) {
           return FutureBuilder(
-            future: Future(() async =>
-                (await platCalendarDataDirectory.getValue())
-                    .subFile(background)),
+            future: Future(() async {
+              final imagefile = (await platCalendarDataDirectory.getValue())
+                  .subFile(background);
+              if (context.mounted) {
+                debugPrint("Precache image: ${imagefile.path}");
+                await precacheImage(FileImage(imagefile), context);
+              }
+              return imagefile;
+            }),
             builder: (context, snapshot) {
               var data = snapshot.data;
               if (data != null) {
