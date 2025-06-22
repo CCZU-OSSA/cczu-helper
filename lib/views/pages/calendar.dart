@@ -507,7 +507,6 @@ class CurriculumPageState extends State<CurriculumPage>
               final imagefile = (await platCalendarDataDirectory.getValue())
                   .subFile(background);
               if (context.mounted) {
-                debugPrint("Precache image: ${imagefile.path}");
                 await precacheImage(FileImage(imagefile), context);
               }
               return imagefile;
