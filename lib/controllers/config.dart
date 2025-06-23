@@ -74,7 +74,7 @@ class ApplicationConfigs extends AppConfigsBase {
       );
   ConfigEntryConverter<int, CalendarView> get calendarView =>
       ConfigEntryConverter(
-        generator("calendarview"),
+        generator("calendarview_v2"),
         forward: (value) {
           return CalendarView.values[value];
         },
