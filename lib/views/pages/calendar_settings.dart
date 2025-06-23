@@ -113,6 +113,17 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 },
               ),
               SwitchListTile(
+                secondary: const Icon(Icons.color_lens),
+                title: const Text("彩色日历"),
+                subtitle: const Text("Colorful"),
+                value: configs.calendarColorful.getOr(false),
+                onChanged: (value) {
+                  setState(() {
+                    configs.calendarColorful.write(value);
+                  });
+                },
+              ),
+              SwitchListTile(
                 secondary: const Icon(Icons.visibility),
                 title: const Text("显示分割线"),
                 subtitle: const Text("Interval Line"),

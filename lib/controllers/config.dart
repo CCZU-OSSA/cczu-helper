@@ -101,6 +101,7 @@ class ApplicationConfigs extends AppConfigsBase {
       generator("calendar_background_image_opacity");
   ConfigEntry<double> get calendarBackgroundImageBlur =>
       generator("calendar_background_image_blur");
+  ConfigEntry<bool> get calendarColorful => generator("calendar_colorful");
   ConfigEntry<bool> get calendarShowViewHeader =>
       generator("calendar_show_view_header");
   ConfigEntry<bool> get calendarShowController =>

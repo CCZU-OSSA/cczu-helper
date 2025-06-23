@@ -193,6 +193,45 @@ class CurriculumPageState extends State<CurriculumPage>
     );
   }
 
+  (Color appointment, Color? location) getAppointmentColor(
+    CalendarData appointment,
+    ApplicationConfigs configs,
+  ) {
+    final theme = Theme.of(context);
+    if (appointment.isAllday) {
+      return (
+        theme.colorScheme.surfaceContainerHighest
+            .withValues(alpha: configs.calendarCellOpacity.getOr(1)),
+        theme.colorScheme.primary,
+      );
+    }
+
+    if (configs.calendarColorful.getOr(false)) {
+      final hue = (appointment.summary.hashCode % 360).toDouble();
+      final isDark = theme.brightness == Brightness.dark;
+      return (
+        HSVColor.fromAHSV(
+          configs.calendarCellOpacity.getOr(1),
+          hue,
+          isDark ? 0.6 : 0.2,
+          isDark ? 0.7 : 1,
+        ).toColor(),
+        HSVColor.fromAHSV(
+          1,
+          hue,
+          isDark ? 0.5 : 0.8,
+          isDark ? 1 : 0.6,
+        ).toColor(),
+      );
+    }
+
+    return (
+      theme.colorScheme.primaryContainer
+          .withValues(alpha: configs.calendarCellOpacity.getOr(1)),
+      theme.colorScheme.primary,
+    );
+  }
+
   Widget buildAppointment(
     CalendarData appointment,
     ApplicationConfigs configs,
@@ -201,7 +240,8 @@ class CurriculumPageState extends State<CurriculumPage>
     final theme = Theme.of(context);
     final time =
         '${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
-
+    final (appointmentColor, locationColor) =
+        getAppointmentColor(appointment, configs);
     return GestureDetector(
       onTap: appointment.isAllday
           ? null
@@ -290,10 +330,7 @@ class CurriculumPageState extends State<CurriculumPage>
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(4),
-          color: (appointment.isAllday
-                  ? theme.colorScheme.surfaceContainerHighest
-                  : theme.colorScheme.primaryContainer)
-              .withValues(alpha: configs.calendarCellOpacity.getOr(1)),
+          color: appointmentColor,
         ),
         child: appointment.isAllday
             ? Center(
@@ -314,7 +351,7 @@ class CurriculumPageState extends State<CurriculumPage>
                               text: appointment.location,
                               style: TextStyle(
                                 fontSize: 10,
-                                color: theme.colorScheme.primary,
+                                color: locationColor,
                               ),
                             )
                           ],
@@ -384,7 +421,6 @@ class CurriculumPageState extends State<CurriculumPage>
     return FutureBuilder(
       future: Future<List<ICalendarParser>>(() async {
         var platdir = (await platCalendarDataDirectory.getValue());
-
         // .subFile("calendar_curriculum.ics");
         return platdir
             .listSync()
@@ -515,35 +551,30 @@ class CurriculumPageState extends State<CurriculumPage>
               var data = snapshot.data;
               if (data != null) {
                 var blur = configs.calendarBackgroundImageBlur.getOr(0);
-                return ClipRRect(
-                  borderRadius: isWideScreen(context)
-                      ? BorderRadius.circular(8)
-                      : BorderRadius.zero,
-                  child: Stack(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: FileImage(
-                              data,
-                            ),
-                            fit: BoxFit.cover,
-                            opacity: configs.calendarBackgroundImageOpacity
-                                .getOr(0.3),
+                return Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: FileImage(
+                            data,
                           ),
+                          fit: BoxFit.cover,
+                          opacity:
+                              configs.calendarBackgroundImageOpacity.getOr(0.3),
                         ),
                       ),
-                      BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-                        child: Padding(
-                          padding: isWideScreen(context)
-                              ? const EdgeInsets.only(left: 8)
-                              : EdgeInsets.zero,
-                          child: child,
-                        ),
+                    ),
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+                      child: Padding(
+                        padding: isWideScreen(context)
+                            ? const EdgeInsets.only(left: 8)
+                            : EdgeInsets.zero,
+                        child: child,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               }
 
