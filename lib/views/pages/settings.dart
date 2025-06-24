@@ -10,6 +10,7 @@ import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/models/version.dart';
 import 'package:cczu_helper/views/pages/calendar_settings.dart';
+import 'package:cczu_helper/views/pages/service_status.dart';
 import 'package:cczu_helper/views/pages/update.dart';
 import 'package:cczu_helper/views/pages/log.dart';
 import 'package:cczu_helper/views/pages/account.dart';
@@ -234,6 +235,15 @@ class SettingsPageState extends State<SettingsPage>
                 trailing: const Icon(Icons.arrow_right),
                 onTap: () => pushMaterialRoute(
                   builder: (context) => const LogPage(),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.network_check),
+                title: const Text("服务状态"),
+                subtitle: const Text("Service Status"),
+                trailing: const Icon(Icons.arrow_right),
+                onTap: () => pushMaterialRoute(
+                  builder: (context) => const ServiceStatusPage(),
                 ),
               )
             ],

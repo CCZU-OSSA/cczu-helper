@@ -10,8 +10,9 @@ mod account_implments;
 
 mod app_implements;
 mod jwcas_implments;
-mod jwqywx_implement;
+mod jwqywx_implements;
 mod signals;
+mod utils_implments;
 
 #[cfg(windows)]
 mod windows;
@@ -33,10 +34,12 @@ async fn main() {
     tokio::spawn(jwcas_implments::get_grades());
     tokio::spawn(jwcas_implments::lab_durations());
 
-    tokio::spawn(jwqywx_implement::get_grades());
-    tokio::spawn(jwqywx_implement::get_terms());
-    tokio::spawn(jwqywx_implement::get_rank());
-    tokio::spawn(jwqywx_implement::generate_icalendar());
+    tokio::spawn(jwqywx_implements::get_grades());
+    tokio::spawn(jwqywx_implements::get_terms());
+    tokio::spawn(jwqywx_implements::get_rank());
+    tokio::spawn(jwqywx_implements::generate_icalendar());
+
+    tokio::spawn(utils_implments::service_status());
 
     #[cfg(windows)]
     {

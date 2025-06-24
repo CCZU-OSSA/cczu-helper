@@ -163,6 +163,7 @@ class MainApplicationState extends State<MainApplication>
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) => MaterialApp(
         scaffoldMessengerKey: messagerKey,
+        debugShowCheckedModeBanner: false,
         localizationsDelegates: const [
           GlobalWidgetsLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,

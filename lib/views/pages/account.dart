@@ -154,6 +154,32 @@ class _AddAccountPageState extends State<AddAccountPage> {
       appBar: AppBar(
         title: Text(widget.account != null ? "编辑账户" : "添加账户"),
         actions: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              icon: Icon(Icons.bug_report),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("测试登录"),
+                    content: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _LoginWidget(
+                              widget.accountType,
+                              AccountData(
+                                  user: user.text, password: password.text)),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
           Visibility(
             visible: widget.account != null,
             child: IconButton(
@@ -252,33 +278,6 @@ class _AddAccountPageState extends State<AddAccountPage> {
               const SizedBox(
                 height: 8,
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: FilledButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text("测试登录"),
-                        content: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _LoginWidget(
-                                  widget.accountType,
-                                  AccountData(
-                                      user: user.text,
-                                      password: password.text)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text("测试登录"),
-                ),
-              )
             ],
           ),
         ),
