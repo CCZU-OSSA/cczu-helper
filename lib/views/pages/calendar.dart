@@ -390,7 +390,7 @@ class CurriculumPageState extends State<CurriculumPage>
                               appointment.location.toString(),
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: theme.colorScheme.primary,
+                                color: locationColor,
                               ),
                             )
                           ],
