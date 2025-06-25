@@ -440,14 +440,9 @@ class CurriculumPageState extends State<CurriculumPage>
             child: Text(snapshot.error.toString()),
           );
         }
-        var data = snapshot.data;
-        if (!snapshot.hasData || data == null) {
-          return const Center(
-            child: ProgressIndicatorWidget(),
-          );
-        }
+        var data = snapshot.data ?? [];
 
-        if (data.isEmpty) {
+        if (data.isEmpty && (snapshot.data?.isNotEmpty ?? false)) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -578,7 +573,7 @@ class CurriculumPageState extends State<CurriculumPage>
                 );
               }
 
-              return const CircularProgressIndicator();
+              return child;
             },
           );
         }
