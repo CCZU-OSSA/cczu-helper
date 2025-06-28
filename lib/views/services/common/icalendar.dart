@@ -108,6 +108,7 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
                                   context: this.context,
                                   content: const Text("导入成功"));
                             }
+                            icalendarParsersData.update();
                           });
                         },
                         icon: const Icon(FontAwesomeIcons.fileImport),

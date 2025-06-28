@@ -425,7 +425,13 @@ class CurriculumPageState extends State<CurriculumPage>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final configs = ArcheBus().of<ApplicationConfigs>();
-    final icalendarData = icalendarParsersData.value!;
+    final icalendarData = icalendarParsersData.value;
+
+    if (icalendarData == null) {
+      return Center(
+        child: Text("日历数据加载失败"),
+      );
+    }
 
     if (icalendarData.isEmpty) {
       return Center(
@@ -433,10 +439,6 @@ class CurriculumPageState extends State<CurriculumPage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text("尚未生成课表"),
-            FilledButton(
-              onPressed: () => setState(() {}),
-              child: const Text("刷新"),
-            ),
             FilledButton(
               onPressed: () =>
                   pushMaterialRoute(builder: (BuildContext context) {
@@ -463,6 +465,7 @@ class CurriculumPageState extends State<CurriculumPage>
         configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0));
 
     var calendar = SfCalendar(
+      key: ObjectKey(icalendarData),
       showWeekNumber: configs.calendarShowTimeRule.getOr(true),
       weekNumberStyle: WeekNumberStyle(
         backgroundColor: Colors.transparent,
@@ -525,13 +528,12 @@ class CurriculumPageState extends State<CurriculumPage>
       calendarController,
       calendar,
     );
-    print(calendarBackgroundData.value == null);
 
     final blur = configs.calendarBackgroundImageBlur.getOr(0);
     return Stack(
       children: [
         Container(
-          key: ValueKey(calendarBackgroundData.value.hashCode),
+          key: ObjectKey(calendarBackgroundData.value),
           decoration: BoxDecoration(
             image: calendarBackgroundData.value == null
                 ? null
