@@ -45,14 +45,15 @@ void main() {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-      await initializeRust(assignRustSignal);
-      var logger = ArcheLogger();
-      var platUserData = await platUserDataDirectory.getValue();
-      // Migrate
-      await migrateUserData();
+      // Ensure directory is initialized here for faster load
+      await ensurePlatDirectoryValue();
 
-      var configPath = platUserData.subPath("app.config.json");
-      var config = ArcheConfig.path(configPath);
+      await initializeRust(assignRustSignal);
+      final logger = ArcheLogger();
+      final platUserData = await platUserDataDirectory.getValue();
+
+      final configPath = platUserData.subPath("app.config.json");
+      final config = ArcheConfig.path(configPath);
       logger.info("Application Config Stored in `$configPath`");
 
       FlutterError.onError = (err) async {
@@ -74,6 +75,11 @@ void main() {
       var bus = ArcheBus();
       var configs = ApplicationConfigs(config);
       bus.provide(ArcheLogger()).provide(config).provide(configs);
+      // Cache Background Image in memory for faster load
+      await calendarBackgroundData.update();
+      // Parse Data for fast load
+      await icalendarParsersData.update();
+
       // Custom Font
       var customfont = platUserData.subFile("customfont");
       if (await customfont.exists()) {

@@ -13,10 +13,10 @@ packages:
     dependency: "direct main"
     description:
       name: arche
-      sha256: "9e5e63bd8a1a09c1e20add240ac5192b3a366b4c906298a25c0ae85419f63421"
+      sha256: "2dbab05d84cb874920a2a3cefd3fbc293a8605749ca92b5e88af028143b71faa"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.6"
+    version: "1.2.0"
   archive:
     dependency: transitive
     description:

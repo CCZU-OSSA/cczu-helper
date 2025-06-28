@@ -228,30 +228,29 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 onChanged: (value) async {
                   if (value) {
                     var picker = ImagePicker();
-                    picker
-                        .pickImage(source: ImageSource.gallery)
-                        .then((image) async {
-                      if (image != null) {
-                        var calendarDir =
-                            await platCalendarDataDirectory.getValue();
+                    final image =
+                        await picker.pickImage(source: ImageSource.gallery);
 
-                        var origin = configs.calendarBackgroundImage.tryGet();
+                    if (image != null) {
+                      var calendarDir =
+                          await platCalendarDataDirectory.getValue();
 
-                        if (origin != null) {
-                          var from = calendarDir.subFile(origin);
-                          if (await from.exists()) {
-                            from.delete();
-                          }
+                      var origin = configs.calendarBackgroundImage.tryGet();
+
+                      if (origin != null) {
+                        var from = calendarDir.subFile(origin);
+                        if (await from.exists()) {
+                          from.delete();
                         }
-                        setState(() {
-                          configs.calendarBackgroundImage.write(image.name);
-                        });
-
-                        await calendarDir
-                            .subFile(image.name)
-                            .writeAsBytes(await image.readAsBytes());
                       }
-                    });
+                      setState(() {
+                        configs.calendarBackgroundImage.write(image.name);
+                      });
+
+                      await calendarDir
+                          .subFile(image.name)
+                          .writeAsBytes(await image.readAsBytes());
+                    }
                   } else {
                     var calendarDir =
                         await platCalendarDataDirectory.getValue();
@@ -268,6 +267,8 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                       configs.calendarBackgroundImage.delete();
                     });
                   }
+
+                  await calendarBackgroundData.update();
                 },
               ),
               ListTile(
@@ -365,7 +366,7 @@ class _CalendarsManagerPageState extends State<CalendarsManagerPage> {
           )
               .then((file) {
             if (file != null) {
-              platCalendarDataDirectory.getValue().then((platdir) {
+              platCalendarDataDirectory.getValue().then((platdir) async {
                 for (var single in file.files) {
                   var bytes = single.bytes;
                   if (bytes != null) {
@@ -374,6 +375,7 @@ class _CalendarsManagerPageState extends State<CalendarsManagerPage> {
                     });
                   }
                 }
+                await icalendarParsersData.update();
               });
             }
           });
@@ -413,6 +415,7 @@ class _CalendarsManagerPageState extends State<CalendarsManagerPage> {
                             if (result) {
                               File(item.absolute.path).delete().then((_) {
                                 setState(() {});
+                                icalendarParsersData.update();
                               });
                             }
                           });

@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/models/navstyle.dart';
+import 'package:cczu_helper/views/pages/calendar.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
@@ -21,29 +24,40 @@ FutureLazyDynamicCan<Directory> platCalendarDataDirectory =
             .subDirectory("calendar")
             .check());
 
-Future<void> mirgate(File from, File to) async {
-  if (await from.exists()) {
-    await to.writeAsBytes(await from.readAsBytes());
-    await from.delete();
+// Need initialize the configs first
+FutureLazyDynamicCan<Uint8List?> calendarBackgroundData =
+    FutureLazyDynamicCan(builder: () async {
+  final configs = ArcheBus().of<ApplicationConfigs>();
+  final background = configs.calendarBackgroundImage.tryGet();
+  if (background == null) {
+    return null;
   }
-}
+  final file = (await platCalendarDataDirectory.getValue()).subFile(background);
+  if (await file.exists()) {
+    return await file.readAsBytes();
+  }
+  return null;
+});
 
-Future<void> migrateUserData() async {
-  var platdir = await platDirectory.getValue();
-  var platUserData = await platUserDataDirectory.getValue();
-  var platCalendarData = await platCalendarDataDirectory.getValue();
-  var futures = [
-    // App
-    mirgate(platdir.subFile("app.config.json"),
-        platUserData.subFile("app.config.json")),
-    mirgate(platdir.subFile("accounts.json"),
-        platUserData.subFile("accounts.json")),
-    // Calendar
-    mirgate(platdir.subFile("_curriculum.ics"),
-        platCalendarData.subFile("calendar_curriculum.ics")),
-  ];
+FutureLazyDynamicCan<List<ICalendarParser>?> icalendarParsersData =
+    FutureLazyDynamicCan(builder: () async {
+  return (await platCalendarDataDirectory.getValue())
+      .listSync()
+      .where((item) => extension(item.path) == ".ics")
+      .map((item) {
+    final calendar = File(item.path);
+    return ICalendarParser(
+        calendar.readAsStringSync(),
+        basename(item.path) == "calendar_curriculum.ics"
+            ? CalendarSource.curriculum
+            : CalendarSource.other);
+  }).toList();
+});
 
-  await Future.wait(futures);
+Future<void> ensurePlatDirectoryValue() async {
+  await platDirectory.reload();
+  await platUserDataDirectory.reload();
+  await platCalendarDataDirectory.reload();
 }
 
 Future<Directory> getPlatDirectory() async {

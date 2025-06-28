@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:arche/arche.dart';
-import 'package:arche/extensions/io.dart';
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
@@ -14,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' show basename, extension;
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -426,188 +423,137 @@ class CurriculumPageState extends State<CurriculumPage>
 
   @override
   Widget build(BuildContext context) {
-    var theme = Theme.of(context);
-    var configs = ArcheBus().of<ApplicationConfigs>();
+    final theme = Theme.of(context);
+    final configs = ArcheBus().of<ApplicationConfigs>();
+    final icalendarData = icalendarParsersData.value!;
 
-    return FutureBuilder(
-      future: Future<List<ICalendarParser>>(() async {
-        var platdir = (await platCalendarDataDirectory.getValue());
-        // .subFile("calendar_curriculum.ics");
-        return platdir
-            .listSync()
-            .where((item) => extension(item.path) == ".ics")
-            .map((item) {
-          final calendar = File(item.path);
-          return ICalendarParser(
-              calendar.readAsStringSync(),
-              basename(item.path) == "calendar_curriculum.ics"
-                  ? CalendarSource.curriculum
-                  : CalendarSource.other);
-        }).toList();
-      }),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(snapshot.error.toString()),
-          );
-        }
-
-        var data = snapshot.data;
-
-        if (data == null) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        if (data.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("尚未生成课表"),
-                FilledButton(
-                  onPressed: () => setState(() {}),
-                  child: const Text("刷新"),
-                ),
-                FilledButton(
-                  onPressed: () =>
-                      pushMaterialRoute(builder: (BuildContext context) {
-                    return const ICalendarServicePage();
-                  }),
-                  child: const Text("生成"),
-                ),
-              ].joinElement(
-                const SizedBox(
-                  height: 8,
-                ),
-              ),
+    if (icalendarData.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("尚未生成课表"),
+            FilledButton(
+              onPressed: () => setState(() {}),
+              child: const Text("刷新"),
             ),
-          );
-        }
-        var view = configs.calendarView.getOr(CalendarView.week);
-
-        if (view == CalendarView.workWeek) {
-          view = CalendarView.week;
-        }
-        final start = configs.calendarTimeStart
-            .getOr(const TimeOfDay(hour: 8, minute: 0));
-        final end =
-            configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0));
-
-        var calendar = SfCalendar(
-          showWeekNumber: configs.calendarShowTimeRule.getOr(true),
-          weekNumberStyle: WeekNumberStyle(
-            backgroundColor: Colors.transparent,
-          ),
-          viewHeaderHeight: configs.calendarShowViewHeader.getOr(true) ? -1 : 0,
-          backgroundColor: Colors.transparent,
-          controller: calendarController,
-          initialDisplayDate: _displayDate,
-          view: view,
-          todayHighlightColor: Colors.transparent,
-          todayTextStyle: TextStyle(
-            color: theme.colorScheme.primary,
-            fontWeight: FontWeight.w800,
-            fontStyle: FontStyle.italic,
-          ),
-          firstDayOfWeek: 1,
-          headerHeight: 0,
-          timeSlotViewSettings: TimeSlotViewSettings(
-            timeFormat: "H:mm",
-            timeRulerSize: configs.calendarShowTimeRule.getOr(true) ? -1 : 0,
-            timeIntervalHeight: 40,
-            startHour: start.hour + start.minute / 60,
-            endHour: end.hour + end.minute / 60,
-            timeInterval: Duration(
-              minutes: configs.calendarTimeIntervalMinutes.getOr(30),
+            FilledButton(
+              onPressed: () =>
+                  pushMaterialRoute(builder: (BuildContext context) {
+                return const ICalendarServicePage();
+              }),
+              child: const Text("生成"),
+            ),
+          ].joinElement(
+            const SizedBox(
+              height: 8,
             ),
           ),
-          cellBorderColor: configs.calendarIntervalLine.getOr(true)
-              ? theme.colorScheme.surfaceContainerHighest
-              : Colors.transparent,
-          cellEndPadding: 0,
-          selectionDecoration: BoxDecoration(),
-          scheduleViewSettings: ScheduleViewSettings(
-            hideEmptyScheduleWeek: true,
-            monthHeaderSettings:
-                MonthHeaderSettings(backgroundColor: theme.colorScheme.primary),
-          ),
-          appointmentBuilder: (context, calendarAppointmentDetails) {
-            final isWeekView = calendarController.view == CalendarView.week;
-            return Flex(
-              direction: Axis.horizontal,
-              children: calendarAppointmentDetails.appointments
-                  .map(
-                    (appointment) => Expanded(
-                      child: SizedBox(
-                        height: double.infinity,
-                        child:
-                            buildAppointment(appointment, configs, isWeekView),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            );
-          },
-          dataSource: CurriculumDataSource(data.fold([], (data, parser) {
-            data.addAll(parser.data);
-            return data;
-          })),
-        );
-        var background = configs.calendarBackgroundImage.tryGet();
-        var child = buildHeader(
-          calendarController,
-          calendar,
-        );
+        ),
+      );
+    }
+    var view = configs.calendarView.getOr(CalendarView.week);
 
-        if (background != null) {
-          return FutureBuilder(
-            future: Future(() async {
-              final imagefile = (await platCalendarDataDirectory.getValue())
-                  .subFile(background);
-              if (context.mounted) {
-                await precacheImage(FileImage(imagefile), context);
-              }
-              return imagefile;
-            }),
-            builder: (context, snapshot) {
-              var data = snapshot.data;
-              if (data != null) {
-                var blur = configs.calendarBackgroundImageBlur.getOr(0);
-                return Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: FileImage(
-                            data,
-                          ),
-                          fit: BoxFit.cover,
-                          opacity:
-                              configs.calendarBackgroundImageOpacity.getOr(0.3),
-                        ),
-                      ),
-                    ),
-                    BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-                      child: Padding(
-                        padding: isWideScreen(context)
-                            ? const EdgeInsets.only(left: 8)
-                            : EdgeInsets.zero,
-                        child: child,
-                      ),
-                    ),
-                  ],
-                );
-              }
+    if (view == CalendarView.workWeek) {
+      view = CalendarView.week;
+    }
+    final start =
+        configs.calendarTimeStart.getOr(const TimeOfDay(hour: 8, minute: 0));
+    final end =
+        configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0));
 
-              return child;
-            },
-          );
-        }
-        return child;
+    var calendar = SfCalendar(
+      showWeekNumber: configs.calendarShowTimeRule.getOr(true),
+      weekNumberStyle: WeekNumberStyle(
+        backgroundColor: Colors.transparent,
+      ),
+      viewHeaderHeight: configs.calendarShowViewHeader.getOr(true) ? -1 : 0,
+      backgroundColor: Colors.transparent,
+      controller: calendarController,
+      initialDisplayDate: _displayDate,
+      view: view,
+      todayHighlightColor: Colors.transparent,
+      todayTextStyle: TextStyle(
+        color: theme.colorScheme.primary,
+        fontWeight: FontWeight.w800,
+        fontStyle: FontStyle.italic,
+      ),
+      firstDayOfWeek: 1,
+      headerHeight: 0,
+      timeSlotViewSettings: TimeSlotViewSettings(
+        timeFormat: "H:mm",
+        timeRulerSize: configs.calendarShowTimeRule.getOr(true) ? -1 : 0,
+        timeIntervalHeight: 40,
+        startHour: start.hour + start.minute / 60,
+        endHour: end.hour + end.minute / 60,
+        timeInterval: Duration(
+          minutes: configs.calendarTimeIntervalMinutes.getOr(30),
+        ),
+      ),
+      cellBorderColor: configs.calendarIntervalLine.getOr(true)
+          ? theme.colorScheme.surfaceContainerHighest
+          : Colors.transparent,
+      cellEndPadding: 0,
+      selectionDecoration: BoxDecoration(),
+      scheduleViewSettings: ScheduleViewSettings(
+        hideEmptyScheduleWeek: true,
+        monthHeaderSettings:
+            MonthHeaderSettings(backgroundColor: theme.colorScheme.primary),
+      ),
+      appointmentBuilder: (context, calendarAppointmentDetails) {
+        final isWeekView = calendarController.view == CalendarView.week;
+        return Flex(
+          direction: Axis.horizontal,
+          children: calendarAppointmentDetails.appointments
+              .map(
+                (appointment) => Expanded(
+                  child: SizedBox(
+                    height: double.infinity,
+                    child: buildAppointment(appointment, configs, isWeekView),
+                  ),
+                ),
+              )
+              .toList(),
+        );
       },
+      dataSource: CurriculumDataSource(icalendarData.fold([], (data, parser) {
+        data.addAll(parser.data);
+        return data;
+      })),
+    );
+    var child = buildHeader(
+      calendarController,
+      calendar,
+    );
+    print(calendarBackgroundData.value == null);
+
+    final blur = configs.calendarBackgroundImageBlur.getOr(0);
+    return Stack(
+      children: [
+        Container(
+          key: ValueKey(calendarBackgroundData.value.hashCode),
+          decoration: BoxDecoration(
+            image: calendarBackgroundData.value == null
+                ? null
+                : DecorationImage(
+                    image: MemoryImage(
+                      calendarBackgroundData.value!,
+                    ),
+                    fit: BoxFit.cover,
+                    opacity: configs.calendarBackgroundImageOpacity.getOr(0.3),
+                  ),
+          ),
+        ),
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+          child: Padding(
+            padding: isWideScreen(context)
+                ? const EdgeInsets.only(left: 8)
+                : EdgeInsets.zero,
+            child: child,
+          ),
+        ),
+      ],
     );
   }
 }
