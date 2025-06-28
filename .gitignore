@@ -51,6 +51,7 @@ target/
 lib/src/bindings
 
 *.jks
+*.p12
 *.ics
 /customfont
 
