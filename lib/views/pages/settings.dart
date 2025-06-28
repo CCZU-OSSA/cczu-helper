@@ -301,13 +301,6 @@ class SettingsPageState extends State<SettingsPage>
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.chat),
-                title: const Text("QQ群"),
-                subtitle: const Text("947560153"),
-                onTap: () => launchUrlString(
-                    "http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=6wgGLJ_NmKQl7f9Ws6JAprbTwmG9Ouei&authKey=g7bXX%2Bn2dHlbecf%2B8QfGJ15IFVOmEdGTJuoLYfviLg7TZIsZCu45sngzZfL3KktN&noverify=0&group_code=947560153"),
-              ),
-              ListTile(
                 leading: const Icon(Icons.library_books),
                 title: const Text("开源许可"),
                 subtitle: const Text("License"),
@@ -348,12 +341,10 @@ class SettingGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget item = Card(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 12, bottom: 12),
-        child: Column(
-          children: children,
-        ),
+    Widget item = Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 12),
+      child: Column(
+        children: children,
       ),
     );
 

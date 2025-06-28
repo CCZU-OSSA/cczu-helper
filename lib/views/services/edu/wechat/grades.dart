@@ -103,7 +103,7 @@ class WeChatGradeQueryServicePageState
 
           return Visibility(
             visible: visible,
-            child: Card(
+            child: Card.outlined(
               child: InkWell(
                 borderRadius: BorderRadius.circular(10),
                 onTap: () {
@@ -142,33 +142,6 @@ class WeChatGradeQueryServicePageState
                     ListTile(
                       title: const Text("考试类型"),
                       trailing: Text(course.examType),
-                    ),
-                    Visibility(
-                      visible: course.usualGrade != 0,
-                      child: ListTile(
-                        title: const Text("平时成绩"),
-                        trailing: Text(dream
-                            ? "100.0"
-                            : course.usualGrade.toStringAsFixed(1)),
-                      ).rainbowWhen(dream),
-                    ),
-                    Visibility(
-                      visible: course.midGrade != 0,
-                      child: ListTile(
-                        title: const Text("期中成绩"),
-                        trailing: Text(dream
-                            ? "100.0"
-                            : course.midGrade.toStringAsFixed(1)),
-                      ).rainbowWhen(dream),
-                    ),
-                    Visibility(
-                      visible: course.endGrade != 0,
-                      child: ListTile(
-                        title: const Text("期末成绩"),
-                        trailing: Text(
-                          dream ? "100.0" : course.endGrade.toStringAsFixed(1),
-                        ),
-                      ).rainbowWhen(dream),
                     ),
                     ListTile(
                       title: const Text("总评"),

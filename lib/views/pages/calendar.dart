@@ -103,7 +103,7 @@ class CalendarHeaderState extends State<CalendarHeader> {
                       (configs.calendarView.getOr(CalendarView.week) !=
                           CalendarView.schedule),
                   child: arrow),
-              FilledButton(
+              OutlinedButton(
                 onPressed: () async {
                   var now = DateTime.now();
                   var date = await showDatePicker(
@@ -115,7 +115,10 @@ class CalendarHeaderState extends State<CalendarHeader> {
                     controller.displayDate = date;
                   }
                 },
-                child: Text(formatter.format(date)),
+                child: Text(
+                  formatter.format(date),
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
               ),
             ],
           ),
@@ -193,7 +196,7 @@ class CurriculumPageState extends State<CurriculumPage>
     );
   }
 
-  (Color appointment, Color? location) getAppointmentColor(
+  (Color appointment, Color? location, Color? secoundary) getAppointmentColor(
     CalendarData appointment,
     ApplicationConfigs configs,
   ) {
@@ -203,6 +206,7 @@ class CurriculumPageState extends State<CurriculumPage>
         theme.colorScheme.surfaceContainerHighest
             .withValues(alpha: configs.calendarCellOpacity.getOr(1)),
         theme.colorScheme.primary,
+        theme.colorScheme.secondary,
       );
     }
 
@@ -222,6 +226,12 @@ class CurriculumPageState extends State<CurriculumPage>
           isDark ? 0.5 : 0.8,
           isDark ? 1 : 0.6,
         ).toColor(),
+        HSVColor.fromAHSV(
+          1,
+          hue,
+          isDark ? 0.2 : 0.4,
+          isDark ? 1 : 0.6,
+        ).toColor(),
       );
     }
 
@@ -229,6 +239,7 @@ class CurriculumPageState extends State<CurriculumPage>
       theme.colorScheme.primaryContainer
           .withValues(alpha: configs.calendarCellOpacity.getOr(1)),
       theme.colorScheme.primary,
+      theme.colorScheme.secondary,
     );
   }
 
@@ -240,7 +251,7 @@ class CurriculumPageState extends State<CurriculumPage>
     final theme = Theme.of(context);
     final time =
         '${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
-    final (appointmentColor, locationColor) =
+    final (appointmentColor, locationColor, secondaryColor) =
         getAppointmentColor(appointment, configs);
     return GestureDetector(
       onTap: appointment.isAllday
@@ -380,7 +391,7 @@ class CurriculumPageState extends State<CurriculumPage>
                                     time,
                                     overflow: TextOverflow.fade,
                                     style: TextStyle(
-                                      color: theme.colorScheme.secondary,
+                                      color: secondaryColor,
                                     ),
                                   ),
                                 ],
@@ -440,9 +451,16 @@ class CurriculumPageState extends State<CurriculumPage>
             child: Text(snapshot.error.toString()),
           );
         }
-        var data = snapshot.data ?? [];
 
-        if (data.isEmpty && (snapshot.data?.isNotEmpty ?? false)) {
+        var data = snapshot.data;
+
+        if (data == null) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        if (data.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -478,11 +496,21 @@ class CurriculumPageState extends State<CurriculumPage>
             configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0));
 
         var calendar = SfCalendar(
+          showWeekNumber: configs.calendarShowTimeRule.getOr(true),
+          weekNumberStyle: WeekNumberStyle(
+            backgroundColor: Colors.transparent,
+          ),
           viewHeaderHeight: configs.calendarShowViewHeader.getOr(true) ? -1 : 0,
           backgroundColor: Colors.transparent,
           controller: calendarController,
           initialDisplayDate: _displayDate,
           view: view,
+          todayHighlightColor: Colors.transparent,
+          todayTextStyle: TextStyle(
+            color: theme.colorScheme.primary,
+            fontWeight: FontWeight.w800,
+            fontStyle: FontStyle.italic,
+          ),
           firstDayOfWeek: 1,
           headerHeight: 0,
           timeSlotViewSettings: TimeSlotViewSettings(
@@ -499,6 +527,7 @@ class CurriculumPageState extends State<CurriculumPage>
               ? theme.colorScheme.surfaceContainerHighest
               : Colors.transparent,
           cellEndPadding: 0,
+          selectionDecoration: BoxDecoration(),
           scheduleViewSettings: ScheduleViewSettings(
             hideEmptyScheduleWeek: true,
             monthHeaderSettings:
