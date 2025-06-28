@@ -25,7 +25,21 @@ pub async fn get_grades() {
         let app = client.visit::<JwqywxApplication<_>>().await;
         let login = app.login().await;
 
-        if let Ok(_) = login {
+        if let Ok(login) = login {
+            if login
+                .message
+                .first()
+                .map(|e| e.userid.is_empty())
+                .unwrap_or(true)
+            {
+                WeChatGradesOutput {
+                    ok: false,
+                    data: vec![],
+                    error: Some("Error Password".to_owned()),
+                }
+                .send_signal_to_dart();
+                continue;
+            }
             let grade = app.get_grades().await;
             if let Ok(data) = grade {
                 WeChatGradesOutput {
@@ -174,6 +188,7 @@ pub async fn get_rank() {
         let app = client.visit::<JwqywxApplication<_>>().await;
 
         let login = app.login().await;
+
         if let Err(message) = login {
             WeChatRankDataOutput {
                 ok: false,
@@ -184,7 +199,21 @@ pub async fn get_rank() {
             continue;
         }
 
-        if let Ok(_) = login {
+        if let Ok(login) = login {
+            if login
+                .message
+                .first()
+                .map(|e| e.userid.is_empty())
+                .unwrap_or(true)
+            {
+                WeChatRankDataOutput {
+                    ok: false,
+                    data: None,
+                    error: Some("Error Password".to_owned()),
+                }
+                .send_signal_to_dart();
+                continue;
+            }
             if let Ok(data) = app.get_credits_and_rank().await {
                 let got = data.message.first();
                 if let Some(data) = got {
