@@ -530,17 +530,23 @@ class CurriculumPageState extends State<CurriculumPage>
     );
 
     final blur = configs.calendarBackgroundImageBlur.getOr(0);
+    MemoryImage? calendarBackgroundProvider;
+    if (calendarBackgroundData.value != null) {
+      calendarBackgroundProvider = MemoryImage(
+        calendarBackgroundData.value!,
+      );
+      precacheImage(calendarBackgroundProvider, context);
+    }
+
     return Stack(
       children: [
         Container(
           key: ObjectKey(calendarBackgroundData.value),
           decoration: BoxDecoration(
-            image: calendarBackgroundData.value == null
+            image: calendarBackgroundProvider == null
                 ? null
                 : DecorationImage(
-                    image: MemoryImage(
-                      calendarBackgroundData.value!,
-                    ),
+                    image: calendarBackgroundProvider,
                     fit: BoxFit.cover,
                     opacity: configs.calendarBackgroundImageOpacity.getOr(0.3),
                   ),
