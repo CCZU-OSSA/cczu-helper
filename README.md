@@ -19,6 +19,10 @@
 
 [![图片](doc/screenshot.png)](https://github.com/CCZU-OSSA/cczu-helper/releases/latest)
 
+## 声明
+
+**此应用无法查询平时分之后也不会支持此功能，所有的数据都使用合法合规的方法来源于教务系统！此外此应用仅供交流学习使用，切勿上纲上线！如果有功能需求可以提出`issue`，但是请注意类似于`抢课`这种破坏公平的功能会遭到拒绝。**
+
 ## 平台支持
 
 | Windows | Android | Linux | MacOS | IOS |
