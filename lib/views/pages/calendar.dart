@@ -1,12 +1,13 @@
 import 'dart:ui';
 
 import 'package:arche/arche.dart';
-import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
+import 'package:cczu_helper/views/pages/account.dart';
+import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:cczu_helper/views/services/common/icalendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -22,21 +23,21 @@ class CurriculumPage extends StatefulWidget {
   State<StatefulWidget> createState() => CurriculumPageState();
 }
 
-class CalendarHeader extends StatefulWidget {
+class CalendarControllerHeader extends StatefulWidget {
   final CalendarController controller;
   final Function refresh;
 
-  const CalendarHeader(
+  const CalendarControllerHeader(
       {super.key, required this.controller, required this.refresh});
 
   @override
-  State<StatefulWidget> createState() => CalendarHeaderState();
+  State<StatefulWidget> createState() => CalendarControllerHeaderState();
 }
 
 /// Cache the `displayDate` here
 DateTime? _displayDate;
 
-class CalendarHeaderState extends State<CalendarHeader> {
+class CalendarControllerHeaderState extends State<CalendarControllerHeader> {
   CalendarController get controller => widget.controller;
 
   @override
@@ -164,12 +165,136 @@ class CalendarHeaderState extends State<CalendarHeader> {
   }
 }
 
+class CalendarViewHeader extends StatefulWidget {
+  final DateTime firstCurriculumDate;
+
+  final CalendarController controller;
+  const CalendarViewHeader({
+    super.key,
+    required this.controller,
+    required this.firstCurriculumDate,
+  });
+
+  @override
+  State<StatefulWidget> createState() => CalendarViewHeaderState();
+}
+
+ViewChangedDetails? _details;
+
+class CalendarViewHeaderState extends State<CalendarViewHeader> {
+  ViewChangedDetails? get details => _details;
+  set details(ViewChangedDetails? rhs) => _details = rhs;
+
+  void updateWithViewChangedDetails(ViewChangedDetails details) {
+    if (details.visibleDates.isEmpty) {
+      return;
+    }
+    this.details = details;
+
+    try {
+      setState(() {});
+    } catch (e) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {});
+      });
+    }
+  }
+
+  bool compareDateTime(DateTime a, DateTime b) {
+    return a.day == b.day && a.month == b.month && a.year == b.year;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final today = DateTime.now();
+    final formatter =
+        DateFormat('EEE', Localizations.localeOf(context).languageCode);
+    final theme = Theme.of(context);
+    final configs = ArcheBus.bus.of<ApplicationConfigs>();
+    final diff = details?.visibleDates.first
+        .difference(widget.firstCurriculumDate)
+        .inDays;
+    return Visibility(
+      visible: widget.controller.view == CalendarView.week &&
+          configs.calendarShowViewHeader.getOr(true),
+      child: SizedBox(
+        height: 45,
+        child: Row(
+          key: ValueKey(details?.visibleDates),
+          children: [
+            Visibility(
+              visible: configs.calendarShowTimeRule.getOr(true),
+              child: SizedBox(
+                width: 50,
+                child: Container(
+                  width: 35,
+                  height: 35,
+                  decoration: ShapeDecoration(
+                    shape: CircleBorder(),
+                    color: theme.colorScheme.primary,
+                  ),
+                  child: Center(
+                    child: diff == null || diff < 0 || diff ~/ 7 >= 19
+                        ? Text(
+                            "N/A",
+                            style:
+                                TextStyle(color: theme.colorScheme.onPrimary),
+                          )
+                        : Text(
+                            ((diff ~/ 7) + 1).toString(),
+                            style:
+                                TextStyle(color: theme.colorScheme.onPrimary),
+                          ),
+                  ),
+                ),
+              ),
+            ),
+            if (details != null)
+              ...details!.visibleDates.map((date) {
+                final isSame = compareDateTime(date, today);
+                return Expanded(
+                  child: Center(
+                      child: Column(
+                    children: [
+                      Text(
+                        formatter.format(date),
+                        style: isSame
+                            ? TextStyle(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w800,
+                                fontStyle: FontStyle.italic,
+                                fontSize: 12,
+                              )
+                            : TextStyle(
+                                fontSize: 12,
+                                color: theme.colorScheme.onSurface),
+                      ),
+                      Text(
+                        date.day.toString(),
+                        style: isSame
+                            ? TextStyle(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w800,
+                                fontStyle: FontStyle.italic)
+                            : TextStyle(color: theme.colorScheme.onSurface),
+                      )
+                    ],
+                  )),
+                );
+              }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class CurriculumPageState extends State<CurriculumPage>
     with RefreshMountedStateMixin {
   late CalendarController calendarController;
-
   Widget buildHeader(
     CalendarController controller,
+    CalendarViewHeader viewHeader,
     Widget child,
   ) {
     if (!ArcheBus.bus
@@ -183,11 +308,12 @@ class CurriculumPageState extends State<CurriculumPage>
       children: [
         SafeArea(
           bottom: false,
-          child: CalendarHeader(
+          child: CalendarControllerHeader(
             controller: controller,
             refresh: refreshMounted,
           ),
         ),
+        viewHeader,
         Expanded(child: child)
       ],
     );
@@ -434,23 +560,10 @@ class CurriculumPageState extends State<CurriculumPage>
     }
 
     if (icalendarData.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("尚未生成课表"),
-            FilledButton(
-              onPressed: () =>
-                  pushMaterialRoute(builder: (BuildContext context) {
-                return const ICalendarServicePage();
-              }),
-              child: const Text("生成"),
-            ),
-          ].joinElement(
-            const SizedBox(
-              height: 8,
-            ),
-          ),
+      return Align(
+        alignment: Alignment.topCenter,
+        child: GenerateCalendarGuide(
+          refreshCalendar: () => setState(() {}),
         ),
       );
     }
@@ -463,14 +576,32 @@ class CurriculumPageState extends State<CurriculumPage>
         configs.calendarTimeStart.getOr(const TimeOfDay(hour: 8, minute: 0));
     final end =
         configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0));
+    final GlobalKey<CalendarViewHeaderState> calendarViewHeaderKey =
+        GlobalKey();
 
-    var calendar = SfCalendar(
-      key: ObjectKey(icalendarData),
+    var viewHeader = CalendarViewHeader(
+      key: calendarViewHeaderKey,
+      controller: calendarController,
+      firstCurriculumDate: icalendarData
+          .firstWhere((e) => e.source == CalendarSource.curriculum)
+          .data
+          .where((e) => e.isAllday && e.summary.startsWith("学期"))
+          .map((e) => e.start.toDateTime()!)
+          .reduce((a, b) {
+        if (a.isBefore(b)) {
+          return a;
+        }
+        return b;
+      }),
+    );
+
+    final calendar = SfCalendar(
+      key: ValueKey(icalendarData),
       showWeekNumber: configs.calendarShowTimeRule.getOr(true),
       weekNumberStyle: WeekNumberStyle(
         backgroundColor: Colors.transparent,
       ),
-      viewHeaderHeight: configs.calendarShowViewHeader.getOr(true) ? -1 : 0,
+      viewHeaderHeight: 0,
       backgroundColor: Colors.transparent,
       controller: calendarController,
       initialDisplayDate: _displayDate,
@@ -503,29 +634,38 @@ class CurriculumPageState extends State<CurriculumPage>
         monthHeaderSettings:
             MonthHeaderSettings(backgroundColor: theme.colorScheme.primary),
       ),
+      onViewChanged: (viewChangedDetails) {
+        if (calendarController.view == CalendarView.week) {
+          calendarViewHeaderKey.currentState
+              ?.updateWithViewChangedDetails(viewChangedDetails);
+        }
+      },
       appointmentBuilder: (context, calendarAppointmentDetails) {
         final isWeekView = calendarController.view == CalendarView.week;
         return Flex(
           direction: Axis.horizontal,
-          children: calendarAppointmentDetails.appointments
-              .map(
-                (appointment) => Expanded(
-                  child: SizedBox(
-                    height: double.infinity,
-                    child: buildAppointment(appointment, configs, isWeekView),
-                  ),
-                ),
-              )
-              .toList(),
+          children: calendarAppointmentDetails.appointments.map((appointment) {
+            return Expanded(
+              child: SizedBox(
+                height: double.infinity,
+                child: buildAppointment(appointment, configs, isWeekView),
+              ),
+            );
+          }).toList(),
         );
       },
       dataSource: CurriculumDataSource(icalendarData.fold([], (data, parser) {
-        data.addAll(parser.data);
+        if (configs.calendarShowAlldayAppionments.getOr(false)) {
+          data.addAll(parser.data);
+        } else {
+          data.addAll(parser.data.where((e) => !e.isAllday));
+        }
         return data;
       })),
     );
     var child = buildHeader(
       calendarController,
+      viewHeader,
       calendar,
     );
 
@@ -562,6 +702,104 @@ class CurriculumPageState extends State<CurriculumPage>
           ),
         ),
       ],
+    );
+  }
+}
+
+class GenerateCalendarGuide extends StatefulWidget {
+  final Function() refreshCalendar;
+  const GenerateCalendarGuide({super.key, required this.refreshCalendar});
+
+  @override
+  State<StatefulWidget> createState() => GenerateCalendarGuideState();
+}
+
+class GenerateCalendarGuideState extends State<GenerateCalendarGuide> {
+  late int currentStep;
+  @override
+  void initState() {
+    currentStep = 0;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final steps = [
+      Step(
+          title: Text("填写账户"),
+          isActive: currentStep >= 0,
+          content: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: FilledButton(
+                    onPressed: () {
+                      pushMaterialRoute(
+                        builder: (context) => Scaffold(
+                          appBar: AppBar(),
+                          body: const TutorialPage(
+                            showFAB: false,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text("查看账户指南")),
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: FilledButton(
+                  onPressed: () {
+                    pushMaterialRoute(
+                      builder: (context) => const AccountManagePage(),
+                    );
+                  },
+                  child: const Text("打开账户管理"),
+                ),
+              )
+            ],
+          )),
+      Step(
+        title: Text("生成课表"),
+        isActive: currentStep >= 1,
+        content: Column(
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FilledButton(
+                  onPressed: () {
+                    pushMaterialRoute(
+                      builder: (context) => const ICalendarServicePage(),
+                    ).then((_) => widget.refreshCalendar());
+                  },
+                  child: const Text("打开课表生成")),
+            )
+          ],
+        ),
+      ),
+    ];
+    return Stepper(
+      currentStep: currentStep,
+      steps: steps,
+      onStepTapped: (value) => setState(() {
+        currentStep = value;
+      }),
+      onStepContinue: currentStep < steps.length - 1
+          ? () {
+              setState(() {
+                currentStep += 1;
+              });
+            }
+          : null,
+      onStepCancel: currentStep > 0
+          ? () {
+              setState(() {
+                currentStep -= 1;
+              });
+            }
+          : null,
     );
   }
 }
@@ -619,7 +857,7 @@ class CalendarData {
 
   @override
   String toString() {
-    return "CourseData { summary: $summary, location: $location, dtstart: $start}";
+    return "CalendarData { summary: $summary, location: $location, dtstart: $start}";
   }
 }
 
@@ -645,15 +883,9 @@ class ICalendarParser {
   }
 
   List<CalendarData> get data {
-    final filter = ArcheBus()
-            .of<ApplicationConfigs>()
-            .calendarShowAlldayAppionments
-            .getOr(true)
-        ? (element) => element["type"] == "VEVENT"
-        : (element) =>
-            element["type"] == "VEVENT" && element["location"] != null;
-
-    return calendar.data.where(filter).map((e) {
+    return calendar.data
+        .where((element) => element["type"] == "VEVENT")
+        .map((e) {
       return CalendarData(
         location: e["location"].toString(),
         summary: e["summary"].toString(),

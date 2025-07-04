@@ -17,6 +17,7 @@ import 'package:cczu_helper/views/pages/services.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:dynamic_system_colors/dynamic_system_colors.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -55,12 +56,13 @@ void main() {
       final configPath = platUserData.subPath("app.config.json");
       final config = ArcheConfig.path(configPath);
       logger.info("Application Config Stored in `$configPath`");
-
-      FlutterError.onError = (err) async {
-        logger.error(err.exception);
-        logger.error(err.stack);
-        catchError(logger);
-      };
+      if (!kDebugMode) {
+        FlutterError.onError = (err) async {
+          logger.error(err.exception);
+          logger.error(err.stack);
+          catchError(logger);
+        };
+      }
 
       //Calendar
       tz.initializeTimeZones();
