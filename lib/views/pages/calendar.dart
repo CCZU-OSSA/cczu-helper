@@ -215,8 +215,7 @@ class CalendarViewHeaderState extends State<CalendarViewHeader> {
         .difference(widget.firstCurriculumDate)
         .inDays;
     return Visibility(
-      visible: widget.controller.view == CalendarView.week &&
-          configs.calendarShowViewHeader.getOr(true),
+      visible: widget.controller.view == CalendarView.week,
       child: SizedBox(
         height: 45,
         child: Row(
@@ -297,26 +296,47 @@ class CurriculumPageState extends State<CurriculumPage>
     CalendarViewHeader viewHeader,
     Widget child,
   ) {
-    if (!ArcheBus.bus
-        .of<ApplicationConfigs>()
-        .calendarShowController
-        .getOr(true)) {
-      return SafeArea(bottom: false, child: child);
-    }
+    final configs = ArcheBus.bus.of<ApplicationConfigs>();
+    final showController = configs.calendarShowController.getOr(true);
+    final showViewHeader = configs.calendarShowViewHeader.getOr(true);
 
-    return Column(
-      children: [
-        SafeArea(
-          bottom: false,
-          child: CalendarControllerHeader(
-            controller: controller,
-            refresh: refreshMounted,
+    if (!showViewHeader && !showController) {
+      return SafeArea(bottom: false, child: child);
+    } else if (showViewHeader && !showController) {
+      return Column(
+        children: [
+          SafeArea(bottom: false, child: viewHeader),
+          Expanded(child: child)
+        ],
+      );
+    } else if (!showViewHeader && showController) {
+      return Column(
+        children: [
+          SafeArea(
+            bottom: false,
+            child: CalendarControllerHeader(
+              controller: controller,
+              refresh: refreshMounted,
+            ),
           ),
-        ),
-        viewHeader,
-        Expanded(child: child)
-      ],
-    );
+          Expanded(child: child)
+        ],
+      );
+    } else {
+      return Column(
+        children: [
+          SafeArea(
+            bottom: false,
+            child: CalendarControllerHeader(
+              controller: controller,
+              refresh: refreshMounted,
+            ),
+          ),
+          viewHeader,
+          Expanded(child: child)
+        ],
+      );
+    }
   }
 
   (Color appointment, Color? location, Color? secoundary) getAppointmentColor(
