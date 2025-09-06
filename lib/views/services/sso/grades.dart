@@ -1,5 +1,7 @@
 import "package:arche/arche.dart";
+import "package:cczu_helper/animation/rainbow.dart";
 import "package:cczu_helper/controllers/accounts.dart";
+import "package:cczu_helper/controllers/config.dart";
 import 'package:cczu_helper/src/bindings/bindings.dart';
 import "package:flutter/material.dart";
 
@@ -23,6 +25,8 @@ class GradeQueryServicePageState extends State<GradeQueryServicePage> {
 
   @override
   Widget build(BuildContext context) {
+    ApplicationConfigs configs = ArcheBus().of();
+    bool dream = configs.funDream.getOr(false);
     return StreamBuilder(
       stream: GradesOutput.rustSignalStream,
       builder: (context, snapshot) {
@@ -57,8 +61,12 @@ class GradeQueryServicePageState extends State<GradeQueryServicePage> {
                   .map((e) => ListTile(
                         title: Text(e.name),
                         subtitle: Text(e.point),
-                        trailing: Text(e.grade.trim().isEmpty ? "暂无" : e.grade),
-                      ));
+                        trailing: Text(dream
+                            ? "100"
+                            : e.grade.trim().isEmpty
+                                ? "暂无"
+                                : e.grade),
+                      ).rainbowWhen(dream));
             },
           ),
           body: ListView(
@@ -66,8 +74,12 @@ class GradeQueryServicePageState extends State<GradeQueryServicePage> {
                 .map((e) => ListTile(
                       title: Text(e.name),
                       subtitle: Text(e.point),
-                      trailing: Text(e.grade.trim().isEmpty ? "暂无" : e.grade),
-                    ))
+                      trailing: Text(dream
+                          ? "100"
+                          : e.grade.trim().isEmpty
+                              ? "暂无"
+                              : e.grade),
+                    ).rainbowWhen(dream))
                 .toList(),
           ),
         );

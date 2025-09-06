@@ -2,7 +2,8 @@ use crate::signals::{AccountLoginCallback, EDUAccountLoginInput, SSOAccountLogin
 use cczuni::{
     base::{app::AppVisitor, client::Account},
     impls::{
-        apps::wechat::jwqywx::JwqywxApplication, client::DefaultClient,
+        apps::{sso::jwcas::JwcasApplication, wechat::jwqywx::JwqywxApplication},
+        client::DefaultClient,
         login::sso::SSOUniversalLogin,
     },
 };
@@ -12,11 +13,16 @@ pub async fn sso_login() {
     let rev = SSOAccountLoginInput::get_dart_signal_receiver();
     while let Some(signal) = rev.recv().await {
         let account = signal.message.account;
-        let login =
-            DefaultClient::new(Account::new(account.user.clone(), account.password.clone()))
-                .sso_universal_login()
-                .await;
-        if let Err(message) = login {
+        let client =
+            DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
+        let login: Option<String> = match client.sso_universal_login().await {
+            Ok(_) => match client.visit::<JwcasApplication<_>>().await.login().await {
+                Ok(_) => None,
+                Err(e) => Some(e.to_string()),
+            },
+            Err(e) => Some(e.to_string()),
+        };
+        if let Some(message) = login {
             AccountLoginCallback {
                 ok: false,
                 error: Some(message.to_string()),

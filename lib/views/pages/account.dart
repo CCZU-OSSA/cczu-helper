@@ -322,7 +322,7 @@ class _LoginWidgetState extends State<_LoginWidget> {
             return const Icon(Icons.check);
           }
 
-          return Text("${message.error} (可能由于网络问题导致，请多尝试)");
+          return Text("${message.error} (请检查账户密码)");
         },
       ),
     );
