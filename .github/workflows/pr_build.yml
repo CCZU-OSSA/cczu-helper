@@ -63,6 +63,7 @@ jobs:
       - name: Build Linux
         if: matrix.target == 'linux'
         run: |
+          sudo apt-get update
           sudo apt-get install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
           flutter build linux --debug
 
