@@ -626,7 +626,6 @@ class CurriculumPageState extends State<CurriculumPage>
       controller: calendarController,
       initialDisplayDate: _displayDate,
       view: view,
-      todayHighlightColor: Colors.transparent,
       todayTextStyle: TextStyle(
         color: theme.colorScheme.primary,
         fontWeight: FontWeight.w800,

@@ -6,6 +6,7 @@ import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/models/navstyle.dart';
 import 'package:cczu_helper/views/pages/calendar.dart';
+import 'package:cczu_helper/views/services/iccard/electric_bill.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -146,4 +147,16 @@ class ApplicationConfigs extends AppConfigsBase {
           return value.hour * 100 + value.minute;
         },
       );
+  ConfigEntryConverter<List<dynamic>, List<SubscribeElectricBillRoom>>
+      get subscribeElectricBillRooms => ConfigEntryConverter(
+            generator("subscribe_electric_bill_rooms"),
+            forward: (value) {
+              return value
+                  .map((e) => SubscribeElectricBillRoom.fromJson(e))
+                  .toList();
+            },
+            reverse: (value) {
+              return value.map((e) => e.toJson()).toList();
+            },
+          );
 }

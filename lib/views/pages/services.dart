@@ -7,6 +7,7 @@ import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/services/edu/wechat/ranks.dart';
+import 'package:cczu_helper/views/services/iccard/electric_bill.dart';
 import 'package:cczu_helper/views/services/sso/grades.dart';
 import 'package:cczu_helper/views/services/common/icalendar.dart';
 import 'package:cczu_helper/views/services/misc/cmcc_account.dart';
@@ -108,6 +109,13 @@ class ServicePageState extends State<ServicePage>
         service: LabServicePage(),
         image: AssetImage("assets/lab.png"),
         onTap: ssoCheckOnTap,
+      )
+    ],
+    "一卡通": [
+      const ServiceItem(
+        text: "查电费",
+        image: AssetImage("assets/electric_bill.png"),
+        service: ElectricBillPage(),
       )
     ],
     "教务系统(不可用)": [

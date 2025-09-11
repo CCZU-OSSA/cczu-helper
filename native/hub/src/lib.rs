@@ -9,6 +9,7 @@ use tokio;
 mod account_implments;
 
 mod app_implements;
+mod iccard_implments;
 mod jwcas_implments;
 mod jwqywx_implements;
 mod signals;
@@ -38,6 +39,9 @@ async fn main() {
     tokio::spawn(jwqywx_implements::get_terms());
     tokio::spawn(jwqywx_implements::get_rank());
     tokio::spawn(jwqywx_implements::generate_icalendar());
+
+    tokio::spawn(iccard_implments::query_buildings());
+    tokio::spawn(iccard_implments::query_room());
 
     tokio::spawn(utils_implments::service_status());
 
