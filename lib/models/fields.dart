@@ -10,4 +10,4 @@ final GlobalKey<NavigationViewState> navKey = GlobalKey();
 final GlobalKey<SettingsPageState> settingKey = GlobalKey();
 final GlobalKey<ScaffoldMessengerState> messagerKey = GlobalKey();
 
-const Version appVersion = (1, 7, 0);
+const Version appVersion = (1, 8, 0);

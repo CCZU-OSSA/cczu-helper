@@ -89,6 +89,28 @@ class ServicePageState extends State<ServicePage>
           (account) => account.hasCurrentSSOAccount(), context, item);
 
   final _services = {
+    "教务系统(推荐)": [
+      const ServiceItem(
+        text: "生成课程表(企微)",
+        service: ICalendarServicePage(
+          api: ICalendarAPIType.wechat,
+        ),
+        image: AssetImage("assets/icalendar.png"),
+        onTap: eduCheckOnTap,
+      ),
+      const ServiceItem(
+        text: "查询成绩(企微)",
+        service: WeChatGradeQueryServicePage(),
+        image: AssetImage("assets/grade.png"),
+        onTap: eduCheckOnTap,
+      ),
+      const ServiceItem(
+        text: "查询绩点(企微)",
+        service: WeChatRankServicePage(),
+        image: AssetImage("assets/rank.png"),
+        onTap: eduCheckOnTap,
+      )
+    ],
     "一网通办": [
       const ServiceItem(
         text: "生成课程表",
@@ -116,28 +138,6 @@ class ServicePageState extends State<ServicePage>
         text: "查电费",
         image: AssetImage("assets/electric_bill.png"),
         service: ElectricBillPage(),
-      )
-    ],
-    "教务系统(不可用)": [
-      const ServiceItem(
-        text: "生成课程表(企微)",
-        service: ICalendarServicePage(
-          api: ICalendarAPIType.wechat,
-        ),
-        image: AssetImage("assets/icalendar.png"),
-        onTap: eduCheckOnTap,
-      ),
-      const ServiceItem(
-        text: "查询成绩(企微)",
-        service: WeChatGradeQueryServicePage(),
-        image: AssetImage("assets/grade.png"),
-        onTap: eduCheckOnTap,
-      ),
-      const ServiceItem(
-        text: "排名绩点(企微)",
-        service: WeChatRankServicePage(),
-        image: AssetImage("assets/rank.png"),
-        onTap: eduCheckOnTap,
       )
     ],
     if (Platform.isWindows)

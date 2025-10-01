@@ -58,18 +58,18 @@ class WeChatRankServicePageState extends State<WeChatRankServicePage> {
                   title: Text("绩点"),
                   trailing: dream ? Text("5.00") : Text(data.gpa),
                 ).rainbowWhen(dream),
-                ListTile(
-                  title: Text("排名"),
-                  trailing: dream ? Text("1") : Text(data.rank),
-                ).rainbowWhen(dream),
-                ListTile(
-                  title: Text("专业排名"),
-                  trailing: dream ? Text("1") : Text(data.majorRank),
-                ).rainbowWhen(dream),
-                ListTile(
-                  title: Text("总学分"),
-                  trailing: Text(data.totalCredits),
-                ),
+                // ListTile(
+                //   title: Text("排名"),
+                //   trailing: dream ? Text("1") : Text(data.rank),
+                // ).rainbowWhen(dream),
+                // ListTile(
+                //   title: Text("专业排名"),
+                //   trailing: dream ? Text("1") : Text(data.majorRank),
+                // ).rainbowWhen(dream),
+                // ListTile(
+                //   title: Text("总学分"),
+                //   trailing: Text(data.totalCredits),
+                // ),
               ],
             ),
           );

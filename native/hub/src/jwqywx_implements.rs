@@ -220,10 +220,7 @@ pub async fn get_rank() {
                     WeChatRankDataOutput {
                         ok: true,
                         data: Some(WeChatRankData {
-                            gpa: data.grade_points.clone(),
-                            major_rank: data.major_rank.clone(),
-                            rank: data.rank.clone(),
-                            total_credits: data.total_credits.clone(),
+                            gpa: data.grade_points.to_string(),
                         }),
                         error: None,
                     }

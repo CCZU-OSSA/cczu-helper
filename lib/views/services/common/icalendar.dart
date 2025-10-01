@@ -181,7 +181,7 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
                       api = ICalendarAPIType.wechat;
                     });
                   },
-                  child: const Text("使用企业微信数据源 (不可用) (教务系统账户)"))
+                  child: const Text("使用企业微信数据源 (推荐) (教务系统账户)"))
             ].joinElement(const SizedBox(
               height: 8,
             )),

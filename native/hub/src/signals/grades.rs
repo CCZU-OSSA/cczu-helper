@@ -53,10 +53,7 @@ pub struct WeChatRankInput {
 
 #[derive(Serialize, SignalPiece)]
 pub struct WeChatRankData {
-    pub rank: String,
-    pub major_rank: String,
     pub gpa: String,
-    pub total_credits: String,
 }
 
 #[derive(Serialize, RustSignal)]

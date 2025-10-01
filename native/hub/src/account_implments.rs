@@ -49,7 +49,7 @@ pub async fn edu_login() {
         let login = app.login().await;
         if let Ok(message) = login {
             if let Some(user) = message.message.first() {
-                if user.userid.is_empty() {
+                if user.userid.is_empty() || user.id.is_empty() {
                     AccountLoginCallback {
                         ok: false,
                         error: Some("登陆失败".into()),
