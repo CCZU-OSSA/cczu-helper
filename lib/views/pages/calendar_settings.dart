@@ -271,17 +271,6 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                   await calendarBackgroundData.update();
                 },
               ),
-              SwitchListTile(
-                secondary: const Icon(Icons.photo_library),
-                title: const Text("背景大小优化"),
-                subtitle: const Text("Background Resize"),
-                value: configs.calendarBackgroundImageResize.getOr(false),
-                onChanged: (bool value) {
-                  setState(() {
-                    configs.calendarBackgroundImageResize.write(value);
-                  });
-                },
-              ),
               ListTile(
                 leading: const Icon(Icons.opacity),
                 title: const Text("背景图片透明度"),

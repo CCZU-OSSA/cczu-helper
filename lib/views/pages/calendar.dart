@@ -689,37 +689,17 @@ class CurriculumPageState extends State<CurriculumPage>
     );
 
     final blur = configs.calendarBackgroundImageBlur.getOr(0);
-    ImageProvider? calendarBackgroundProvider;
-    if (calendarBackgroundData.value != null) {
-      calendarBackgroundProvider = MemoryImage(
-        calendarBackgroundData.value!,
-      );
-      if (configs.calendarBackgroundImageResize.getOr(false)) {
-        calendarBackgroundProvider = ResizeImage(calendarBackgroundProvider,
-            policy: ResizeImagePolicy.fit,
-            allowUpscaling: true,
-            width: (MediaQuery.sizeOf(context).width *
-                    MediaQuery.devicePixelRatioOf(context))
-                .toInt(),
-            height: (MediaQuery.sizeOf(context).height *
-                    MediaQuery.devicePixelRatioOf(context))
-                .toInt());
-      }
-      precacheImage(calendarBackgroundProvider, context);
-    }
 
     return Stack(
       children: [
-        Container(
+        RawImage(
+          width: double.infinity,
+          height: double.infinity,
           key: ObjectKey(calendarBackgroundData.value),
-          decoration: BoxDecoration(
-            image: calendarBackgroundProvider == null
-                ? null
-                : DecorationImage(
-                    image: calendarBackgroundProvider,
-                    fit: BoxFit.cover,
-                    opacity: configs.calendarBackgroundImageOpacity.getOr(0.3),
-                  ),
+          image: calendarBackgroundData.value,
+          fit: BoxFit.cover,
+          opacity: AlwaysStoppedAnimation(
+            configs.calendarBackgroundImageOpacity.getOr(0.3),
           ),
         ),
         BackdropFilter(

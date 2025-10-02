@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/io.dart';
@@ -26,7 +26,7 @@ FutureLazyDynamicCan<Directory> platCalendarDataDirectory =
             .check());
 
 // Need initialize the configs first
-FutureLazyDynamicCan<Uint8List?> calendarBackgroundData =
+FutureLazyDynamicCan<ui.Image?> calendarBackgroundData =
     FutureLazyDynamicCan(builder: () async {
   final configs = ArcheBus().of<ApplicationConfigs>();
   final background = configs.calendarBackgroundImage.tryGet();
@@ -35,7 +35,7 @@ FutureLazyDynamicCan<Uint8List?> calendarBackgroundData =
   }
   final file = (await platCalendarDataDirectory.getValue()).subFile(background);
   if (await file.exists()) {
-    return await file.readAsBytes();
+    return await decodeImageFromList(await file.readAsBytes());
   }
   return null;
 });
@@ -110,8 +110,7 @@ class ApplicationConfigs extends AppConfigsBase {
 
   ConfigEntry<String> get calendarBackgroundImage =>
       generator("calendar_background_image");
-  ConfigEntry<bool> get calendarBackgroundImageResize =>
-      generator("calendar_background_image_resize");
+
   ConfigEntry<double> get calendarCellOpacity =>
       generator("calendar_cell_opacity");
   ConfigEntry<double> get calendarBackgroundImageOpacity =>
