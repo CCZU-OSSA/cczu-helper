@@ -89,7 +89,7 @@ class ServicePageState extends State<ServicePage>
           (account) => account.hasCurrentSSOAccount(), context, item);
 
   final _services = {
-    "教务系统(推荐)": [
+    "教务系统": [
       const ServiceItem(
         text: "生成课程表(企微)",
         service: ICalendarServicePage(

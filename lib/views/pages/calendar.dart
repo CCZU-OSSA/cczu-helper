@@ -689,11 +689,22 @@ class CurriculumPageState extends State<CurriculumPage>
     );
 
     final blur = configs.calendarBackgroundImageBlur.getOr(0);
-    MemoryImage? calendarBackgroundProvider;
+    ImageProvider? calendarBackgroundProvider;
     if (calendarBackgroundData.value != null) {
       calendarBackgroundProvider = MemoryImage(
         calendarBackgroundData.value!,
       );
+      if (configs.calendarBackgroundImageResize.getOr(false)) {
+        calendarBackgroundProvider = ResizeImage(calendarBackgroundProvider,
+            policy: ResizeImagePolicy.fit,
+            allowUpscaling: true,
+            width: (MediaQuery.sizeOf(context).width *
+                    MediaQuery.devicePixelRatioOf(context))
+                .toInt(),
+            height: (MediaQuery.sizeOf(context).height *
+                    MediaQuery.devicePixelRatioOf(context))
+                .toInt());
+      }
       precacheImage(calendarBackgroundProvider, context);
     }
 
