@@ -20,7 +20,6 @@ import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:cczu_helper/views/widgets/seletor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:system_fonts/system_fonts.dart';
@@ -112,7 +111,7 @@ class SettingsPageState extends State<SettingsPage>
                 replacement: SwitchListTile(
                   secondary: const Icon(FontAwesomeIcons.font),
                   title: const Text("自定义字体"),
-                  subtitle: const Text("Custom Font"),
+                  subtitle: const Text("需重新启动"),
                   value: platUserDataDirectory.value
                           ?.subFile("customfont")
                           .existsSync() ??
@@ -139,15 +138,6 @@ class SettingsPageState extends State<SettingsPage>
                               final file = platdir.subFile("customfont");
                               file.writeAsBytesSync(data);
                               setState(() {});
-                              final loader = FontLoader("Custom Font")
-                                ..addFont(
-                                  Future(() async {
-                                    return data.buffer.asByteData();
-                                  }),
-                                );
-                              loader.load().then((value) {
-                                rootKey.currentState?.refreshMounted();
-                              });
                             });
                           }
                         }
@@ -158,7 +148,6 @@ class SettingsPageState extends State<SettingsPage>
                         if (file.existsSync()) {
                           file.deleteSync();
                           setState(() {});
-                          rootKey.currentState?.refreshMounted();
                         }
                       });
                     }
