@@ -42,10 +42,10 @@ dependencies:
     sdk: flutter
   intl: any
   rinf: ^8.6.0
-  share_plus: ^11.0.0
-  file_picker: ^10.2.0
+  share_plus: ^12.0.0
+  file_picker: ^10.3.3
   flutter_markdown: ^0.7.3
-  syncfusion_flutter_calendar: ^30.1.37
+  syncfusion_flutter_calendar: ^31.1.22
   icalendar_parser: ^2.0.0
   timezone: ^0.10.0
   flutter_native_splash: ^2.4.6
@@ -53,7 +53,7 @@ dependencies:
   image_picker: ^1.1.2
   path: ^1.9.0
   flutter_animate: ^4.5.2
-  dynamic_system_colors: ^1.8.0
+  dynamic_color: ^1.8.1
   tuple: ^2.0.2
 
 dev_dependencies:

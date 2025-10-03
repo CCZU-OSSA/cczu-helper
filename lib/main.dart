@@ -16,7 +16,7 @@ import 'package:cczu_helper/views/pages/calendar.dart';
 import 'package:cczu_helper/views/pages/services.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
-import 'package:dynamic_system_colors/dynamic_system_colors.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

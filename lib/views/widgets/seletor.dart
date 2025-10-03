@@ -30,8 +30,8 @@ class EnumSeletorState<T> extends State<Seletor<T>> {
   @override
   void initState() {
     super.initState();
-    this.buttonKey = GlobalKey();
-    this.value = widget.value;
+    buttonKey = GlobalKey();
+    value = widget.value;
   }
 
   @override

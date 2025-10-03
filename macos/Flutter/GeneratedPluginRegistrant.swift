@@ -5,7 +5,7 @@
 import FlutterMacOS
 import Foundation
 
-import dynamic_system_colors
+import dynamic_color
 import file_picker
 import file_selector_macos
 import path_provider_foundation
