@@ -105,6 +105,15 @@ class ApplicationConfigs extends AppConfigsBase {
   ConfigEntry<bool> get weakAnimation => generator("weak_animation");
   ConfigEntry<bool> get funDream => generator("fun_dream");
 
+  ConfigEntry<bool> get enableCustomPrimaryColor =>
+      generator("enable_custom_primary_color");
+  ConfigEntryConverter<int, Color> get customPrimaryColor =>
+      ConfigEntryConverter(
+        generator("custom_primary_color"),
+        reverse: (value) => value.toARGB32(),
+        forward: (value) => Color(value),
+      );
+
   ConfigEntry<bool> get calendarIntervalLine =>
       generator("calendar_intervalline");
 

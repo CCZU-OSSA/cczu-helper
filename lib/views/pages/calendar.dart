@@ -406,7 +406,8 @@ class CurriculumPageState extends State<CurriculumPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 16, left: 16),
+                      padding:
+                          const EdgeInsets.only(top: 16, left: 16, right: 16),
                       child: Text(
                         appointment.summary,
                         style: const TextStyle(fontSize: 24),

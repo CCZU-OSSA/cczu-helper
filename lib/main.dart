@@ -85,7 +85,7 @@ void main() {
       // Custom Font
       var customfont = platUserData.subFile("customfont");
       if (await customfont.exists()) {
-        var loader = FontLoader("Custom Font")
+        final loader = FontLoader("Custom Font")
           ..addFont(
             Future(() async {
               var data = await customfont.readAsBytes();
@@ -168,6 +168,17 @@ class MainApplicationState extends State<MainApplication>
 
   @override
   Widget build(BuildContext context) {
+    final customColor = configs.enableCustomPrimaryColor.getOr(false)
+        ? configs.customPrimaryColor.tryGet()
+        : null;
+    final customDarkColorScheme = customColor != null
+        ? ColorScheme.fromSeed(
+            seedColor: customColor, brightness: Brightness.dark)
+        : null;
+    final customLightColorScheme = customColor != null
+        ? ColorScheme.fromSeed(
+            seedColor: customColor, brightness: Brightness.light)
+        : null;
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) => MaterialApp(
         scaffoldMessengerKey: messagerKey,
@@ -188,7 +199,8 @@ class MainApplicationState extends State<MainApplication>
           brightness: Brightness.dark,
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
-          colorScheme: darkDynamic ?? _defaultDarkColorScheme,
+          colorScheme:
+              customDarkColorScheme ?? darkDynamic ?? _defaultDarkColorScheme,
           typography: Typography.material2021(),
         ),
         theme: ThemeData(
@@ -199,7 +211,9 @@ class MainApplicationState extends State<MainApplication>
           brightness: Brightness.light,
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
-          colorScheme: lightDynamic ?? _defaultLightColorScheme,
+          colorScheme: customLightColorScheme ??
+              lightDynamic ??
+              _defaultLightColorScheme,
           typography: Typography.material2021(),
         ),
         themeMode: configs.themeMode.getOr(ThemeMode.system),

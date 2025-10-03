@@ -10,6 +10,7 @@ import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/models/version.dart';
 import 'package:cczu_helper/views/pages/calendar_settings.dart';
+import 'package:cczu_helper/views/pages/primary_color_picked.dart';
 import 'package:cczu_helper/views/pages/service_status.dart';
 import 'package:cczu_helper/views/pages/update.dart';
 import 'package:cczu_helper/views/pages/log.dart';
@@ -19,6 +20,7 @@ import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:cczu_helper/views/widgets/seletor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:system_fonts/system_fonts.dart';
@@ -110,7 +112,7 @@ class SettingsPageState extends State<SettingsPage>
                 replacement: SwitchListTile(
                   secondary: const Icon(FontAwesomeIcons.font),
                   title: const Text("自定义字体"),
-                  subtitle: const Text("需重新启动"),
+                  subtitle: const Text("Custom Font"),
                   value: platUserDataDirectory.value
                           ?.subFile("customfont")
                           .existsSync() ??
@@ -137,6 +139,15 @@ class SettingsPageState extends State<SettingsPage>
                               final file = platdir.subFile("customfont");
                               file.writeAsBytesSync(data);
                               setState(() {});
+                              final loader = FontLoader("Custom Font")
+                                ..addFont(
+                                  Future(() async {
+                                    return data.buffer.asByteData();
+                                  }),
+                                );
+                              loader.load().then((value) {
+                                rootKey.currentState?.refreshMounted();
+                              });
                             });
                           }
                         }
@@ -147,6 +158,7 @@ class SettingsPageState extends State<SettingsPage>
                         if (file.existsSync()) {
                           file.deleteSync();
                           setState(() {});
+                          rootKey.currentState?.refreshMounted();
                         }
                       });
                     }
@@ -199,6 +211,48 @@ class SettingsPageState extends State<SettingsPage>
                     configs.navStyle.write(value);
                     viewKey.currentState?.refreshMounted();
                   },
+                ),
+              ),
+              SwitchListTile(
+                value: configs.enableCustomPrimaryColor.getOr(false),
+                secondary: const Icon(Icons.colorize),
+                title: const Text("自定义主色调"),
+                subtitle: const Text("Custom Primary Color"),
+                onChanged: (value) {
+                  setState(() {
+                    configs.enableCustomPrimaryColor.write(value);
+                  });
+                  rootKey.currentState?.refreshMounted();
+                },
+              ),
+              AnimatedSize(
+                duration: Durations.short4,
+                child: Visibility(
+                  visible: configs.enableCustomPrimaryColor.getOr(false),
+                  child: ListTile(
+                    leading: const Icon(Icons.color_lens),
+                    title: const Text("主色调"),
+                    subtitle: const Text("Primary Color"),
+                    trailing: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(4)),
+                        color: configs.customPrimaryColor.tryGet(),
+                      ),
+                    ),
+                    onTap: () async {
+                      final color = await pushMaterialRoute(
+                          builder: (context) => const PrimaryColorPickedPage());
+                      if (color != null && color is Color) {
+                        setState(() {
+                          configs.customPrimaryColor.write(color);
+                        });
+                        rootKey.currentState?.refreshMounted();
+                      }
+                    },
+                  ),
                 ),
               ),
               SwitchListTile(
