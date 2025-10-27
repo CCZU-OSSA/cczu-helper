@@ -166,7 +166,7 @@ class CalendarControllerHeaderState extends State<CalendarControllerHeader> {
 }
 
 class CalendarViewHeader extends StatefulWidget {
-  final DateTime firstCurriculumDate;
+  final DateTime? firstCurriculumDate;
 
   final CalendarController controller;
   const CalendarViewHeader({
@@ -211,9 +211,13 @@ class CalendarViewHeaderState extends State<CalendarViewHeader> {
         DateFormat('EEE', Localizations.localeOf(context).languageCode);
     final theme = Theme.of(context);
     final configs = ArcheBus.bus.of<ApplicationConfigs>();
-    final diff = details?.visibleDates.first
-        .difference(widget.firstCurriculumDate)
-        .inDays;
+    int? diff;
+    if (widget.firstCurriculumDate != null) {
+      diff = details?.visibleDates.first
+          .difference(widget.firstCurriculumDate!)
+          .inDays;
+    }
+
     return Visibility(
       visible: widget.controller.view == CalendarView.week,
       child: SizedBox(
@@ -604,8 +608,9 @@ class CurriculumPageState extends State<CurriculumPage>
       key: calendarViewHeaderKey,
       controller: calendarController,
       firstCurriculumDate: icalendarData
-          .firstWhere((e) => e.source == CalendarSource.curriculum)
-          .data
+          .where((e) => e.source == CalendarSource.curriculum)
+          .firstOrNull
+          ?.data
           .where((e) => e.isAllday && e.summary.startsWith("学期"))
           .map((e) => e.start.toDateTime()!)
           .reduce((a, b) {

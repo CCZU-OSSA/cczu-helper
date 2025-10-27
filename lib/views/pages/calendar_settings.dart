@@ -370,9 +370,8 @@ class _CalendarsManagerPageState extends State<CalendarsManagerPage> {
                 for (var single in file.files) {
                   var bytes = single.bytes;
                   if (bytes != null) {
-                    platdir.subFile(single.name).writeAsBytes(bytes).then((_) {
-                      setState(() {});
-                    });
+                    platdir.subFile(single.name).writeAsBytesSync(bytes);
+                    setState(() {});
                   }
                 }
                 await icalendarParsersData.update();
