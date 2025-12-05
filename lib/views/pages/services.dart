@@ -7,6 +7,7 @@ import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/services/edu/wechat/evaluation.dart';
+import 'package:cczu_helper/views/services/edu/wechat/exams.dart';
 import 'package:cczu_helper/views/services/edu/wechat/ranks.dart';
 import 'package:cczu_helper/views/services/iccard/electric_bill.dart';
 import 'package:cczu_helper/views/services/sso/grades.dart';
@@ -112,7 +113,13 @@ class ServicePageState extends State<ServicePage>
         onTap: eduCheckOnTap,
       ),
       const ServiceItem(
-        text: "教师评价(企微)",
+        text: "考试查询(企微)",
+        service: WeChatExamQueryServicePage(),
+        image: AssetImage("assets/exams.png"),
+        onTap: eduCheckOnTap,
+      ),
+      const ServiceItem(
+        text: "教师评价(beta)",
         service: WeChatEvaluationPage(),
         onTap: eduCheckOnTap,
       )

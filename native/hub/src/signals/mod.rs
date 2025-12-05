@@ -16,3 +16,5 @@ pub mod iccard;
 pub use iccard::*;
 pub mod evalution;
 pub use evalution::*;
+pub mod exams;
+pub use exams::*;

@@ -9,9 +9,9 @@ use rinf::{DartSignal, RustSignal};
 
 use crate::signals::{
     ICalendarOutput, ICalendarWxInput, SimplifiedEvaluatableClass, WeChatEvaluatableClassInput,
-    WeChatEvaluatableClassOutput, WeChatEvaluationInput, WeChatEvaluationOutput, WeChatGradeData,
-    WeChatGradesInput, WeChatGradesOutput, WeChatRankData, WeChatRankDataOutput, WeChatRankInput,
-    WeChatTermsInput, WeChatTermsOutput,
+    WeChatEvaluatableClassOutput, WeChatEvaluationInput, WeChatEvaluationOutput, WeChatExamData,
+    WeChatExamsInput, WeChatExamsOutput, WeChatGradeData, WeChatGradesInput, WeChatGradesOutput,
+    WeChatRankData, WeChatRankDataOutput, WeChatRankInput, WeChatTermsInput, WeChatTermsOutput,
 };
 
 pub async fn get_grades() {
@@ -348,6 +348,76 @@ pub async fn submit_evaluation() {
                 error: Some("Evaluation submission failed".to_owned()),
             }
             .send_signal_to_dart();
+        }
+    }
+}
+
+pub async fn get_exams() {
+    let rev = WeChatExamsInput::get_dart_signal_receiver();
+
+    while let Some(signal) = rev.recv().await {
+        let message = signal.message;
+        let account = message.account;
+        let client =
+            DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
+        let app = client.visit::<JwqywxApplication<_>>().await;
+        let login = app.login().await;
+        if let Err(message) = login {
+            WeChatExamsOutput {
+                ok: false,
+                data: vec![],
+                error: Some(message.to_string()),
+            }
+            .send_signal_to_dart();
+            continue;
+        }
+        if let Ok(login) = login {
+            if login
+                .message
+                .first()
+                .map(|e| e.userid.is_empty())
+                .unwrap_or(true)
+            {
+                WeChatExamsOutput {
+                    ok: false,
+                    data: vec![],
+                    error: Some("Error Password".to_owned()),
+                }
+                .send_signal_to_dart();
+                continue;
+            }
+            let exams = app.get_exams(message.term).await;
+            if let Ok(data) = exams {
+                WeChatExamsOutput {
+                    ok: true,
+                    data: data
+                        .message
+                        .into_iter()
+                        .filter(|e| e.classroom.is_some() && e.time_range.is_some())
+                        .map(|e| WeChatExamData {
+                            name: e.course_name,
+                            location: e.classroom.unwrap_or_default(),
+                            date: e.time_range.unwrap_or_default(),
+                        })
+                        .collect(),
+                    error: None,
+                }
+                .send_signal_to_dart()
+            } else if let Err(message) = exams {
+                WeChatExamsOutput {
+                    ok: false,
+                    data: vec![],
+                    error: Some(message.to_string()),
+                }
+                .send_signal_to_dart()
+            }
+        } else if let Err(message) = login {
+            WeChatExamsOutput {
+                ok: false,
+                data: vec![],
+                error: Some(message.to_string()),
+            }
+            .send_signal_to_dart()
         }
     }
 }
