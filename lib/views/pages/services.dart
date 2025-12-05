@@ -6,6 +6,7 @@ import 'package:arche/extensions/functions.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/views/pages/account.dart';
+import 'package:cczu_helper/views/services/edu/wechat/evaluation.dart';
 import 'package:cczu_helper/views/services/edu/wechat/ranks.dart';
 import 'package:cczu_helper/views/services/iccard/electric_bill.dart';
 import 'package:cczu_helper/views/services/sso/grades.dart';
@@ -108,6 +109,11 @@ class ServicePageState extends State<ServicePage>
         text: "查询绩点(企微)",
         service: WeChatRankServicePage(),
         image: AssetImage("assets/rank.png"),
+        onTap: eduCheckOnTap,
+      ),
+      const ServiceItem(
+        text: "教师评价(企微)",
+        service: WeChatEvaluationPage(),
         onTap: eduCheckOnTap,
       )
     ],

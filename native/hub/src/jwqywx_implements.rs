@@ -8,8 +8,10 @@ use cczuni::{
 use rinf::{DartSignal, RustSignal};
 
 use crate::signals::{
-    ICalendarOutput, ICalendarWxInput, WeChatGradeData, WeChatGradesInput, WeChatGradesOutput,
-    WeChatRankData, WeChatRankDataOutput, WeChatRankInput, WeChatTermsInput, WeChatTermsOutput,
+    ICalendarOutput, ICalendarWxInput, SimplifiedEvaluatableClass, WeChatEvaluatableClassInput,
+    WeChatEvaluatableClassOutput, WeChatEvaluationInput, WeChatEvaluationOutput, WeChatGradeData,
+    WeChatGradesInput, WeChatGradesOutput, WeChatRankData, WeChatRankDataOutput, WeChatRankInput,
+    WeChatTermsInput, WeChatTermsOutput,
 };
 
 pub async fn get_grades() {
@@ -246,6 +248,104 @@ pub async fn get_rank() {
                 ok: false,
                 data: None,
                 error: Some("Login Failed".to_owned()),
+            }
+            .send_signal_to_dart();
+        }
+    }
+}
+
+pub async fn get_evalutable_class() {
+    let rev = WeChatEvaluatableClassInput::get_dart_signal_receiver();
+
+    while let Some(signal) = rev.recv().await {
+        let message = signal.message;
+        let account = message.account;
+
+        let client =
+            DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
+
+        let app = client.visit::<JwqywxApplication<_>>().await;
+        let login = app.login().await;
+
+        if let Err(message) = login {
+            WeChatEvaluatableClassOutput {
+                ok: false,
+                classes: vec![],
+                error: Some(message.to_string()),
+            }
+            .send_signal_to_dart();
+            continue;
+        }
+
+        if let Ok(classes) = app.get_evaluatable_class(message.term).await {
+            WeChatEvaluatableClassOutput {
+                ok: true,
+                classes: classes
+                    .message
+                    .into_iter()
+                    .map(|c| SimplifiedEvaluatableClass {
+                        course_name: c.course_name,
+                        teacher_name: c.teacher_name,
+                        teacher_code: c.teacher_code,
+                        course_code: c.course_code,
+                        evaluation_status: c.evaluation_status,
+                    })
+                    .collect(),
+                error: None,
+            }
+            .send_signal_to_dart();
+        } else {
+            WeChatEvaluatableClassOutput {
+                ok: false,
+                classes: vec![],
+                error: Some("Failed to fetch evaluatable classes".to_owned()),
+            }
+            .send_signal_to_dart();
+        }
+    }
+}
+
+pub async fn submit_evaluation() {
+    let rev = WeChatEvaluationInput::get_dart_signal_receiver();
+
+    while let Some(signal) = rev.recv().await {
+        let message = signal.message;
+        let account = message.account;
+
+        let client =
+            DefaultClient::new(Account::new(account.user.clone(), account.password.clone()));
+
+        let app = client.visit::<JwqywxApplication<_>>().await;
+        let login = app.login().await;
+
+        if let Err(message) = login {
+            WeChatEvaluationOutput {
+                ok: false,
+                error: Some(message.to_string()),
+            }
+            .send_signal_to_dart();
+            continue;
+        }
+
+        if let Ok(_) = app
+            .evaluate_class(
+                message.term,
+                &message.evaluatable_class.into(),
+                message.overall_score,
+                message.scores,
+                message.comments,
+            )
+            .await
+        {
+            WeChatEvaluationOutput {
+                ok: true,
+                error: None,
+            }
+            .send_signal_to_dart();
+        } else {
+            WeChatEvaluationOutput {
+                ok: false,
+                error: Some("Evaluation submission failed".to_owned()),
             }
             .send_signal_to_dart();
         }

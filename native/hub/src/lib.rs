@@ -39,6 +39,8 @@ async fn main() {
     tokio::spawn(jwqywx_implements::get_terms());
     tokio::spawn(jwqywx_implements::get_rank());
     tokio::spawn(jwqywx_implements::generate_icalendar());
+    tokio::spawn(jwqywx_implements::submit_evaluation());
+    tokio::spawn(jwqywx_implements::get_evalutable_class());
 
     tokio::spawn(iccard_implments::query_buildings());
     tokio::spawn(iccard_implments::query_room());
