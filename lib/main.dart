@@ -64,7 +64,7 @@ void main() {
         };
       }
 
-      //Calendar
+      // Calendar
       tz.initializeTimeZones();
       ICalendar.registerField(
         field: "WEEK",
@@ -175,14 +175,14 @@ class MainApplicationState extends State<MainApplication>
         ? ColorScheme.fromSeed(
             seedColor: customColor,
             brightness: Brightness.dark,
-            dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+            dynamicSchemeVariant: DynamicSchemeVariant.content,
           )
         : null;
     final customLightColorScheme = customColor != null
         ? ColorScheme.fromSeed(
             seedColor: customColor,
             brightness: Brightness.light,
-            dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+            dynamicSchemeVariant: DynamicSchemeVariant.content,
           )
         : null;
     return DynamicColorBuilder(

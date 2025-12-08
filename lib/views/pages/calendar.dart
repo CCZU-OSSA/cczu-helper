@@ -345,6 +345,7 @@ class CurriculumPageState extends State<CurriculumPage>
   }
 
   (Color appointment, Color? location, Color? secoundary) getAppointmentColor(
+    BuildContext context,
     CalendarData appointment,
     ApplicationConfigs configs,
   ) {
@@ -392,6 +393,7 @@ class CurriculumPageState extends State<CurriculumPage>
   }
 
   Widget buildAppointment(
+    BuildContext context,
     CalendarData appointment,
     ApplicationConfigs configs,
     bool isWeekView,
@@ -400,7 +402,7 @@ class CurriculumPageState extends State<CurriculumPage>
     final time =
         '${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
     final (appointmentColor, locationColor, secondaryColor) =
-        getAppointmentColor(appointment, configs);
+        getAppointmentColor(context, appointment, configs);
     return GestureDetector(
       onTap: appointment.isAllday
           ? null
@@ -573,8 +575,7 @@ class CurriculumPageState extends State<CurriculumPage>
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget buildCalendar(BuildContext context) {
     final theme = Theme.of(context);
     final configs = ArcheBus().of<ApplicationConfigs>();
     final icalendarData = icalendarParsersData.value;
@@ -674,7 +675,8 @@ class CurriculumPageState extends State<CurriculumPage>
             return Expanded(
               child: SizedBox(
                 height: double.infinity,
-                child: buildAppointment(appointment, configs, isWeekView),
+                child:
+                    buildAppointment(context, appointment, configs, isWeekView),
               ),
             );
           }).toList(),
@@ -744,6 +746,33 @@ class CurriculumPageState extends State<CurriculumPage>
         ),
       ],
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final configs = ArcheBus().of<ApplicationConfigs>();
+    final useIndenpendentColor =
+        configs.calendarBackgroundImageIndependentColor.getOr(false) &&
+            configs.calendarBackgroundImage.has();
+
+    if (useIndenpendentColor) {
+      final computedColorScheme = ColorScheme.fromImageProvider(
+          brightness: Theme.of(context).brightness,
+          provider: FileImage(platCalendarDataDirectory.value!
+              .subFile(configs.calendarBackgroundImage.get())));
+      return FutureBuilder(
+        future: computedColorScheme,
+        builder: (context, snapshot) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: snapshot.data ?? Theme.of(context).colorScheme,
+            ),
+            child: Builder(builder: (context) => buildCalendar(context)),
+          );
+        },
+      );
+    }
+    return buildCalendar(context);
   }
 }
 

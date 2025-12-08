@@ -271,6 +271,20 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                   await calendarBackgroundData.update();
                 },
               ),
+              Visibility(
+                visible: configs.calendarBackgroundImage.has(),
+                child: SwitchListTile(
+                  value: configs.calendarBackgroundImageIndependentColor
+                      .getOr(false),
+                  onChanged: (value) {
+                    setState(() {
+                      configs.calendarBackgroundImageIndependentColor
+                          .write(value);
+                    });
+                  },
+                  title: const Text("独立背景取色"),
+                ),
+              ),
               ListTile(
                 leading: const Icon(Icons.opacity),
                 title: const Text("背景图片透明度"),

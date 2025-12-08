@@ -137,6 +137,9 @@ class ApplicationConfigs extends AppConfigsBase {
       generator("calendar_time_interval_minutes");
   ConfigEntry<bool> get calendarShowAlldayAppionments =>
       generator("calendar_show_allday_appionments");
+  ConfigEntry<bool> get calendarBackgroundImageIndependentColor =>
+      generator("calendar_background_image_independent_color");
+
   ConfigEntryConverter<int, TimeOfDay> get calendarTimeStart =>
       ConfigEntryConverter(
         generator("calendar_time_start_v2"),
