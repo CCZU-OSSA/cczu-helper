@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:arche/arche.dart';
+import 'package:arche/extensions/dialogs.dart';
+import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/src/bindings/signals/signals.dart';
 import 'package:flutter/material.dart';
 
@@ -21,23 +24,40 @@ class TermPicker extends StatefulWidget {
 class _TermPickerState extends State<TermPicker> {
   final termPopMenuKey = GlobalKey<PopupMenuButtonState>();
   List<String>? terms;
+  late final StreamSubscription listener;
   String? term;
   @override
   void initState() {
     super.initState();
     if (widget.ensureAwake) {
-      late final StreamSubscription listener;
       listener = WeChatTermsOutput.rustSignalStream.listen((data) {
+        if (data.message.terms.isEmpty) {
+          if (viewKey.currentContext != null) {
+            ComplexDialog.instance.text(
+                title: Text("Error"),
+                context: viewKey.currentContext,
+                content: Text(
+                    "Failed to get terms: ${data.message.error}, please check connection and reopen"));
+          }
+          return;
+        }
+        termPopMenuKey.currentState?.showButtonMenu();
+
         widget.onChanged(data.message.terms.first);
         setState(() {
           terms = data.message.terms;
           term = data.message.terms.first;
         });
-        listener.cancel();
       });
 
       WeChatTermsInput().sendSignalToRust();
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    listener.cancel();
   }
 
   @override
@@ -48,15 +68,19 @@ class _TermPickerState extends State<TermPicker> {
         term = value;
         widget.onChanged(value);
       }),
-      itemBuilder: (context) {
-        if (terms == null || terms!.isEmpty) {
-          WeChatTermsOutput.rustSignalStream.listen((data) {
-            terms = (data.message.terms);
-            termPopMenuKey.currentState?.showButtonMenu();
-          });
-
+      onOpened: () {
+        if (terms?.isEmpty ?? true) {
           WeChatTermsInput().sendSignalToRust();
-          terms = [];
+        }
+      },
+      itemBuilder: (context) {
+        if (terms == null) {
+          return [
+            PopupMenuItem(
+              enabled: false,
+              child: CircularProgressIndicator(),
+            )
+          ];
         }
 
         return terms!

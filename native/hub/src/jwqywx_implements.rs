@@ -160,19 +160,19 @@ pub async fn get_terms() {
     while let Some(_) = rev.recv().await {
         let client = DefaultClient::default();
         let app = client.visit::<JwqywxApplication<_>>().await;
-
-        if let Ok(terms) = app.terms().await {
-            WeChatTermsOutput {
+        match app.terms().await {
+            Ok(terms) => WeChatTermsOutput {
                 ok: true,
                 terms: terms.message.into_iter().map(|t| t.term).collect(),
+                error: None,
             }
-            .send_signal_to_dart()
-        } else {
-            WeChatTermsOutput {
+            .send_signal_to_dart(),
+            Err(err) => WeChatTermsOutput {
                 ok: false,
                 terms: vec![],
+                error: Some(err.to_string()),
             }
-            .send_signal_to_dart()
+            .send_signal_to_dart(),
         }
     }
 }

@@ -29,4 +29,5 @@ pub struct WeChatTermsInput;
 pub struct WeChatTermsOutput {
     pub ok: bool,
     pub terms: Vec<String>,
+    pub error:Option< String>,
 }
