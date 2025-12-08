@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:arche/arche.dart';
+import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
@@ -695,6 +696,30 @@ class CurriculumPageState extends State<CurriculumPage>
     );
 
     final blur = configs.calendarBackgroundImageBlur.getOr(0);
+    final isGif =
+        configs.calendarBackgroundImage.tryGet()?.endsWith(".gif") ?? false;
+
+    if (isGif) {
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+        child: Padding(
+          padding: isWideScreen(context)
+              ? const EdgeInsets.only(left: 8)
+              : EdgeInsets.zero,
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: FileImage(platCalendarDataDirectory.value!
+                    .subFile(configs.calendarBackgroundImage.get())),
+                fit: BoxFit.cover,
+                opacity: configs.calendarBackgroundImageOpacity.getOr(0.3),
+              ),
+            ),
+            child: child,
+          ),
+        ),
+      );
+    }
 
     return Stack(
       children: [

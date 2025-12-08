@@ -20,6 +20,7 @@ class _PrimaryColorPickedPageState extends State<PrimaryColorPickedPage> {
             ? ColorScheme.fromSeed(
                 seedColor: pickedColor!,
                 brightness: Theme.of(context).brightness,
+                dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
               )
             : null,
       ),

@@ -173,11 +173,17 @@ class MainApplicationState extends State<MainApplication>
         : null;
     final customDarkColorScheme = customColor != null
         ? ColorScheme.fromSeed(
-            seedColor: customColor, brightness: Brightness.dark)
+            seedColor: customColor,
+            brightness: Brightness.dark,
+            dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+          )
         : null;
     final customLightColorScheme = customColor != null
         ? ColorScheme.fromSeed(
-            seedColor: customColor, brightness: Brightness.light)
+            seedColor: customColor,
+            brightness: Brightness.light,
+            dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+          )
         : null;
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) => MaterialApp(
