@@ -41,7 +41,6 @@ class _TermPickerState extends State<TermPicker> {
           }
           return;
         }
-        termPopMenuKey.currentState?.showButtonMenu();
 
         widget.onChanged(data.message.terms.first);
         setState(() {
