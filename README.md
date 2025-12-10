@@ -30,10 +30,11 @@
 
 ## 平台支持
 
-| Windows | Android | Linux | MacOS | IOS |
-| ------- | ------- | ----- | ----- | --- |
-| ✅       | ✅       | ✅     | ✅     | ❌   |
+| Windows | Android | Linux | MacOS | IOS  |
+| ------- | ------- | ----- | ----- | ---- |
+| ✅       | ✅       | ✅     | ✅     | ⚠BETA |
 
+iOS可以选择: RayanceKing/CCZUHelper
 
 ## 参与本项目
 
