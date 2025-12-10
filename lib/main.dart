@@ -28,7 +28,7 @@ import 'package:system_fonts/system_fonts.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 void main() {
-  void catchError([ArcheLogger? logger]) async {
+  Future<void> catchError([ArcheLogger? logger]) async {
     var store =
         logger ?? ArcheBus.bus.provideof<ArcheLogger>(instance: ArcheLogger());
 
@@ -45,79 +45,92 @@ void main() {
 
   runZonedGuarded(
     () async {
-      WidgetsFlutterBinding.ensureInitialized();
-      // Ensure directory is initialized here for faster load
-      await ensurePlatDirectoryValue();
-
-      await initializeRust(assignRustSignal);
       final logger = ArcheLogger();
-      final platUserData = await platUserDataDirectory.getValue();
+      try {
+        WidgetsFlutterBinding.ensureInitialized();
+        // Ensure directory is initialized here for faster load
+        await ensurePlatDirectoryValue();
 
-      final configPath = platUserData.subPath("app.config.json");
-      final config = ArcheConfig.path(configPath);
-      logger.info("Application Config Stored in `$configPath`");
-      if (!kDebugMode) {
-        FlutterError.onError = (err) async {
-          logger.error(err.exception);
-          logger.error(err.stack);
-          catchError(logger);
-        };
-      }
+        await initializeRust(assignRustSignal);
+        final platUserData = await platUserDataDirectory.getValue();
 
-      // Calendar
-      tz.initializeTimeZones();
-      ICalendar.registerField(
-        field: "WEEK",
-        function: (value, params, event, lastEvent) {
-          lastEvent['week'] = value;
-          return lastEvent;
-        },
-      );
+        final configPath = platUserData.subPath("app.config.json");
+        final config = ArcheConfig.path(configPath);
+        logger.info("Application Config Stored in `$configPath`");
+        if (!kDebugMode) {
+          FlutterError.onError = (err) async {
+            logger.error(err.exception);
+            logger.error(err.stack);
+            catchError(logger);
+          };
+        }
 
-      var bus = ArcheBus();
-      var configs = ApplicationConfigs(config);
-      bus.provide(ArcheLogger()).provide(config).provide(configs);
-      // Cache Background Image in memory for faster load
-      await calendarBackgroundData.update();
-      // Parse Data for fast load
-      await icalendarParsersData.update();
+        // Calendar
+        tz.initializeTimeZones();
+        ICalendar.registerField(
+          field: "WEEK",
+          function: (value, params, event, lastEvent) {
+            lastEvent['week'] = value;
+            return lastEvent;
+          },
+        );
 
-      // Custom Font
-      var customfont = platUserData.subFile("customfont");
-      if (await customfont.exists()) {
-        final loader = FontLoader("Custom Font")
-          ..addFont(
-            Future(() async {
-              var data = await customfont.readAsBytes();
+        var bus = ArcheBus();
+        var configs = ApplicationConfigs(config);
+        bus.provide(logger).provide(config).provide(configs);
+        // Cache Background Image in memory for faster load
+        await calendarBackgroundData.update();
+        // Parse Data for fast load
+        await icalendarParsersData.update();
 
-              return data.buffer.asByteData();
-            }),
-          );
-        await loader.load();
-        configs.sysfont.write("Custom Font");
-      } else {
-        // Load SystemFont
-        if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-          var font = configs.sysfont.tryGet();
-          if (font != null) {
-            await SystemFonts().loadFont(font);
+        // Custom Font
+        var customfont = platUserData.subFile("customfont");
+        if (await customfont.exists()) {
+          final loader = FontLoader("Custom Font")
+            ..addFont(
+              Future(() async {
+                var data = await customfont.readAsBytes();
+
+                return data.buffer.asByteData();
+              }),
+            );
+          await loader.load();
+          configs.sysfont.write("Custom Font");
+        } else {
+          // Load SystemFont
+          if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+            var font = configs.sysfont.tryGet();
+            if (font != null) {
+              await SystemFonts().loadFont(font);
+            }
           }
         }
+
+        logger.info("Run Application in `main`...");
+        logger.info("Try to load `MultiAccountData`");
+
+        if (await MultiAccoutData.hasAccountsFile()) {
+          bus.provide((await MultiAccoutData.readAccounts())!);
+        } else {
+          logger.warn("Can't find `accounts.json`");
+          bus.provide(MultiAccoutData.template);
+        }
+
+        runApp(
+          MainApplication(key: rootKey),
+        );
+      } catch (error, stack) {
+        logger.error(error);
+        logger.error(stack);
+        await catchError(logger);
+        runApp(
+          FallbackLogApp(
+            error: error,
+            stackTrace: stack,
+            logs: logger.getLogs().map((log) => log.toString()).toList(),
+          ),
+        );
       }
-
-      logger.info("Run Application in `main`...");
-      logger.info("Try to load `MultiAccountData`");
-
-      if (await MultiAccoutData.hasAccountsFile()) {
-        bus.provide((await MultiAccoutData.readAccounts())!);
-      } else {
-        logger.warn("Can't find `accounts.json`");
-        bus.provide(MultiAccoutData.template);
-      }
-
-      runApp(
-        MainApplication(key: rootKey),
-      );
     },
     (error, stack) async {
       var logger = ArcheBus.bus.provideof(instance: ArcheLogger());
@@ -473,6 +486,67 @@ class MainViewState extends State<MainView> with RefreshMountedStateMixin {
           onPageChanged: (value) => setState(() => currentIndex = value),
           items: viewItems,
           labelType: NavigationLabelType.selected,
+        ),
+      ),
+    );
+  }
+}
+
+class FallbackLogApp extends StatelessWidget {
+  final Object error;
+  final StackTrace stackTrace;
+  final List<String> logs;
+
+  const FallbackLogApp({
+    super.key,
+    required this.error,
+    required this.stackTrace,
+    required this.logs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text("致命错误！应用启动失败😭"),
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  "错误: ${error.toString()}",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.redAccent),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(12),
+                      child: SelectableText(
+                        ([error.toString(), stackTrace.toString(), ...logs])
+                            .join("\n"),
+                        style: const TextStyle(fontFamily: "monospace"),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "请将上述日志反馈给开发者以便排查。",
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
