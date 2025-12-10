@@ -24,6 +24,8 @@ jobs:
             target: linux
           - runner: macos-latest
             target: macos
+          - runner: macos-latest
+            target: ios
     steps:
       - uses: actions/checkout@v4
       - name: Setup Flutter
@@ -39,7 +41,7 @@ jobs:
           java-version: 17
 
       - name: Set up Protoc (MacOS)
-        if: matrix.target == 'macos'
+        if: matrix.runner == 'macos'
         uses: arduino/setup-protoc@v3
         with:
           version: "28.2"
@@ -138,3 +140,19 @@ jobs:
         with:
           name: macos
           path: build/macos/Build/Products/Release/cczu-helper.app
+      # iOS
+      - name: Build iOS (MacOS)
+        if: matrix.target == 'ios'
+        run: |
+          export CSC_IDENTITY_AUTO_DISCOVERY=false
+          flutter build ios --release --no-codesign
+          mkdir -p build/ios/iphoneos/Payload
+          mv build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload
+          cd build/ios/iphoneos/
+          zip -r cczu-helper-ios.ipa Payload
+      - name: Upload iOS Artifact (MacOS)
+        if: matrix.target == 'ios'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios
+          path: build/ios/iphoneos/cczu-helper-ios.ipa
