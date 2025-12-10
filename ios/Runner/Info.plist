@@ -47,5 +47,18 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+        <!-- 权限声明，适配常用插件 -->
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>需要访问您的相册以选择图片</string>
+        <key>NSDocumentsFolderUsageDescription</key>
+        <string>需要访问您的文件以保存和读取数据</string>
+        <key>NSFileProviderDomainUsageDescription</key>
+        <string>需要访问文件以进行操作</string>
+        <key>LSApplicationQueriesSchemes</key>
+        <array>
+            <string>mailto</string>
+            <string>tel</string>
+            <string>sms</string>
+        </array>
 	</dict>
 </plist>

@@ -19,7 +19,15 @@ jobs:
             target: linux
           - runner: macos-latest
             target: macos
+          - runner: macos-latest
+            target: ios
     steps:
+      # iOS
+      - name: Build iOS (MacOS)
+        if: matrix.target == 'ios'
+        run: |
+          export CSC_IDENTITY_AUTO_DISCOVERY=false
+          flutter build ios --debug --no-codesign
       # Prepare
       - uses: actions/checkout@v4
       - name: Setup Flutter

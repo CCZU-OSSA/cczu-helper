@@ -21,7 +21,24 @@ jobs:
             target: linux
           - runner: macos-latest
             target: macos
+          - runner: macos-latest
+            target: ios
     steps:
+      # iOS
+      - name: Build iOS (MacOS)
+        if: matrix.target == 'ios'
+        run: |
+          export CSC_IDENTITY_AUTO_DISCOVERY=false
+          flutter build ios --release --no-codesign
+          mkdir -p build/ios/iphoneos/Payload
+          mv build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload
+          cd build/ios/iphoneos/
+          zip -r cczu-helper-ios.ipa Payload
+      - name: Release iOS Artifact (MacOS)
+        if: matrix.target == 'ios'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/ios/iphoneos/cczu-helper-ios.ipa
       - uses: actions/checkout@v4
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
