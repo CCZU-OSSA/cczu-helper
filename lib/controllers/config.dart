@@ -16,8 +16,9 @@ FutureLazyDynamicCan<Directory> platDirectory =
     FutureLazyDynamicCan(builder: getPlatDirectory);
 
 FutureLazyDynamicCan<Directory> platUserDataDirectory = FutureLazyDynamicCan(
-    builder: () async =>
-        (await platDirectory.getValue()).subDirectory("userdata").check());
+    builder: () async => (await platDirectory.getValue())
+        .subDirectory(Platform.isAndroid ? "userdata" : "cczu-helper-userdata")
+        .check());
 
 FutureLazyDynamicCan<Directory> platCalendarDataDirectory =
     FutureLazyDynamicCan(
@@ -66,8 +67,16 @@ Future<Directory> getPlatDirectory() async {
     return Directory.current.absolute;
   }
 
-  return (await getExternalStorageDirectory() ??
-      await getApplicationCacheDirectory());
+  if (Platform.isIOS) {
+    return await getApplicationDocumentsDirectory();
+  }
+
+  try {
+    return await getExternalStorageDirectory() ??
+        await getApplicationDocumentsDirectory();
+  } catch (_) {
+    return await getApplicationDocumentsDirectory();
+  }
 }
 
 class ApplicationConfigs extends AppConfigsBase {
