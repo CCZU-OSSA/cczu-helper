@@ -50,8 +50,7 @@ https://github.com/CCZU-OSSA/cczu-helper/issues
     - models 存放数据类型与一些常量还有一些用于沟通Rust和Flutter的代码
     - views 存放页面文件
     - controllers 存放配置文件的读取、页面更换等相关代码
-    - messages 由rinf生成
- - messages 存放用于生成沟通Rust与Flutter的proto文件
+    - src/bindings 由rinf生成
  - assets 存放应用资源文件
  - native 存放Rust代码(Powered by `CCZUNI`)
 
