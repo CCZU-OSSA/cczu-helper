@@ -24,26 +24,11 @@ jobs:
           - runner: macos-latest
             target: ios
     steps:
-      # iOS
-      - name: Build iOS (MacOS)
-        if: matrix.target == 'ios'
-        run: |
-          export CSC_IDENTITY_AUTO_DISCOVERY=false
-          flutter build ios --release --no-codesign
-          mkdir -p build/ios/iphoneos/Payload
-          mv build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload
-          cd build/ios/iphoneos/
-          zip -r cczu-helper-ios.ipa Payload
-      - name: Release iOS Artifact (MacOS)
-        if: matrix.target == 'ios'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: build/ios/iphoneos/cczu-helper-ios.ipa
       - uses: actions/checkout@v4
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: "3.x"
       - name: Install dependencies
         run: pip install requests
       - name: Setup Flutter
@@ -174,6 +159,22 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: build/macos/Build/Products/Release/cczu_helper-macos.zip
+
+      # iOS
+      - name: Build iOS (MacOS)
+        if: matrix.target == 'ios'
+        run: |
+          export CSC_IDENTITY_AUTO_DISCOVERY=false
+          flutter build ios --release --no-codesign
+          mkdir -p build/ios/iphoneos/Payload
+          mv build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload
+          cd build/ios/iphoneos/
+          zip -r cczu-helper-ios.ipa Payload
+      - name: Release iOS Artifact (MacOS)
+        if: matrix.target == 'ios'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/ios/iphoneos/cczu-helper-ios.ipa
       - name: Update AltStore Source
         if: matrix.target == 'ios'
         run: |
