@@ -17,7 +17,7 @@ FutureLazyDynamicCan<Directory> platDirectory =
 
 FutureLazyDynamicCan<Directory> platUserDataDirectory = FutureLazyDynamicCan(
     builder: () async => (await platDirectory.getValue())
-        .subDirectory(Platform.isAndroid ? "userdata" : "cczu-helper-userdata")
+        .subDirectory(Platform.isIOS ? "cczu-helper-userdata" : "userdata")
         .check());
 
 FutureLazyDynamicCan<Directory> platCalendarDataDirectory =

@@ -142,11 +142,10 @@ void main() {
   );
 }
 
-final _defaultLightColorScheme =
-    ColorScheme.fromSwatch(primarySwatch: Colors.blue);
+final _defaultLightColorScheme = ColorScheme.fromSeed(seedColor: Colors.blue);
 
-final _defaultDarkColorScheme = ColorScheme.fromSwatch(
-    primarySwatch: Colors.blue, brightness: Brightness.dark);
+final _defaultDarkColorScheme =
+    ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark);
 
 class MainApplication extends StatefulWidget {
   const MainApplication({super.key});
@@ -218,8 +217,7 @@ class MainApplicationState extends State<MainApplication>
           brightness: Brightness.dark,
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
-          colorScheme:
-              customDarkColorScheme ?? darkDynamic ?? _defaultDarkColorScheme,
+          colorScheme: _defaultDarkColorScheme,
           typography: Typography.material2021(),
         ),
         theme: ThemeData(
@@ -230,9 +228,7 @@ class MainApplicationState extends State<MainApplication>
           brightness: Brightness.light,
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
-          colorScheme: customLightColorScheme ??
-              lightDynamic ??
-              _defaultLightColorScheme,
+          colorScheme: _defaultLightColorScheme,
           typography: Typography.material2021(),
         ),
         themeMode: configs.themeMode.getOr(ThemeMode.system),
