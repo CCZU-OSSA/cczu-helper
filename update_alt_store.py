@@ -157,12 +157,12 @@ def update_json_file_release(json_file, latest_release):
     date_string = date_obj.strftime("%d/%m/%y")
     news_entry = {
         "appID": "io.github.cczuossa.cczu_helper",
-        "caption": "Update of Cczu Helper just got released!",
+        "caption": "Update of CCZU Helper just got released!",
         "date": latest_release["published_at"],
         "identifier": news_identifier,
         "notify": True,
         "tintColor": "#0784FC",
-        "title": f"{full_version} - Cczu Helper  {date_string}",
+        "title": f"{full_version} - CCZU Helper  {date_string}",
         "url": f"https://github.com/CCZU-OSSA/cczu-helper/releases/tag/{tag}",
     }
 

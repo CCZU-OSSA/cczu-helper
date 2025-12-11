@@ -49,12 +49,12 @@
   "news": [
     {
       "appID": "io.github.cczuossa.cczu_helper",
-      "caption": "Update of Cczu Helper just got released!",
+      "caption": "Update of CCZU Helper just got released!",
       "date": "2025-12-11T02:49:12Z",
       "identifier": "release-v1.9.2",
       "notify": true,
       "tintColor": "#0784FC",
-      "title": "v1.9.2 - Cczu Helper  11/12/25",
+      "title": "v1.9.2 - CCZU Helper  11/12/25",
       "url": "https://github.com/CCZU-OSSA/cczu-helper/releases/tag/v1.9.2"
     }
   ]
