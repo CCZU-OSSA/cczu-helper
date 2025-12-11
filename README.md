@@ -37,6 +37,7 @@
 ### iOS 如何安装？
 
 source: https://raw.githubusercontent.com/CCZU-OSSA/cczu-helper/refs/heads/main/alt_store.json
+
 altstore: https://faq.altstore.io/altstore-classic/your-altstore
 
 此外，iOS可以选择: RayanceKing/CCZUHelper
