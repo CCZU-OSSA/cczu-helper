@@ -1,0 +1,11 @@
+{
+    "name": "CCZU Helper",
+    "identifier": "io.github.cczuossa.cczu_helper.source",
+    "website": "https://github.com/CCZU-OSSA/cczu-helper",
+    "subtitle": "CCZU Helper official AltStore Source.",
+    "description": "This is the official AltStore Source for CCZU Helper.\n\n A app for making you living better in CCZU",
+    "tintColor": "#FD3C6FFF",
+    "iconURL": "https://raw.githubusercontent.com/CCZU-OSSA/cczu-helper/master/assets/cczu_helper_icon.png",
+    "apps": [],
+    "news": []
+}
