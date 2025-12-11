@@ -161,7 +161,7 @@ jobs:
           files: build/macos/Build/Products/Release/cczu_helper-macos.zip
 
       # iOS
-      - name: Build iOS (MacOS)
+      - name: Build (iOS)
         if: matrix.target == 'ios'
         run: |
           export CSC_IDENTITY_AUTO_DISCOVERY=false
@@ -170,12 +170,12 @@ jobs:
           mv build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload
           cd build/ios/iphoneos/
           zip -r cczu-helper-ios.ipa Payload
-      - name: Release iOS Artifact (MacOS)
+      - name: Release Artifact (iOS)
         if: matrix.target == 'ios'
         uses: softprops/action-gh-release@v2
         with:
           files: build/ios/iphoneos/cczu-helper-ios.ipa
-      - name: Update AltStore Source
+      - name: Update AltStore Source (iOS)
         if: matrix.target == 'ios'
         run: |
           python update_alt_store.py

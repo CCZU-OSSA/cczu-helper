@@ -141,7 +141,7 @@ jobs:
           name: macos
           path: build/macos/Build/Products/Release/cczu-helper.app
       # iOS
-      - name: Build iOS (MacOS)
+      - name: Build (iOS)
         if: matrix.target == 'ios'
         run: |
           export CSC_IDENTITY_AUTO_DISCOVERY=false
@@ -150,7 +150,7 @@ jobs:
           mv build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload
           cd build/ios/iphoneos/
           zip -r cczu-helper-ios.ipa Payload
-      - name: Upload iOS Artifact (MacOS)
+      - name: Upload Artifact (iOS)
         if: matrix.target == 'ios'
         uses: actions/upload-artifact@v4
         with:

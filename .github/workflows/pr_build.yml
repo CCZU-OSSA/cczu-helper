@@ -22,12 +22,6 @@ jobs:
           - runner: macos-latest
             target: ios
     steps:
-      # iOS
-      - name: Build iOS (MacOS)
-        if: matrix.target == 'ios'
-        run: |
-          export CSC_IDENTITY_AUTO_DISCOVERY=false
-          flutter build ios --debug --no-codesign
       # Prepare
       - uses: actions/checkout@v4
       - name: Setup Flutter
@@ -81,3 +75,10 @@ jobs:
         run: |
           export CSC_IDENTITY_AUTO_DISCOVERY=false
           flutter build macos --debug
+
+      # iOS
+      - name: Build (iOS)
+        if: matrix.target == 'ios'
+        run: |
+          export CSC_IDENTITY_AUTO_DISCOVERY=false
+          flutter build ios --debug --no-codesign
