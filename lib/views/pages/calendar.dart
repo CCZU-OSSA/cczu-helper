@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:ui';
 
 import 'package:arche/arche.dart';
@@ -71,7 +72,7 @@ class CalendarControllerHeaderState extends State<CalendarControllerHeader> {
     var formatter = DateFormat.yMMM(
         Localizations.localeOf(viewKey.currentContext!).languageCode);
     var date = _displayDate ?? controller.displayDate ?? DateTime.now();
-    ApplicationConfigs configs = ArcheBus().of();
+    final ApplicationConfigs configs = ArcheBus().of();
     var isWide = isWideScreen(context);
     var colorScheme = Theme.of(context).colorScheme;
     var arrow = Row(
@@ -296,12 +297,15 @@ class CalendarViewHeaderState extends State<CalendarViewHeader> {
 class CurriculumPageState extends State<CurriculumPage>
     with RefreshMountedStateMixin {
   late CalendarController calendarController;
+  late final ApplicationConfigs configs;
+  late final Widget Function(BuildContext, CalendarAppointmentDetails)
+      _appointmentBuilderFn;
+
   Widget buildHeader(
     CalendarController controller,
     CalendarViewHeader viewHeader,
     Widget child,
   ) {
-    final configs = ArcheBus.bus.of<ApplicationConfigs>();
     final showController = configs.calendarShowController.getOr(true);
     final showViewHeader = configs.calendarShowViewHeader.getOr(true);
 
@@ -347,7 +351,6 @@ class CurriculumPageState extends State<CurriculumPage>
   (Color appointment, Color? location, Color? secoundary) getAppointmentColor(
     BuildContext context,
     CalendarData appointment,
-    ApplicationConfigs configs,
   ) {
     final theme = Theme.of(context);
     if (appointment.isAllday) {
@@ -395,14 +398,13 @@ class CurriculumPageState extends State<CurriculumPage>
   Widget buildAppointment(
     BuildContext context,
     CalendarData appointment,
-    ApplicationConfigs configs,
     bool isWeekView,
   ) {
     final theme = Theme.of(context);
     final time =
         '${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.start.toDateTime()!)} ~ ${DateFormat('HH:mm', Localizations.localeOf(context).languageCode).format(appointment.end.toDateTime()!)}';
     final (appointmentColor, locationColor, secondaryColor) =
-        getAppointmentColor(context, appointment, configs);
+        getAppointmentColor(context, appointment);
     return GestureDetector(
       onTap: appointment.isAllday
           ? null
@@ -563,10 +565,58 @@ class CurriculumPageState extends State<CurriculumPage>
     );
   }
 
+  CurriculumDataSource? _datasource;
+  DateTime? _firstCurriculumDate;
   @override
   void initState() {
+    configs = ArcheBus().of<ApplicationConfigs>();
     calendarController = CalendarController();
+    _appointmentBuilderFn =
+        (BuildContext context, CalendarAppointmentDetails details) {
+      final isWeekView = calendarController.view == CalendarView.week;
+      return Flex(
+        direction: Axis.horizontal,
+        children: details.appointments.map((appointment) {
+          return Expanded(
+            child: SizedBox(
+              height: double.infinity,
+              child: buildAppointment(context, appointment, isWeekView),
+            ),
+          );
+        }).toList(),
+      );
+    };
+
+    computeDatasource();
     super.initState();
+  }
+
+  void computeDatasource() {
+    refreshMounted(() {
+      final icalendarData = icalendarParsersData.value;
+      _datasource = icalendarData == null
+          ? null
+          : CurriculumDataSource(icalendarData.fold([], (data, parser) {
+              if (configs.calendarShowAlldayAppionments.getOr(false)) {
+                data.addAll(parser.data);
+              } else {
+                data.addAll(parser.data.where((e) => !e.isAllday));
+              }
+              return data;
+            }));
+      _firstCurriculumDate = icalendarData
+          ?.where((e) => e.source == CalendarSource.curriculum)
+          .firstOrNull
+          ?.data
+          .where((e) => e.isAllday && e.summary.startsWith("学期"))
+          .map((e) => e.start.toDateTime()!)
+          .reduce((a, b) {
+        if (a.isBefore(b)) {
+          return a;
+        }
+        return b;
+      });
+    });
   }
 
   @override
@@ -575,9 +625,21 @@ class CurriculumPageState extends State<CurriculumPage>
     super.dispose();
   }
 
+  Widget wrapWithBackdropFilter(Widget child) {
+    final blur = configs.calendarBackgroundImageBlur.getOr(0);
+
+    if (blur == 0) {
+      return child;
+    }
+
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+      child: child,
+    );
+  }
+
   Widget buildCalendar(BuildContext context) {
     final theme = Theme.of(context);
-    final configs = ArcheBus().of<ApplicationConfigs>();
     final icalendarData = icalendarParsersData.value;
 
     if (icalendarData == null) {
@@ -590,7 +652,7 @@ class CurriculumPageState extends State<CurriculumPage>
       return Align(
         alignment: Alignment.topCenter,
         child: GenerateCalendarGuide(
-          refreshCalendar: () => setState(() {}),
+          refreshCalendar: () => computeDatasource(),
         ),
       );
     }
@@ -609,22 +671,10 @@ class CurriculumPageState extends State<CurriculumPage>
     var viewHeader = CalendarViewHeader(
       key: calendarViewHeaderKey,
       controller: calendarController,
-      firstCurriculumDate: icalendarData
-          .where((e) => e.source == CalendarSource.curriculum)
-          .firstOrNull
-          ?.data
-          .where((e) => e.isAllday && e.summary.startsWith("学期"))
-          .map((e) => e.start.toDateTime()!)
-          .reduce((a, b) {
-        if (a.isBefore(b)) {
-          return a;
-        }
-        return b;
-      }),
+      firstCurriculumDate: _firstCurriculumDate,
     );
 
     final calendar = SfCalendar(
-      key: ValueKey(icalendarData),
       showWeekNumber: configs.calendarShowTimeRule.getOr(true),
       weekNumberStyle: WeekNumberStyle(
         backgroundColor: Colors.transparent,
@@ -667,44 +717,20 @@ class CurriculumPageState extends State<CurriculumPage>
               ?.updateWithViewChangedDetails(viewChangedDetails);
         }
       },
-      appointmentBuilder: (context, calendarAppointmentDetails) {
-        final isWeekView = calendarController.view == CalendarView.week;
-        return Flex(
-          direction: Axis.horizontal,
-          children: calendarAppointmentDetails.appointments.map((appointment) {
-            return Expanded(
-              child: SizedBox(
-                height: double.infinity,
-                child:
-                    buildAppointment(context, appointment, configs, isWeekView),
-              ),
-            );
-          }).toList(),
-        );
-      },
-      dataSource: CurriculumDataSource(icalendarData.fold([], (data, parser) {
-        if (configs.calendarShowAlldayAppionments.getOr(false)) {
-          data.addAll(parser.data);
-        } else {
-          data.addAll(parser.data.where((e) => !e.isAllday));
-        }
-        return data;
-      })),
+      appointmentBuilder: _appointmentBuilderFn,
+      dataSource: _datasource,
     );
     var child = buildHeader(
       calendarController,
       viewHeader,
       calendar,
     );
-
-    final blur = configs.calendarBackgroundImageBlur.getOr(0);
     final isGif =
         configs.calendarBackgroundImage.tryGet()?.endsWith(".gif") ?? false;
 
     if (isGif) {
-      return BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: Padding(
+      return wrapWithBackdropFilter(
+        Padding(
           padding: isWideScreen(context)
               ? const EdgeInsets.only(left: 8)
               : EdgeInsets.zero,
@@ -725,19 +751,20 @@ class CurriculumPageState extends State<CurriculumPage>
 
     return Stack(
       children: [
-        RawImage(
-          width: double.infinity,
-          height: double.infinity,
-          key: ObjectKey(calendarBackgroundData.value),
-          image: calendarBackgroundData.value,
-          fit: BoxFit.cover,
-          opacity: AlwaysStoppedAnimation(
-            configs.calendarBackgroundImageOpacity.getOr(0.3),
+        RepaintBoundary(
+          child: RawImage(
+            width: double.infinity,
+            height: double.infinity,
+            key: ObjectKey(calendarBackgroundData.value),
+            image: calendarBackgroundData.value,
+            fit: BoxFit.cover,
+            opacity: AlwaysStoppedAnimation(
+              configs.calendarBackgroundImageOpacity.getOr(0.3),
+            ),
           ),
         ),
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: Padding(
+        wrapWithBackdropFilter(
+          Padding(
             padding: isWideScreen(context)
                 ? const EdgeInsets.only(left: 8)
                 : EdgeInsets.zero,
@@ -750,7 +777,6 @@ class CurriculumPageState extends State<CurriculumPage>
 
   @override
   Widget build(BuildContext context) {
-    final configs = ArcheBus().of<ApplicationConfigs>();
     final useIndenpendentColor =
         configs.calendarBackgroundImageIndependentColor.getOr(false) &&
             configs.calendarBackgroundImage.has();
