@@ -3,6 +3,7 @@ import json
 import re
 import requests
 from datetime import datetime
+import os
 
 
 def prepare_description(text):
@@ -25,7 +26,11 @@ def fetch_latest_release(repo_url):
     api_url = f"https://api.github.com/repos/{repo_url}/releases"
     headers = {
         "Accept": "application/vnd.github+json",
+        "User-Agent": "cczu-helper-updater/1.0",
     }
+    token = os.getenv('GITHUB_TOKEN')
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
     try:
         response = requests.get(api_url, headers=headers)
         response.raise_for_status()
@@ -112,8 +117,7 @@ def update_json_file_release(json_file, latest_release):
     download_url = None
     size = None
     for asset in assets:
-        # cczu-helper-ios-1.9.1+191.ipa
-        if asset["name"] == f"cczu-helper-ios-{version}+{version.replace('.', '')}.ipa":
+        if asset["name"] == "cczu-helper-ios.ipa":
             download_url = asset["browser_download_url"]
             size = asset["size"]
             break

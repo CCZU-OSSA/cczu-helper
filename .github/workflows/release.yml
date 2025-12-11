@@ -175,12 +175,3 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: build/ios/iphoneos/cczu-helper-ios.ipa
-      - name: Update AltStore Source (iOS)
-        if: matrix.target == 'ios'
-        run: |
-          python update_alt_store.py
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add alt_store.json
-          git commit -m "Update AltStore source for latest release" || echo "No changes to commit"
-          git push
