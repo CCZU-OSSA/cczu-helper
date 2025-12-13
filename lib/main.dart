@@ -12,6 +12,7 @@ import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/src/bindings/bindings.dart';
 import 'package:cczu_helper/models/navstyle.dart';
 import 'package:cczu_helper/models/fields.dart';
+import 'package:cczu_helper/models/version.dart';
 import 'package:cczu_helper/views/pages/calendar.dart';
 import 'package:cczu_helper/views/pages/services.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
@@ -22,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rinf/rinf.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:system_fonts/system_fonts.dart';
@@ -48,6 +50,11 @@ void main() {
       final logger = ArcheLogger();
       try {
         WidgetsFlutterBinding.ensureInitialized();
+
+        // Get app version
+        PackageInfo packageInfo = await PackageInfo.fromPlatform();
+        appVersion = parseVersion(packageInfo.version);
+
         // Ensure directory is initialized here for faster load
         await ensurePlatDirectoryValue();
 

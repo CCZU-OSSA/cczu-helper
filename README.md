@@ -8,7 +8,7 @@
 一款改善你在CCZU的生活体验的应用😋
 
 <img src="https://img.shields.io/badge/flutter-3+-blue" alt="Flutter">
-  <img src="https://img.shields.io/badge/Rust-2021-brown" alt="Rust">
+  <img src="https://img.shields.io/badge/Rust-2024-brown" alt="Rust">
   <img src="https://img.shields.io/github/languages/code-size/CCZU-OSSA/cczu-helper?color=green" alt="size">
   <img src="https://img.shields.io/github/license/CCZU-OSSA/cczu-helper" alt="license">
 </div>

@@ -10,7 +10,7 @@ extension VersionCompare on Version {
   bool operator <=(Version other) => normalize <= other.normalize;
   bool operator >(Version other) => normalize > other.normalize;
   bool operator <(Version other) => normalize < other.normalize;
-  String format(){
+  String format() {
     return "v${$1}.${$2}.${$3}";
   }
 }
@@ -21,5 +21,13 @@ Version getVersionfromString(String string) {
     return (iter.next()!, iter.next()!, iter.next()!);
   }
 
+  return _empty;
+}
+
+Version parseVersion(String versionString) {
+  var parts = versionString.split('.').map((e) => int.parse(e)).toList();
+  if (parts.length >= 3) {
+    return (parts[0], parts[1], parts[2]);
+  }
   return _empty;
 }
