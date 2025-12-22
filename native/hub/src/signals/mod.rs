@@ -18,3 +18,5 @@ pub mod evalution;
 pub use evalution::*;
 pub mod exams;
 pub use exams::*;
+pub mod teahouse;
+pub use teahouse::*;

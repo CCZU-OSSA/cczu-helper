@@ -13,6 +13,7 @@ import 'package:cczu_helper/views/services/iccard/electric_bill.dart';
 import 'package:cczu_helper/views/services/sso/grades.dart';
 import 'package:cczu_helper/views/services/common/icalendar.dart';
 import 'package:cczu_helper/views/services/misc/cmcc_account.dart';
+import 'package:cczu_helper/views/services/misc/teahouse.dart';
 import 'package:cczu_helper/views/services/edu/wechat/grades.dart';
 import 'package:cczu_helper/views/services/sso/lab.dart';
 import 'package:flutter/material.dart';
@@ -151,6 +152,13 @@ class ServicePageState extends State<ServicePage>
         text: "查电费",
         image: AssetImage("assets/electric_bill.png"),
         service: ElectricBillPage(),
+      )
+    ],
+    "茶馆": [
+      const ServiceItem(
+        text: "茶馆",
+        service: TeahousePage(),
+        image: AssetImage("assets/cczu_helper_icon.png"),
       )
     ],
     if (Platform.isWindows)

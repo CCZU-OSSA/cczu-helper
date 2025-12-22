@@ -14,6 +14,7 @@ mod jwcas_implments;
 mod jwqywx_implements;
 mod signals;
 mod utils_implments;
+mod teahouse_implments;
 
 #[cfg(windows)]
 mod windows;
@@ -47,6 +48,13 @@ async fn main() {
     tokio::spawn(iccard_implments::query_room());
 
     tokio::spawn(utils_implments::service_status());
+
+    tokio::spawn(teahouse_implments::get_teahouse_posts());
+    tokio::spawn(teahouse_implments::create_post());
+    tokio::spawn(teahouse_implments::get_comments());
+    tokio::spawn(teahouse_implments::create_comment());
+    tokio::spawn(teahouse_implments::delete_post());
+    tokio::spawn(teahouse_implments::sync_with_supabase());
 
     #[cfg(windows)]
     {

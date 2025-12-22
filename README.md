@@ -52,7 +52,6 @@ https://github.com/CCZU-OSSA/cczu-helper/issues
 
 ### 项目结构
 
-- lib 存放Flutter代码
     - models 存放数据类型与一些常量还有一些用于沟通Rust和Flutter的代码
     - views 存放页面文件
     - controllers 存放配置文件的读取、页面更换等相关代码
@@ -77,3 +76,22 @@ cargo install rinf_cli
 rinf gen
 flutter build <target-platform> --release
 ```
+
+
+## Supabase 配置（安全提示）
+
+为了避免在代码中硬编码 Supabase key，项目已更新为从环境或平台配置读取：
+
+- Rust (native/hub)：运行时从环境变量 `SUPABASE_URL` 和 `SUPABASE_KEY` 读取；开发时可在仓库根目录放 `.env` 文件（不会提交）并使用 `dotenv` 加载。
+- Flutter：在构建时通过 `--dart-define` 传入：
+
+```bash
+# 示例：
+flutter run --dart-define=SUPABASE_URL=https://your.supabase.co --dart-define=SUPABASE_ANON_KEY=your_anon_key
+```
+
+- iOS：将 `SUPABASE_URL` 与 `SUPABASE_ANON_KEY` 添加到 Xcode 的 `Info.plist`（Target → Info → Custom iOS Target Properties）。
+
+迁移脚本已加入 `supabase/migrations/0001_init.sql`，可直接用于 Supabase 控制台或 CLI 进行 schema 初始化。
+
+注意：不要在公共仓库中提交真实的 `SUPABASE_ANON_KEY` 或其他密钥文件。建议在 CI/部署平台使用项目/仓库机密环境变量进行配置。

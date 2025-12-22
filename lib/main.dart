@@ -26,6 +26,7 @@ import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rinf/rinf.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:cczu_helper/src/services/supabase_client.dart';
 import 'package:system_fonts/system_fonts.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -59,6 +60,12 @@ void main() {
         await ensurePlatDirectoryValue();
 
         await initializeRust(assignRustSignal);
+        // Initialize Supabase (all platforms) for optional backend features
+        try {
+          await initSupabase();
+        } catch (e) {
+          logger.warn("Supabase init failed: $e");
+        }
         final platUserData = await platUserDataDirectory.getValue();
 
         final configPath = platUserData.subPath("app.config.json");
