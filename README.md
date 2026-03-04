@@ -44,6 +44,8 @@ altstore: https://faq.altstore.io/altstore-classic/your-altstore
 
 ## 参与本项目
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/CCZU-OSSA/cczu-helper)
+
 ### 反馈意见
 
 如果不知道如何在Github提issue，可以搜一下`如何提issue`
