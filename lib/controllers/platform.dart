@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/functions.dart';
@@ -13,21 +14,20 @@ Future<void> saveFile(
   required String fileName,
 }) async {
   if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
-    return FilePicker.platform
-        .saveFile(
-          dialogTitle: dialogTitle,
-          fileName: fileName,
-        )
-        .then((value) =>
-            whenNotNull(value, (value) => File(value).writeAsString(data)));
+    FilePicker.saveFile(
+      bytes: Uint8List.fromList(data.codeUnits),
+      dialogTitle: dialogTitle,
+      fileName: fileName,
+    );
+    return;
   }
 
-  return FilePicker.platform.getDirectoryPath(dialogTitle: dialogTitle).then(
-        (value) => whenNotNull(
-          value,
-          (value) => Directory(value).subFile(fileName).writeAsString(data),
-        ),
-      );
+  return FilePicker.getDirectoryPath(dialogTitle: dialogTitle).then(
+    (value) => whenNotNull(
+      value,
+      (value) => Directory(value).subFile(fileName).writeAsString(data),
+    ),
+  );
 }
 
 Future<File> writeStringToPlatDirectory(String data,
