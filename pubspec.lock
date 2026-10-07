@@ -737,7 +737,7 @@ packages:
     description:
       path: flutter_package
       ref: HEAD
-      resolved-ref: "4e9bd8d1f8e161e2609c74ee400f7ecd4c86b79b"
+      resolved-ref: "0153ed0f8d5d4304284e68d74f236db1c2329c25"
       url: "https://github.com/H2Sxxa/rinf.git"
     source: git
     version: "8.10.1"
@@ -814,26 +814,26 @@ packages:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: cf44d456b6bf4134fb0e085d83939256258dd24d09e6e522f4190ff6d82efcde
+      sha256: "58eb8e791756a6da3cce29889f0ff0caec93703ef5ef7c8467078428c508b22a"
       url: "https://pub.dev"
     source: hosted
-    version: "35.1.37"
+    version: "35.1.39"
   syncfusion_flutter_datepicker:
     dependency: transitive
     description:
       name: syncfusion_flutter_datepicker
-      sha256: c163bb7369553e58d35c5cdadf65cbe1ab26f6a3fd7b1c505db1e37852df8084
+      sha256: "9dea35706a3475def161d4aebf773108daf46720be4aa882d7c8b04a2b3001df"
       url: "https://pub.dev"
     source: hosted
-    version: "35.1.37"
+    version: "35.1.39"
   syncfusion_localizations:
     dependency: transitive
     description:
       name: syncfusion_localizations
-      sha256: ec98e3e473e03cde66e93fa2041d96226c79453e1686a5f479acede9b3f41a47
+      sha256: "168cbf5fdecef5f815a5774421cd359996414657c313808d7fb28578c507b534"
       url: "https://pub.dev"
     source: hosted
-    version: "35.1.37"
+    version: "35.1.39"
   system_fonts:
     dependency: "direct main"
     description:
