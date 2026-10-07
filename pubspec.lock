@@ -735,10 +735,11 @@ packages:
   rinf:
     dependency: "direct main"
     description:
-      name: rinf
-      sha256: "0b8627029f04bb8dbf5a3a1e9c723dd9fd28d6ccd314c432aa04097532b04e5f"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_package
+      ref: HEAD
+      resolved-ref: "4e9bd8d1f8e161e2609c74ee400f7ecd4c86b79b"
+      url: "https://github.com/H2Sxxa/rinf.git"
+    source: git
     version: "8.10.1"
   share_plus:
     dependency: "direct main"

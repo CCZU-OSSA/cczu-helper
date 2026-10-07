@@ -41,7 +41,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
-  rinf: ^8.8.0
+  rinf: 
+    git:
+      url: https://github.com/H2Sxxa/rinf.git
+      path: flutter_package
   share_plus: ^13.3.1
   file_picker: ^13.1.0
   flutter_markdown: ^0.7.7
