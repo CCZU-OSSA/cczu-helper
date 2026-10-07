@@ -93,7 +93,7 @@ class CheckUpdatePageState extends State<CheckUpdatePage> {
                           children: data!.assets
                               .map(
                                 (e) => ListTile(
-                                    leading: const Icon(FontAwesomeIcons.file),
+                                    leading: const FaIcon(FontAwesomeIcons.file),
                                     title: Tooltip(
                                       message: e.name,
                                       child: Text(
@@ -125,7 +125,7 @@ class CheckUpdatePageState extends State<CheckUpdatePage> {
                                               mode: LaunchMode
                                                   .externalApplication,
                                             ),
-                                            icon: const Icon(
+                                            icon: const FaIcon(
                                                 FontAwesomeIcons.server),
                                           ),
                                         )

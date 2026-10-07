@@ -43,7 +43,7 @@ class _LogPageState extends State<LogPage> with TickerProviderStateMixin {
           IconButton(
             onPressed: () => launchUrlString(
                 "https://github.com/CCZU-OSSA/cczu-helper/issues"),
-            icon: const Icon(FontAwesomeIcons.github),
+            icon: const FaIcon(FontAwesomeIcons.github),
           ),
           IconButton(
             onPressed: () async {
@@ -157,7 +157,7 @@ class CopyIconButtonState extends State<CopyIconButton> {
                   });
                 }
               },
-              icon: const Icon(FontAwesomeIcons.clipboard),
+              icon: const FaIcon(FontAwesomeIcons.clipboard),
             ),
     );
   }

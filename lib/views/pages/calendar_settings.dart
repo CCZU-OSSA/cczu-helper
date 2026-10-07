@@ -372,21 +372,16 @@ class _CalendarsManagerPageState extends State<CalendarsManagerPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          FilePicker.platform
-              .pickFiles(
+          FilePicker.pickFiles(
             type: FileType.custom,
             allowedExtensions: ["ics"],
-            withData: true,
-          )
-              .then((file) {
-            if (file != null) {
+          ).then((files) {
+            if (files.isNotEmpty) {
               platCalendarDataDirectory.getValue().then((platdir) async {
-                for (var single in file.files) {
-                  var bytes = single.bytes;
-                  if (bytes != null) {
-                    platdir.subFile(single.name).writeAsBytesSync(bytes);
-                    setState(() {});
-                  }
+                for (var single in files) {
+                  var bytes = await single.readAsBytes();
+                  platdir.subFile(single.name).writeAsBytesSync(bytes);
+                  setState(() {});
                 }
                 await icalendarParsersData.update();
               });

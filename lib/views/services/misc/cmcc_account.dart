@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
@@ -46,16 +46,14 @@ class CMCCAccountServiceState extends State<CMCCAccoutService> {
         content: SelectableText(message.account),
       );
       if (_generatebat) {
-        FilePicker.platform.saveFile(
+        FilePicker.saveFile(
           fileName: "一键拨号连接.bat",
+          bytes: Uint8List.fromList(
+              "@rasdial \"${_nameTextController.text}\" ${message.account} ${_pwdTextController.text}"
+                  .codeUnits),
           type: FileType.custom,
           allowedExtensions: [".bat"],
-        ).then((path) async {
-          if (path != null) {
-            await File(path).writeAsString(
-                "@rasdial \"${_nameTextController.text}\" ${message.account} ${_pwdTextController.text}");
-          }
-        });
+        );
       }
     });
   }

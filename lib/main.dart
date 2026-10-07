@@ -225,7 +225,9 @@ class MainApplicationState extends State<MainApplication>
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
           colorScheme:
-              customDarkColorScheme ?? darkDynamic ?? _defaultDarkColorScheme,
+                customDarkColorScheme ??
+                  (darkDynamic as ColorScheme?) ??
+                  _defaultDarkColorScheme,
           typography: Typography.material2021(),
         ),
         theme: ThemeData(
@@ -236,8 +238,8 @@ class MainApplicationState extends State<MainApplication>
           brightness: Brightness.light,
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
-          colorScheme: customLightColorScheme ??
-              lightDynamic ??
+            colorScheme: customLightColorScheme ??
+              (lightDynamic as ColorScheme?) ??
               _defaultLightColorScheme,
           typography: Typography.material2021(),
         ),

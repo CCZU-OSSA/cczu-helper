@@ -109,7 +109,7 @@ class SettingsPageState extends State<SettingsPage>
                 visible:
                     Platform.isWindows || Platform.isLinux || Platform.isMacOS,
                 replacement: SwitchListTile(
-                  secondary: const Icon(FontAwesomeIcons.font),
+                  secondary: const FaIcon(FontAwesomeIcons.font),
                   title: const Text("自定义字体"),
                   subtitle: const Text("需重新启动"),
                   value: platUserDataDirectory.value
@@ -119,27 +119,23 @@ class SettingsPageState extends State<SettingsPage>
                   onChanged: (value) {
                     if (value) {
                       // External Storage in Android
-                      FilePicker.platform
-                          .pickFiles(
+                      FilePicker.pickFiles(
                         type: FileType.custom,
                         allowedExtensions: [
                           "otf",
                           "ttf"
                         ], // May be more ext should be allowed
-                        withData: true,
-                      )
-                          .then((result) {
-                        var files = result?.files;
-                        if (files != null && files.isNotEmpty) {
-                          final data = files.first.bytes;
+                        // withData: true,
+                      ).then((files) async {
+                        if (files.isNotEmpty) {
+                          // TODO: use Stream is better
+                          final data = await files.first.readAsBytes();
 
-                          if (data != null) {
-                            platUserDataDirectory.getValue().then((platdir) {
-                              final file = platdir.subFile("customfont");
-                              file.writeAsBytesSync(data);
-                              setState(() {});
-                            });
-                          }
+                          platUserDataDirectory.getValue().then((platdir) {
+                            final file = platdir.subFile("customfont");
+                            file.writeAsBytesSync(data);
+                            setState(() {});
+                          });
                         }
                       });
                     } else {
@@ -154,7 +150,7 @@ class SettingsPageState extends State<SettingsPage>
                   },
                 ),
                 child: ListTile(
-                  leading: const Icon(FontAwesomeIcons.font),
+                  leading: const FaIcon(FontAwesomeIcons.font),
                   title: const Text("字体"),
                   subtitle: const Text("Font"),
                   trailing: Seletor(
@@ -308,7 +304,7 @@ class SettingsPageState extends State<SettingsPage>
             name: "关于",
             children: [
               ListTile(
-                leading: const Icon(FontAwesomeIcons.github),
+                leading: const FaIcon(FontAwesomeIcons.github),
                 title: const Text("开源地址"),
                 subtitle:
                     const Text("https://github.com/CCZU-OSSA/cczu-helper"),

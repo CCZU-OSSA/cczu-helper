@@ -111,7 +111,7 @@ class ICalendarServicePageState extends State<ICalendarServicePage> {
                             icalendarParsersData.update();
                           });
                         },
-                        icon: const Icon(FontAwesomeIcons.fileImport),
+                        icon: const FaIcon(FontAwesomeIcons.fileImport),
                         label: const SizedBox(
                           width: double.infinity,
                           child: Center(child: Text("导入常大助手")),
