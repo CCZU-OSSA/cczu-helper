@@ -2,7 +2,7 @@ import 'package:arche/arche.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/src/bindings/bindings.dart';
 import 'package:cczu_helper/views/widgets/termpicker.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class WeChatExamQueryServicePage extends StatefulWidget {
   const WeChatExamQueryServicePage({super.key});

@@ -1,6 +1,6 @@
 import 'package:arche/arche.dart';
 import 'package:cczu_helper/models/navstyle.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 var themeModeTr = StringTranslator(ThemeMode.values)

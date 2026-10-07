@@ -19,9 +19,8 @@ import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rinf/rinf.dart';
@@ -208,11 +207,7 @@ class MainApplicationState extends State<MainApplication>
       builder: (lightDynamic, darkDynamic) => MaterialApp(
         scaffoldMessengerKey: messagerKey,
         debugShowCheckedModeBanner: false,
-        localizationsDelegates: const [
-          GlobalWidgetsLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         supportedLocales: const [
           Locale.fromSubtags(languageCode: 'zh'), // generic Chinese 'zh'
         ],
@@ -225,9 +220,7 @@ class MainApplicationState extends State<MainApplication>
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
           colorScheme:
-                customDarkColorScheme ??
-                  (darkDynamic as ColorScheme?) ??
-                  _defaultDarkColorScheme,
+              customDarkColorScheme ?? darkDynamic ?? _defaultDarkColorScheme,
           typography: Typography.material2021(),
         ),
         theme: ThemeData(
@@ -238,8 +231,8 @@ class MainApplicationState extends State<MainApplication>
           brightness: Brightness.light,
           fontFamily: configs.sysfont.tryGet(),
           useMaterial3: true,
-            colorScheme: customLightColorScheme ??
-              (lightDynamic as ColorScheme?) ??
+          colorScheme: customLightColorScheme ??
+              lightDynamic ??
               _defaultLightColorScheme,
           typography: Typography.material2021(),
         ),

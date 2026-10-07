@@ -3,7 +3,7 @@ import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/src/bindings/bindings.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class AccountManagePage extends StatefulWidget {
   const AccountManagePage({

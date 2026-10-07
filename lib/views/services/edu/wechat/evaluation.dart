@@ -5,7 +5,7 @@ import 'package:arche/extensions/dialogs.dart';
 import 'package:cczu_helper/controllers/accounts.dart';
 import 'package:cczu_helper/src/bindings/signals/signals.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class WeChatEvaluationPage extends StatefulWidget {
   const WeChatEvaluationPage({super.key});

@@ -19,7 +19,7 @@ import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:cczu_helper/views/widgets/seletor.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:system_fonts/system_fonts.dart';

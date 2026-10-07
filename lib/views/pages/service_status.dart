@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:cczu_helper/src/bindings/bindings.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:rinf/rinf.dart';
 
 class ServiceStatusPage extends StatefulWidget {

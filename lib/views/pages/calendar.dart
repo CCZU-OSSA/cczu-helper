@@ -11,7 +11,7 @@ import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:cczu_helper/views/services/common/icalendar.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:intl/intl.dart';

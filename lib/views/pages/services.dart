@@ -15,7 +15,7 @@ import 'package:cczu_helper/views/services/common/icalendar.dart';
 import 'package:cczu_helper/views/services/misc/cmcc_account.dart';
 import 'package:cczu_helper/views/services/edu/wechat/grades.dart';
 import 'package:cczu_helper/views/services/sso/lab.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ServicePage extends StatefulWidget {
   const ServicePage({super.key});

@@ -1,7 +1,7 @@
 import 'package:arche/extensions/iter.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class AdaptiveView extends StatelessWidget {
   final Widget child;

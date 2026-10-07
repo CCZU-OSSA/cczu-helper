@@ -6,7 +6,7 @@ import 'package:cczu_helper/src/bindings/bindings.dart';
 import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/models/version.dart';
 import 'package:cczu_helper/views/widgets/adaptive.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:rinf/rinf.dart';

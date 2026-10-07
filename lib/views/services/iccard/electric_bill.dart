@@ -7,7 +7,7 @@ import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/src/bindings/bindings.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:rinf/rinf.dart';
 
 class ElectricBillPage extends StatefulWidget {

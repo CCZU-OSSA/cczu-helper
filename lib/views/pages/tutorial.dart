@@ -5,7 +5,7 @@ import 'package:cczu_helper/models/fields.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/widgets/adaptive.dart';
 import 'package:cczu_helper/views/widgets/markdown.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class TutorialPage extends StatelessWidget {
   final bool showFAB;

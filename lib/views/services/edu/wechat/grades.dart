@@ -9,7 +9,7 @@ import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/src/bindings/bindings.dart';
 
 import 'package:cczu_helper/views/widgets/scrollable.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class WeChatGradeQueryServicePage extends StatefulWidget {
   const WeChatGradeQueryServicePage({super.key});

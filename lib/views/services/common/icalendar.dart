@@ -14,7 +14,7 @@ import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/widgets/adaptive.dart';
 import 'package:cczu_helper/views/widgets/markdown.dart';
 import 'package:cczu_helper/views/widgets/progressive.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:rinf/rinf.dart';
 import 'package:share_plus/share_plus.dart';
