@@ -1,7 +1,7 @@
 use crate::signals::{AssetInfo, GetVersionInput, GetVersionOutput, VersionInfo};
 use cczuni::internals::fields::DEFAULT_HEADERS;
-use rinf::{DartSignal, RustSignal};
 use reqwest::Client;
+use rinf::{DartSignal, RustSignal};
 pub async fn get_app_version() {
     let rev = GetVersionInput::get_dart_signal_receiver();
     while let Some(_) = rev.recv().await {
@@ -10,9 +10,8 @@ pub async fn get_app_version() {
             .headers(DEFAULT_HEADERS.clone())
             .send()
             .await
+            && let Ok(latest) = response.json::<SerdeVersionInfo>().await
         {
-            let data = response.text().await.unwrap();
-            let latest: SerdeVersionInfo = serde_json::from_str(&data).unwrap();
             GetVersionOutput {
                 ok: true,
                 data: Some(VersionInfo {
