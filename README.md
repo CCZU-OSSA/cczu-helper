@@ -1,3 +1,7 @@
+> 🚨 CALL FOR MAINTAINERS!!! 🚨
+>
+> 此项目的 Core Contributor 已经无偿维护了此项目多年，现在仅限发布一些修复，如果你对此项目感兴趣，或者说此项目能够帮到你，你希望也能够帮助其他人并且希望能有一些新功能，欢迎提供 PR 或者加入我们！
+
 <div align=center>
   <img width=200 src="assets\cczu_helper_icon.png"  alt="图标"/>
   <h1 align="center">吊大助手</h1>
