@@ -20,6 +20,19 @@ mod windows;
 
 rinf::write_interface!();
 
+#[cfg(target_os = "android")]
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_io_github_cczuossa_cczu_1helper_CczuHelperApplication_initializeRustls<'caller>(
+    mut env: jni::EnvUnowned<'caller>,
+    _class: jni::objects::JClass<'caller>,
+    context: jni::objects::JObject<'caller>,
+) {
+    use jni::errors::ThrowRuntimeExAndDefault;
+
+    env.with_env(|env| rustls_platform_verifier::android::init_with_env(env, context))
+        .resolve::<ThrowRuntimeExAndDefault>();
+}
+
 // Always use non-blocking async functions
 // such as `tokio::fs::File::open`.
 // If you really need to use blocking code,

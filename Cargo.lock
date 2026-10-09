@@ -557,8 +557,10 @@ version = "0.1.0"
 dependencies = [
  "cczuni",
  "guid-create",
+ "jni",
  "reqwest",
  "rinf",
+ "rustls-platform-verifier",
  "serde",
  "serde_json",
  "tokio",

@@ -1,0 +1,3 @@
+# We keep the dependency unversioned because its version is selected dynamically during configuration.
+[libraries]
+rustls-platform-verifier = { group = "org.rustls", name = "rustls-platform-verifier" }

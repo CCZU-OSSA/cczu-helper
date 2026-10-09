@@ -29,3 +29,7 @@ reqwest = { version = "*", features = [
 [target.'cfg(windows)'.dependencies]
 guid-create = "0.5.2"
 windows = { version = "0.62.2", features = ["Win32_System_Com"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+jni = "0.22.4"
+rustls-platform-verifier = "0.7.1"
