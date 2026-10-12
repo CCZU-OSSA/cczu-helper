@@ -665,6 +665,15 @@ class CurriculumPageState extends State<CurriculumPage>
         configs.calendarTimeStart.getOr(const TimeOfDay(hour: 8, minute: 0));
     final end =
         configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0));
+    final intervalMinutes = configs.calendarTimeIntervalMinutes.getOr(30);
+    final startMinutes = start.hour * 60 + start.minute;
+    final endMinutes = end.hour * 60 + end.minute;
+    // Syncfusion adjusts intervals when the range is not evenly divisible.
+    // Trim the visible range instead so the configured interval is preserved.
+    final visibleEndMinutes = intervalMinutes > 0 && endMinutes > startMinutes
+        ? startMinutes +
+            ((endMinutes - startMinutes) ~/ intervalMinutes) * intervalMinutes
+        : endMinutes;
     final GlobalKey<CalendarViewHeaderState> calendarViewHeaderKey =
         GlobalKey();
 
@@ -696,9 +705,9 @@ class CurriculumPageState extends State<CurriculumPage>
         timeRulerSize: configs.calendarShowTimeRule.getOr(true) ? -1 : 0,
         timeIntervalHeight: 40,
         startHour: start.hour + start.minute / 60,
-        endHour: end.hour + end.minute / 60,
+        endHour: visibleEndMinutes ~/ 60 + (visibleEndMinutes % 60) / 60,
         timeInterval: Duration(
-          minutes: configs.calendarTimeIntervalMinutes.getOr(30),
+          minutes: intervalMinutes,
         ),
       ),
       cellBorderColor: configs.calendarIntervalLine.getOr(true)
