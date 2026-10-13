@@ -735,25 +735,37 @@ class CurriculumPageState extends State<CurriculumPage>
     // 在 SfCalendar 之上叠一层自绘标尺。
     // 用 StackFit.passthrough：让 calendar 拿到的约束与之前完全一样，
     // 不改变它原有的尺寸行为。
+    // 只有时间槽类视图（周 / 日）才有时间网格，日程（schedule）是列表视图，
+    // 叠上去只会把横线画到列表上。workWeek 在上面已经被映射成 week 了。
+    final showsTimeGrid =
+        view == CalendarView.week || view == CalendarView.day;
+
     final calendarWithRuler = Stack(
       fit: StackFit.passthrough,
       children: [
         calendar,
-        Positioned.fill(
-          // IgnorePointer 不能省：自绘层铺满整个课表，
-          // 否则会把点击和滚动手势全部吃掉。
-          child: IgnorePointer(
-            child: CustomPaint(
-              painter: _TimeSetRulerPainter(
-                timeSets: _timeSets.values.toList(),
-                startMinutes: start.hour * 60 + start.minute,
-                endMinutes: end.hour * 60 + end.minute,
-                rulerWidth: configs.calendarShowTimeRule.getOr(true) ? 50 : 0,
-                lineColor: theme.colorScheme.outlineVariant,
+        if (showsTimeGrid)
+          Positioned.fill(
+            // IgnorePointer 不能省：自绘层铺满整个课表，
+            // 否则会把点击和滚动手势全部吃掉。
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: _TimeSetRulerPainter(
+                  timeSets: _timeSets.values.toList(),
+                  startMinutes: start.hour * 60 + start.minute,
+                  endMinutes: end.hour * 60 + end.minute,
+                  rulerWidth:
+                      configs.calendarShowTimeRule.getOr(true) ? 50 : 0,
+                  lineColor: theme.colorScheme.outlineVariant,
+                  // 全天日程面板展开时会把下面的时间槽整体下推，线要跟着下移。
+                  headerOffset:
+                      configs.calendarShowAlldayAppionments.getOr(false)
+                          ? _kAllDayPanelHeight
+                          : 0,
+                ),
               ),
             ),
           ),
-        ),
       ],
     );
     var child = buildHeader(
@@ -1058,6 +1070,14 @@ class ICalendarParser {
   return (starts: starts, ends: ends);
 }
 
+/// 全天日程面板展开时占掉的高度（像素）。
+///
+/// 来源：SfCalendar 内部 `_allDayPanelHeight = maxPosition * kAllDayAppointmentHeight`
+/// （见 sfcalendar.dart），其中 kAllDayAppointmentHeight 固定为 20。
+/// 当前数据下并排层数为 1，故为 20。
+/// 若以后同一天有多条**并排**的全天日程，这里要相应调成 40 / 60（库的上限是 60）。
+const double _kAllDayPanelHeight = 20;
+
 /// 由 TimeSet 驱动的标尺横线绘制层。
 ///
 /// 坐标换算必须与 SfCalendar 内部保持一致：
@@ -1071,6 +1091,7 @@ class _TimeSetRulerPainter extends CustomPainter {
     required this.endMinutes,
     required this.rulerWidth,
     required this.lineColor,
+    required this.headerOffset,
   });
 
   /// 每份日历一份刻度（列表间不去重，重合的线会叠着画）。
@@ -1087,6 +1108,10 @@ class _TimeSetRulerPainter extends CustomPainter {
 
   /// 每像素对应多少分钟高度。40 / 30，与 SfCalendar 的换算完全一致。
   static const double _minuteHeight = 40 / 30;
+
+  /// 自绘层的纵向偏移（像素），由调用方按「全天日程面板是否展开」决定。
+  /// 正数 = 所有线整体往下移。取值见 [_kAllDayPanelHeight]。
+  final double headerOffset;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1105,7 +1130,8 @@ class _TimeSetRulerPainter extends CustomPainter {
         // （appointment_layout.dart 里 `height > 1 ? height - 1 : 0`），
         // 所以课块下沿比真实时间位置高 1px，线跟着上移才能贴齐下沿。
         // 开始时刻不能移 —— 它要贴的是下一个课块的上沿。
-        final y = (tick - startMinutes) * _minuteHeight -
+        final y = (tick - startMinutes) * _minuteHeight +
+            headerOffset -
             (timeSet.endOnlyTicks.contains(tick) ? 1 : 0);
         canvas.drawLine(
           Offset(rulerWidth, y),
@@ -1122,6 +1148,7 @@ class _TimeSetRulerPainter extends CustomPainter {
         oldDelegate.startMinutes != startMinutes ||
         oldDelegate.endMinutes != endMinutes ||
         oldDelegate.rulerWidth != rulerWidth ||
-        oldDelegate.lineColor != lineColor;
+        oldDelegate.lineColor != lineColor ||
+        oldDelegate.headerOffset != headerOffset;
   }
 }
