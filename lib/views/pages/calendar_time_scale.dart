@@ -1,6 +1,7 @@
 import 'package:arche/arche.dart';
 import 'package:arche/extensions/dialogs.dart';
 import 'package:cczu_helper/controllers/config.dart';
+import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/views/widgets/time_wheel_picker.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -40,7 +41,7 @@ class _CalendarTimeScalePageState extends State<CalendarTimeScalePage> {
     setState(() {});
   }
 
-  /// 新增一条刻度。
+  /// 新增一条刻度。已存在的时刻不重复添加，只给一句提示。
   Future<void> _add() async {
     final time = await showTimeWheelPicker(
       context: context,
@@ -50,7 +51,19 @@ class _CalendarTimeScalePageState extends State<CalendarTimeScalePage> {
     if (time == null) {
       return;
     }
-    final ticks = _readTicks()..add(time.hour * 100 + time.minute);
+    // 跨过了 async gap：先确认 State 还在，否则下面的 showSnackBar 与
+    // _write() 里的 setState 会在已卸载的页面执行。
+    if (!mounted) {
+      return;
+    }
+    final value = time.hour * 100 + time.minute;
+    final ticks = _readTicks();
+    if (ticks.contains(value)) {
+      // 静默跳过会让用户以为程序卡了，所以给一句提示
+      showSnackBar(context: context, content: const Text("该刻度已存在"));
+      return;
+    }
+    ticks.add(value);
     _write(ticks);
   }
 
