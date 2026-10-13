@@ -15,7 +15,9 @@ import 'package:cczu_helper/views/services/common/icalendar.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
-import 'package:intl/intl.dart';
+// intl 也导出了一个同名的 TextDirection（只有 LTR/RTL），会遮蔽 dart:ui 的
+// TextDirection.ltr，导致 TextPainter 拿不到正确枚举，这里显式隐藏掉。
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -762,6 +764,10 @@ class CurriculumPageState extends State<CurriculumPage>
                       configs.calendarShowAlldayAppionments.getOr(false)
                           ? _kAllDayPanelHeight
                           : 0,
+                  dayCount: view == CalendarView.week ? 7 : 1,
+                  textStyle: theme.textTheme.bodySmall!.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ),
@@ -1092,6 +1098,8 @@ class _TimeSetRulerPainter extends CustomPainter {
     required this.rulerWidth,
     required this.lineColor,
     required this.headerOffset,
+    required this.dayCount,
+    required this.textStyle,
   });
 
   /// 每份日历一份刻度（列表间不去重，重合的线会叠着画）。
@@ -1112,6 +1120,12 @@ class _TimeSetRulerPainter extends CustomPainter {
   /// 自绘层的纵向偏移（像素），由调用方按「全天日程面板是否展开」决定。
   /// 正数 = 所有线整体往下移。取值见 [_kAllDayPanelHeight]。
   final double headerOffset;
+
+  /// 时间网格要切成几列（周 = 7，日 = 1），用于画天与天之间的竖线。
+  final int dayCount;
+
+  /// 标尺时间文字的样式，由调用方从 Theme 取。
+  final TextStyle textStyle;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1140,6 +1154,54 @@ class _TimeSetRulerPainter extends CustomPainter {
         );
       }
     }
+
+    // 天与天之间的竖线。日视图 dayCount = 1，循环不执行，自然没有竖线。
+    final double cellWidth = (size.width - rulerWidth) / dayCount;
+    for (int i = 1; i < dayCount; i++) {
+      final double x = rulerWidth + cellWidth * i;
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        paint,
+      );
+    }
+
+    // 标尺时间文字：右对齐到标尺列，与对应时刻的横线垂直居中。
+    // rulerWidth 为 0（总开关关掉）时不画，避免文字跑到画面外。
+    if (rulerWidth > 0) {
+      // 多个日历可能有相同时刻，文字只画一遍即可（横线那边仍按"重合着画"处理）
+      final List<int> labels = <int>{
+        for (final timeSet in timeSets) ...timeSet.ticks,
+      }.toList()
+        ..sort();
+
+      final TextPainter textPainter = TextPainter(
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.right,
+      );
+
+      for (final int tick in labels) {
+        // 窗口外的时刻不画
+        if (tick < startMinutes || tick > endMinutes) {
+          continue;
+        }
+        // 文字标的是「时间点」，所以用不加那 1px 修正的纯位置
+        final double lineY =
+            (tick - startMinutes) * _minuteHeight + headerOffset;
+        textPainter.text = TextSpan(
+          text: "${tick ~/ 60}:${(tick % 60).toString().padLeft(2, "0")}",
+          style: textStyle,
+        );
+        textPainter.layout();
+        // 顶部/底部那条线的文字若严格居中会被裁掉一半，这里夹住让它完整显示
+        final double dy = (lineY - textPainter.height / 2)
+            .clamp(0.0, size.height - textPainter.height);
+        textPainter.paint(
+          canvas,
+          Offset(rulerWidth - 4 - textPainter.width, dy),
+        );
+      }
+    }
   }
 
   @override
@@ -1149,6 +1211,8 @@ class _TimeSetRulerPainter extends CustomPainter {
         oldDelegate.endMinutes != endMinutes ||
         oldDelegate.rulerWidth != rulerWidth ||
         oldDelegate.lineColor != lineColor ||
-        oldDelegate.headerOffset != headerOffset;
+        oldDelegate.headerOffset != headerOffset ||
+        oldDelegate.dayCount != dayCount ||
+        oldDelegate.textStyle != textStyle;
   }
 }
