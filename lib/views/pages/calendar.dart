@@ -751,6 +751,10 @@ class CurriculumPageState extends State<CurriculumPage>
     final showsTimeGrid =
         view == CalendarView.week || view == CalendarView.day;
 
+    // 「显示时间标尺」是总开关：关掉时整个自绘层都不叠加
+    //（库的标尺列与表头占位也各自跟随这个开关消失）。
+    final bool showRuler = configs.calendarShowTimeRule.getOr(true);
+
     final calendarWithRuler = Stack(
       fit: StackFit.passthrough,
       children: [
@@ -776,7 +780,7 @@ class CurriculumPageState extends State<CurriculumPage>
             child: calendar,
           ),
         ),
-        if (showsTimeGrid)
+        if (showsTimeGrid && showRuler)
           Positioned.fill(
             // IgnorePointer 不能省：自绘层铺满整个课表，
             // 否则会把点击和滚动手势全部吃掉。
@@ -1172,7 +1176,7 @@ class _TimeSetRulerPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = lineColor
-      ..strokeWidth = 1.0
+      ..strokeWidth = 1.2
       ..style = PaintingStyle.stroke;
 
     // 自绘层铺满整个 SfCalendar，但只应画在「时间槽区域」内：
