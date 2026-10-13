@@ -222,17 +222,6 @@ class _CalendarSettingsState extends State<CalendarSettings> {
               ),
               SwitchListTile(
                 secondary: const Icon(Icons.visibility),
-                title: const Text("显示分割线"),
-                subtitle: const Text("Interval Line"),
-                value: configs.calendarIntervalLine.getOr(true),
-                onChanged: (value) {
-                  setState(() {
-                    configs.calendarIntervalLine.write(value);
-                  });
-                },
-              ),
-              SwitchListTile(
-                secondary: const Icon(Icons.visibility),
                 title: const Text("显示时间标尺"),
                 subtitle: const Text("Time Ruler"),
                 value: configs.calendarShowTimeRule.getOr(true),

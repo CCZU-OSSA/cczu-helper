@@ -135,9 +135,6 @@ class ApplicationConfigs extends AppConfigsBase {
         forward: (value) => Color(value),
       );
 
-  ConfigEntry<bool> get calendarIntervalLine =>
-      generator("calendar_intervalline");
-
   ConfigEntry<String> get calendarBackgroundImage =>
       generator("calendar_background_image");
 

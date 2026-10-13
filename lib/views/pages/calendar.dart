@@ -706,15 +706,19 @@ class CurriculumPageState extends State<CurriculumPage>
       headerHeight: 0,
       timeSlotViewSettings: TimeSlotViewSettings(
         timeFormat: "H:mm",
-        timeRulerSize: configs.calendarShowTimeRule.getOr(true) ? -1 : 0,
+        // 隐藏库自带的标尺文字，但保留 50px 的标尺列（自绘层要用这个宽度）。
+        // 不能用 timeRulerSize: 0 代替 —— 那会让整列消失、日列左移，
+        // 自绘的标尺会压住周一那一列。
+        timeTextStyle: const TextStyle(color: Colors.transparent),
+        timeRulerSize: configs.calendarShowTimeRule.getOr(true) ? 50 : 0,
         timeIntervalHeight: 40,
         startHour: start.hour + start.minute / 60,
         endHour: end.hour + end.minute / 60,
         timeInterval: const Duration(minutes: 30),
       ),
-      cellBorderColor: configs.calendarIntervalLine.getOr(true)
-          ? theme.colorScheme.surfaceContainerHighest
-          : Colors.transparent,
+      // 去掉库自带的 30 分钟密线；横线改由 TimeSet 驱动（第 6 阶段自绘）。
+      // 注意：天分隔竖线共用这个颜色，会一并消失，第 6 阶段由自绘层补回。
+      cellBorderColor: Colors.transparent,
       cellEndPadding: 0,
       selectionDecoration: BoxDecoration(),
       scheduleViewSettings: ScheduleViewSettings(
