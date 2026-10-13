@@ -8,6 +8,8 @@ import 'package:cczu_helper/controllers/snackbar.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show CupertinoDatePicker, CupertinoDatePickerMode;
 import 'package:material_ui/material_ui.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' show basenameWithoutExtension, extension;
@@ -45,6 +47,89 @@ class _CalendarSettingsState extends State<CalendarSettings> {
     return null;
   }
 
+  /// 弹出「整点/半点」时间选择器。取消返回 null。
+  ///
+  /// 用 CupertinoDatePicker 是因为 Material 的 showTimePicker 无法限制分钟步进。
+  /// 初始值必须先吸附到 :00/:30 —— CupertinoDatePicker 有断言
+  /// `initialDateTime.minute % minuteInterval == 0`，否则 debug 下直接崩溃。
+  Future<TimeOfDay?> _showHourHalfPicker(TimeOfDay initial) {
+    final snapped = snapToHalfHour(initial);
+    final now = DateTime.now();
+    var picked =
+        DateTime(now.year, now.month, now.day, snapped.hour, snapped.minute);
+    return showDialog<TimeOfDay>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text("选择时间"),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+        content: SizedBox(
+          height: 220,
+          width: 300,
+          child: CupertinoDatePicker(
+            mode: CupertinoDatePickerMode.time,
+            minuteInterval: 30,
+            use24hFormat: true,
+            initialDateTime: picked,
+            onDateTimeChanged: (value) {
+              picked = value;
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text("取消"),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext,
+                TimeOfDay(hour: picked.hour, minute: picked.minute)),
+            child: const Text("确定"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 检查所选时间范围是否切掉了某些课程时刻，若有则弹窗告知。
+  ///
+  /// 统计单位是「时间点」：每个非全天事件的 start 和 end 各算一个点。
+  void _checkOutOfRange(TimeOfDay start, TimeOfDay end) {
+    // 该方法在 picker 的 .then() 里被调用，跨过了 async gap，
+    // 所以进来先确认 State 还在，避免在已卸载的 State 上取 context 弹窗。
+    if (!mounted) {
+      return;
+    }
+    final parsers = icalendarParsersData.value;
+    if (parsers == null) {
+      return;
+    }
+    final lower = start.hour * 60 + start.minute;
+    final upper = end.hour * 60 + end.minute;
+    var count = 0;
+    for (final parser in parsers) {
+      for (final e in parser.data) {
+        if (e.isAllday) {
+          continue;
+        }
+        for (final t in [e.start.toDateTime(), e.end.toDateTime()]) {
+          if (t == null) {
+            continue;
+          }
+          final minutes = t.hour * 60 + t.minute;
+          if (minutes < lower || minutes > upper) {
+            count++;
+          }
+        }
+      }
+    }
+    if (count > 0) {
+      ComplexDialog.instance.text(
+        context: context,
+        content: Text("有 $count 个课程时间点超出当前时间范围，将不会完整显示"),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ApplicationConfigs configs = ArcheBus().of();
@@ -73,20 +158,32 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 leading: const Icon(Icons.sunny),
                 title: const Text("日历开始时间"),
                 subtitle: const Text("Calendar Start"),
-                trailing: Text(configs.calendarTimeStart
-                    .getOr(const TimeOfDay(hour: 8, minute: 0))
+                trailing: Text(snapToHalfHour(configs.calendarTimeStart
+                        .getOr(const TimeOfDay(hour: 8, minute: 0)))
                     .format(context)),
                 onTap: () {
-                  showTimePicker(
-                          context: context,
-                          initialTime: configs.calendarTimeStart
-                              .getOr(const TimeOfDay(hour: 8, minute: 0)))
+                  _showHourHalfPicker(configs.calendarTimeStart
+                          .getOr(const TimeOfDay(hour: 8, minute: 0)))
                       .then((time) {
-                    if (time != null) {
-                      setState(() {
-                        configs.calendarTimeStart.write(time);
-                      });
+                    if (time == null) {
+                      return;
                     }
+                    final end = configs.calendarTimeEnd
+                        .getOr(const TimeOfDay(hour: 21, minute: 0));
+                    if (time.hour * 60 + time.minute >=
+                        end.hour * 60 + end.minute) {
+                      if (mounted) {
+                        ComplexDialog.instance.text(
+                          context: this.context,
+                          content: const Text("开始时间必须早于结束时间"),
+                        );
+                      }
+                      return;
+                    }
+                    setState(() {
+                      configs.calendarTimeStart.write(time);
+                    });
+                    _checkOutOfRange(time, end);
                   });
                 },
               ),
@@ -94,21 +191,32 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 leading: const Icon(Icons.nightlife),
                 title: const Text("日历结束时间"),
                 subtitle: const Text("Calendar End"),
-                trailing: Text(configs.calendarTimeEnd
-                    .getOr(const TimeOfDay(hour: 21, minute: 0))
+                trailing: Text(snapToHalfHour(configs.calendarTimeEnd
+                        .getOr(const TimeOfDay(hour: 21, minute: 0)))
                     .format(context)),
                 onTap: () {
-                  showTimePicker(
-                          context: context,
-                          initialTime: configs.calendarTimeEnd
-                              .getOr(const TimeOfDay(hour: 21, minute: 0)))
+                  _showHourHalfPicker(configs.calendarTimeEnd
+                          .getOr(const TimeOfDay(hour: 21, minute: 0)))
                       .then((time) {
-                    if (time != null) {
-                      debugPrint(time.toString());
-                      setState(() {
-                        configs.calendarTimeEnd.write(time);
-                      });
+                    if (time == null) {
+                      return;
                     }
+                    final start = configs.calendarTimeStart
+                        .getOr(const TimeOfDay(hour: 8, minute: 0));
+                    if (time.hour * 60 + time.minute <=
+                        start.hour * 60 + start.minute) {
+                      if (mounted) {
+                        ComplexDialog.instance.text(
+                          context: this.context,
+                          content: const Text("结束时间必须晚于开始时间"),
+                        );
+                      }
+                      return;
+                    }
+                    setState(() {
+                      configs.calendarTimeEnd.write(time);
+                    });
+                    _checkOutOfRange(start, time);
                   });
                 },
               ),
@@ -175,29 +283,6 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 onChanged: (value) {
                   setState(() {
                     configs.calendarShowAlldayAppionments.write(value);
-                  });
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.access_time_filled),
-                title: const Text("时间间隔"),
-                subtitle: const Text("Time Interval"),
-                trailing:
-                    Text("${configs.calendarTimeIntervalMinutes.getOr(30)}min"),
-                onTap: () {
-                  showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay(
-                              hour: 0,
-                              minute: configs.calendarTimeIntervalMinutes
-                                  .getOr(30)))
-                      .then((data) {
-                    if (data != null) {
-                      setState(() {
-                        configs.calendarTimeIntervalMinutes
-                            .write(data.hour * 60 + data.minute);
-                      });
-                    }
                   });
                 },
               ),

@@ -674,10 +674,10 @@ class CurriculumPageState extends State<CurriculumPage>
     if (view == CalendarView.workWeek) {
       view = CalendarView.week;
     }
-    final start =
-        configs.calendarTimeStart.getOr(const TimeOfDay(hour: 8, minute: 0));
-    final end =
-        configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0));
+    final start = snapToHalfHour(
+        configs.calendarTimeStart.getOr(const TimeOfDay(hour: 8, minute: 0)));
+    final end = snapToHalfHour(
+        configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0)));
     final GlobalKey<CalendarViewHeaderState> calendarViewHeaderKey =
         GlobalKey();
 
@@ -710,9 +710,7 @@ class CurriculumPageState extends State<CurriculumPage>
         timeIntervalHeight: 40,
         startHour: start.hour + start.minute / 60,
         endHour: end.hour + end.minute / 60,
-        timeInterval: Duration(
-          minutes: configs.calendarTimeIntervalMinutes.getOr(30),
-        ),
+        timeInterval: const Duration(minutes: 30),
       ),
       cellBorderColor: configs.calendarIntervalLine.getOr(true)
           ? theme.colorScheme.surfaceContainerHighest
