@@ -58,7 +58,6 @@ dependencies:
   package_info_plus: ^10.2.2
 
   material_ui: any
-  cupertino_ui: ^1.1.2
   meta: any
 dev_dependencies:
   flutter_test:
