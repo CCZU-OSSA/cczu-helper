@@ -671,9 +671,11 @@ class CurriculumPageState extends State<CurriculumPage>
     // Syncfusion adjusts intervals when the range is not evenly divisible.
     // Trim the visible range instead so the configured interval is preserved.
     final visibleEndMinutes = intervalMinutes > 0 && endMinutes > startMinutes
-        ? startMinutes +
-            ((endMinutes - startMinutes) ~/ intervalMinutes) * intervalMinutes
-        : endMinutes;
+    ? startMinutes +
+        ((endMinutes - startMinutes + intervalMinutes - 1) ~/
+            intervalMinutes) *
+            intervalMinutes
+    : endMinutes;
     final GlobalKey<CalendarViewHeaderState> calendarViewHeaderKey =
         GlobalKey();
 
