@@ -1175,6 +1175,15 @@ class _TimeSetRulerPainter extends CustomPainter {
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
 
+    // 自绘层铺满整个 SfCalendar，但只应画在「时间槽区域」内：
+    // 顶部 headerOffset 以上是表头 / 全天日程面板，画进去就会在滚动时
+    // 看到横线跑到表头上面。裁掉之后，滚出顶部的线和文字会自然消失。
+    final double rulerTop = headerOffset;
+    canvas.save();
+    canvas.clipRect(
+      Rect.fromLTWH(0, rulerTop, size.width, size.height - rulerTop),
+    );
+
     for (final timeSet in timeSets) {
       for (final tick in timeSet.ticks) {
         // 窗口外的时刻不画
@@ -1236,15 +1245,27 @@ class _TimeSetRulerPainter extends CustomPainter {
           style: textStyle,
         );
         textPainter.layout();
-        // 顶部/底部那条线的文字若严格居中会被裁掉一半，这里夹住让它完整显示
-        final double dy = (lineY - textPainter.height / 2)
-            .clamp(0.0, size.height - textPainter.height);
+        // 线本身已经滚出可见区 → 这条标签也不画。
+        // （不能只靠 clamp：那样滚出顶部的标签会被"粘"在边缘，
+        //   和后面滚上来的标签叠在一起。）
+        if (lineY < rulerTop || lineY > size.height) {
+          continue;
+        }
+        // 仍在可见区内的标签，夹一下让它完整显示（避免顶部那条只剩半个字）
+        final double dy = (lineY - textPainter.height / 2).clamp(
+          rulerTop,
+          (size.height - textPainter.height) < rulerTop
+              ? rulerTop
+              : size.height - textPainter.height,
+        );
         textPainter.paint(
           canvas,
           Offset(rulerWidth - 4 - textPainter.width, dy),
         );
       }
     }
+
+    canvas.restore();
   }
 
   @override
