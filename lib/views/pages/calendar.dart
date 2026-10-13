@@ -12,6 +12,8 @@ import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:cczu_helper/views/services/common/icalendar.dart';
+// material_ui 没有转出 listEquals，这里按需补最小范围导入。
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
@@ -571,6 +573,12 @@ class CurriculumPageState extends State<CurriculumPage>
   CurriculumDataSource? _datasource;
   DateTime? _firstCurriculumDate;
   Map<String, TimeSet> _timeSets = {};
+
+  /// 日历时间槽的垂直滚动偏移。
+  ///
+  /// 用 ValueNotifier 而不是 setState：滚动时每帧都会变，
+  /// setState 会把整个课表页重建，代价太大；这里只让自绘层那一小块重建。
+  final ValueNotifier<double> _calendarScrollOffset = ValueNotifier<double>(0);
   @override
   void initState() {
     configs = ArcheBus().of<ApplicationConfigs>();
@@ -633,6 +641,7 @@ class CurriculumPageState extends State<CurriculumPage>
 
   @override
   void dispose() {
+    _calendarScrollOffset.dispose();
     calendarController.dispose();
     super.dispose();
   }
@@ -745,30 +754,58 @@ class CurriculumPageState extends State<CurriculumPage>
     final calendarWithRuler = Stack(
       fit: StackFit.passthrough,
       children: [
-        calendar,
+        // 用通知捕获库内部的垂直滚动偏移（库没暴露滚动控制器）。
+        // 外层处理"窗口尺寸变化/转屏"导致的 metrics 变化，内层处理实际滚动。
+        NotificationListener<ScrollMetricsNotification>(
+          onNotification: (ScrollMetricsNotification notification) {
+            if (notification.metrics.axis == Axis.vertical) {
+              _calendarScrollOffset.value = notification.metrics.pixels;
+            }
+            return false;
+          },
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (ScrollNotification notification) {
+              // 库内部还有"水平翻周"的滚动，必须按轴过滤，否则会被带偏。
+              if (notification.metrics.axis != Axis.vertical) {
+                return false;
+              }
+              _calendarScrollOffset.value = notification.metrics.pixels;
+              // 返回 false：不要吞掉通知，否则可能影响库自己的滚动逻辑。
+              return false;
+            },
+            child: calendar,
+          ),
+        ),
         if (showsTimeGrid)
           Positioned.fill(
             // IgnorePointer 不能省：自绘层铺满整个课表，
             // 否则会把点击和滚动手势全部吃掉。
             child: IgnorePointer(
-              child: CustomPaint(
-                painter: _TimeSetRulerPainter(
-                  timeSets: _timeSets.values.toList(),
-                  startMinutes: start.hour * 60 + start.minute,
-                  endMinutes: end.hour * 60 + end.minute,
-                  rulerWidth:
-                      configs.calendarShowTimeRule.getOr(true) ? 50 : 0,
-                  lineColor: theme.colorScheme.outlineVariant,
-                  // 全天日程面板展开时会把下面的时间槽整体下推，线要跟着下移。
-                  headerOffset:
-                      configs.calendarShowAlldayAppionments.getOr(false)
-                          ? _kAllDayPanelHeight
-                          : 0,
-                  dayCount: view == CalendarView.week ? 7 : 1,
-                  textStyle: theme.textTheme.bodySmall!.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
+              child: ValueListenableBuilder<double>(
+                valueListenable: _calendarScrollOffset,
+                builder: (BuildContext context, double scrollOffset,
+                    Widget? child) {
+                  return CustomPaint(
+                    painter: _TimeSetRulerPainter(
+                      timeSets: _timeSets.values.toList(),
+                      startMinutes: start.hour * 60 + start.minute,
+                      endMinutes: end.hour * 60 + end.minute,
+                      rulerWidth:
+                          configs.calendarShowTimeRule.getOr(true) ? 50 : 0,
+                      lineColor: theme.colorScheme.outlineVariant,
+                      // 全天日程面板展开时会把下面的时间槽整体下推，线要跟着下移。
+                      headerOffset:
+                          configs.calendarShowAlldayAppionments.getOr(false)
+                              ? _kAllDayPanelHeight
+                              : 0,
+                      dayCount: view == CalendarView.week ? 7 : 1,
+                      textStyle: theme.textTheme.bodySmall!.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      scrollOffset: scrollOffset,
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -1100,6 +1137,7 @@ class _TimeSetRulerPainter extends CustomPainter {
     required this.headerOffset,
     required this.dayCount,
     required this.textStyle,
+    required this.scrollOffset,
   });
 
   /// 每份日历一份刻度（列表间不去重，重合的线会叠着画）。
@@ -1127,6 +1165,9 @@ class _TimeSetRulerPainter extends CustomPainter {
   /// 标尺时间文字的样式，由调用方从 Theme 取。
   final TextStyle textStyle;
 
+  /// 日历时间槽的垂直滚动偏移（像素）。自绘内容要跟着它整体上移。
+  final double scrollOffset;
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -1146,6 +1187,7 @@ class _TimeSetRulerPainter extends CustomPainter {
         // 开始时刻不能移 —— 它要贴的是下一个课块的上沿。
         final y = (tick - startMinutes) * _minuteHeight +
             headerOffset -
+            scrollOffset -
             (timeSet.endOnlyTicks.contains(tick) ? 1 : 0);
         canvas.drawLine(
           Offset(rulerWidth, y),
@@ -1186,8 +1228,9 @@ class _TimeSetRulerPainter extends CustomPainter {
           continue;
         }
         // 文字标的是「时间点」，所以用不加那 1px 修正的纯位置
-        final double lineY =
-            (tick - startMinutes) * _minuteHeight + headerOffset;
+        final double lineY = (tick - startMinutes) * _minuteHeight +
+            headerOffset -
+            scrollOffset;
         textPainter.text = TextSpan(
           text: "${tick ~/ 60}:${(tick % 60).toString().padLeft(2, "0")}",
           style: textStyle,
@@ -1206,13 +1249,14 @@ class _TimeSetRulerPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_TimeSetRulerPainter oldDelegate) {
-    return oldDelegate.timeSets != timeSets ||
+    return !listEquals(oldDelegate.timeSets, timeSets) ||
         oldDelegate.startMinutes != startMinutes ||
         oldDelegate.endMinutes != endMinutes ||
         oldDelegate.rulerWidth != rulerWidth ||
         oldDelegate.lineColor != lineColor ||
         oldDelegate.headerOffset != headerOffset ||
         oldDelegate.dayCount != dayCount ||
-        oldDelegate.textStyle != textStyle;
+        oldDelegate.textStyle != textStyle ||
+        oldDelegate.scrollOffset != scrollOffset;
   }
 }
