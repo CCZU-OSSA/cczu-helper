@@ -618,17 +618,14 @@ class CurriculumPageState extends State<CurriculumPage>
         }
         return b;
       });
-      _timeSets = icalendarData == null
-          ? {}
-          : {
-              for (final parser in icalendarData)
-                parser.fileName:
-                    TimeSet.fromMinutes(_extractTicks(parser.data))
-            };
-      // TODO(阶段1临时验证): 阶段4 完成后删除
-      _timeSets.forEach((key, value) {
-        debugPrint("[TimeSet] $key → $value  (共 ${value.ticks.length} 个)");
-      });
+      _timeSets = {};
+      if (icalendarData != null) {
+        for (final parser in icalendarData) {
+          final spans = _extractTicks(parser.data);
+          _timeSets[parser.fileName] =
+              TimeSet.fromStartsAndEnds(spans.starts, spans.ends);
+        }
+      }
     });
   }
 
@@ -735,10 +732,34 @@ class CurriculumPageState extends State<CurriculumPage>
       appointmentBuilder: _appointmentBuilderFn,
       dataSource: _datasource,
     );
+    // 在 SfCalendar 之上叠一层自绘标尺。
+    // 用 StackFit.passthrough：让 calendar 拿到的约束与之前完全一样，
+    // 不改变它原有的尺寸行为。
+    final calendarWithRuler = Stack(
+      fit: StackFit.passthrough,
+      children: [
+        calendar,
+        Positioned.fill(
+          // IgnorePointer 不能省：自绘层铺满整个课表，
+          // 否则会把点击和滚动手势全部吃掉。
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: _TimeSetRulerPainter(
+                timeSets: _timeSets.values.toList(),
+                startMinutes: start.hour * 60 + start.minute,
+                endMinutes: end.hour * 60 + end.minute,
+                rulerWidth: configs.calendarShowTimeRule.getOr(true) ? 50 : 0,
+                lineColor: theme.colorScheme.outlineVariant,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
     var child = buildHeader(
       calendarController,
       viewHeader,
-      calendar,
+      calendarWithRuler,
     );
     final isGif =
         configs.calendarBackgroundImage.tryGet()?.endsWith(".gif") ?? false;
@@ -1012,11 +1033,15 @@ class ICalendarParser {
   }
 }
 
-/// 提取一组事件的起止时刻（从 0:00 起算的分钟数）。
+/// 提取一组事件的起止时刻（从 0:00 起算的分钟数），分「开始」「结束」两组返回。
+///
+/// 之所以不合并成一组：调用方需要知道某个时刻是纯结束还是同时是开始，
+/// 纯结束的线要做像素级微调（见 [TimeSet.endOnlyTicks]）。
 ///
 /// 全天事件没有具体时刻，直接跳过；不受 `calendarShowAlldayAppionments` 影响。
-List<int> _extractTicks(List<CalendarData> events) {
-  final ticks = <int>[];
+({List<int> starts, List<int> ends}) _extractTicks(List<CalendarData> events) {
+  final starts = <int>[];
+  final ends = <int>[];
   for (final e in events) {
     if (e.isAllday) {
       continue;
@@ -1024,11 +1049,79 @@ List<int> _extractTicks(List<CalendarData> events) {
     final start = e.start.toDateTime();
     final end = e.end.toDateTime();
     if (start != null) {
-      ticks.add(start.hour * 60 + start.minute);
+      starts.add(start.hour * 60 + start.minute);
     }
     if (end != null) {
-      ticks.add(end.hour * 60 + end.minute);
+      ends.add(end.hour * 60 + end.minute);
     }
   }
-  return ticks;
+  return (starts: starts, ends: ends);
+}
+
+/// 由 TimeSet 驱动的标尺横线绘制层。
+///
+/// 坐标换算必须与 SfCalendar 内部保持一致：
+///   minuteHeight = timeIntervalHeight / intervalMinutes = 40 / 30
+///   y = (分钟数 − startMinutes) × minuteHeight
+/// 只要这个比例和库一致，画出来的线就会精确落在课块的上下边界上。
+class _TimeSetRulerPainter extends CustomPainter {
+  const _TimeSetRulerPainter({
+    required this.timeSets,
+    required this.startMinutes,
+    required this.endMinutes,
+    required this.rulerWidth,
+    required this.lineColor,
+  });
+
+  /// 每份日历一份刻度（列表间不去重，重合的线会叠着画）。
+  final List<TimeSet> timeSets;
+
+  /// 可见时间窗口，单位是「从 0:00 起算的分钟数」。
+  final int startMinutes;
+  final int endMinutes;
+
+  /// 标尺列宽度：线从这里开始向右画到屏幕最右。
+  final double rulerWidth;
+
+  final Color lineColor;
+
+  /// 每像素对应多少分钟高度。40 / 30，与 SfCalendar 的换算完全一致。
+  static const double _minuteHeight = 40 / 30;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = lineColor
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    for (final timeSet in timeSets) {
+      for (final tick in timeSet.ticks) {
+        // 窗口外的时刻不画
+        if (tick < startMinutes || tick > endMinutes) {
+          continue;
+        }
+        // 纯结束时刻的线往上移 1px：SfCalendar 会把课块高度减 1 像素
+        // （appointment_layout.dart 里 `height > 1 ? height - 1 : 0`），
+        // 所以课块下沿比真实时间位置高 1px，线跟着上移才能贴齐下沿。
+        // 开始时刻不能移 —— 它要贴的是下一个课块的上沿。
+        final y = (tick - startMinutes) * _minuteHeight -
+            (timeSet.endOnlyTicks.contains(tick) ? 1 : 0);
+        canvas.drawLine(
+          Offset(rulerWidth, y),
+          Offset(size.width, y),
+          paint,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_TimeSetRulerPainter oldDelegate) {
+    return oldDelegate.timeSets != timeSets ||
+        oldDelegate.startMinutes != startMinutes ||
+        oldDelegate.endMinutes != endMinutes ||
+        oldDelegate.rulerWidth != rulerWidth ||
+        oldDelegate.lineColor != lineColor;
+  }
 }
