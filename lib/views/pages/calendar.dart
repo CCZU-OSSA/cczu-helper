@@ -7,6 +7,7 @@ import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/models/fields.dart';
+import 'package:cczu_helper/models/time_set.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
@@ -567,6 +568,7 @@ class CurriculumPageState extends State<CurriculumPage>
 
   CurriculumDataSource? _datasource;
   DateTime? _firstCurriculumDate;
+  Map<String, TimeSet> _timeSets = {};
   @override
   void initState() {
     configs = ArcheBus().of<ApplicationConfigs>();
@@ -615,6 +617,17 @@ class CurriculumPageState extends State<CurriculumPage>
           return a;
         }
         return b;
+      });
+      _timeSets = icalendarData == null
+          ? {}
+          : {
+              for (final parser in icalendarData)
+                parser.fileName:
+                    TimeSet.fromMinutes(_extractTicks(parser.data))
+            };
+      // TODO(阶段1临时验证): 阶段4 完成后删除
+      _timeSets.forEach((key, value) {
+        debugPrint("[TimeSet] $key → $value  (共 ${value.ticks.length} 个)");
       });
     });
   }
@@ -960,7 +973,8 @@ class CalendarData {
 class ICalendarParser {
   final ICalendar calendar;
   final CalendarSource source;
-  ICalendarParser(String raw, this.source)
+  final String fileName;
+  ICalendarParser(String raw, this.source, this.fileName)
       : calendar = ICalendarParser.parse(raw);
 
   static ICalendar parse(String source) {
@@ -994,4 +1008,25 @@ class ICalendarParser {
       );
     }).toList();
   }
+}
+
+/// 提取一组事件的起止时刻（从 0:00 起算的分钟数）。
+///
+/// 全天事件没有具体时刻，直接跳过；不受 `calendarShowAlldayAppionments` 影响。
+List<int> _extractTicks(List<CalendarData> events) {
+  final ticks = <int>[];
+  for (final e in events) {
+    if (e.isAllday) {
+      continue;
+    }
+    final start = e.start.toDateTime();
+    final end = e.end.toDateTime();
+    if (start != null) {
+      ticks.add(start.hour * 60 + start.minute);
+    }
+    if (end != null) {
+      ticks.add(end.hour * 60 + end.minute);
+    }
+  }
+  return ticks;
 }

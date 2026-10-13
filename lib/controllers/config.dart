@@ -52,7 +52,8 @@ FutureLazyDynamicCan<List<ICalendarParser>?> icalendarParsersData =
         calendar.readAsStringSync(),
         basename(item.path) == "calendar_curriculum.ics"
             ? CalendarSource.curriculum
-            : CalendarSource.other);
+            : CalendarSource.other,
+        basename(item.path));
   }).toList();
 });
 
