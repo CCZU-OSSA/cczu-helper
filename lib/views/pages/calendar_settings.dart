@@ -5,8 +5,10 @@ import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/snackbar.dart';
+import 'package:cczu_helper/views/pages/calendar_time_scale.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
+import 'package:cczu_helper/views/widgets/time_wheel_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:image_picker/image_picker.dart';
@@ -43,42 +45,6 @@ class _CalendarSettingsState extends State<CalendarSettings> {
     }
 
     return null;
-  }
-
-  /// 弹出「整点/半点」时间选择器。取消返回 null。
-  ///
-  /// 这里刻意不再使用 CupertinoDatePicker：它内部把 CupertinoPicker 的
-  /// looping 写死为 true（见 cupertino_ui/lib/src/date_picker.dart:1043），
-  /// 没有任何参数可以关闭。既然分钟只能取 00/30 两个值，分钟列就会一直
-  /// 30/00/30/00 地无限循环滚动，观感很差，因此改为自建选择器：
-  /// 小时列与分钟列都用有界的 ListWheelScrollView 滚轮（默认不循环），
-  /// 小时取 00~23，分钟只取 00/30。
-  ///
-  /// 初始值仍先吸附到 :00/:30，保证弹窗里显示的就是当前生效的值。
-  Future<TimeOfDay?> _showHourHalfPicker(TimeOfDay initial) {
-    final snapped = snapToHalfHour(initial);
-    var picked = snapped;
-    return showDialog<TimeOfDay>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text("选择时间"),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-        content: _HourHalfPicker(
-          initial: snapped,
-          onChanged: (value) => picked = value,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("取消"),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, picked),
-            child: const Text("确定"),
-          ),
-        ],
-      ),
-    );
   }
 
   /// 检查所选时间范围是否切掉了某些课程时刻，若有则弹窗告知。
@@ -140,6 +106,16 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                   builder: (BuildContext context) =>
                       const CalendarsManagerPage(),
                 ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.timeline),
+                title: const Text("时间刻度设置"),
+                subtitle: const Text("Time Scale"),
+                trailing: const Icon(Icons.arrow_right_rounded),
+                onTap: () => pushMaterialRoute(
+                  builder: (BuildContext context) =>
+                      const CalendarTimeScalePage(),
+                ),
               )
             ]),
             SettingGroup(name: "外观", children: [
@@ -151,9 +127,12 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                         .getOr(const TimeOfDay(hour: 8, minute: 0)))
                     .format(context)),
                 onTap: () {
-                  _showHourHalfPicker(configs.calendarTimeStart
-                          .getOr(const TimeOfDay(hour: 8, minute: 0)))
-                      .then((time) {
+                  showTimeWheelPicker(
+                    context: context,
+                    initial: snapToHalfHour(configs.calendarTimeStart
+                        .getOr(const TimeOfDay(hour: 8, minute: 0))),
+                    minuteStep: 30,
+                  ).then((time) {
                     if (time == null) {
                       return;
                     }
@@ -184,9 +163,12 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                         .getOr(const TimeOfDay(hour: 21, minute: 0)))
                     .format(context)),
                 onTap: () {
-                  _showHourHalfPicker(configs.calendarTimeEnd
-                          .getOr(const TimeOfDay(hour: 21, minute: 0)))
-                      .then((time) {
+                  showTimeWheelPicker(
+                    context: context,
+                    initial: snapToHalfHour(configs.calendarTimeEnd
+                        .getOr(const TimeOfDay(hour: 21, minute: 0))),
+                    minuteStep: 30,
+                  ).then((time) {
                     if (time == null) {
                       return;
                     }
@@ -408,175 +390,6 @@ class _CalendarSettingsState extends State<CalendarSettings> {
               )
             ]),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 自建的「整点/半点」选择器。
-///
-/// 小时列与分钟列都是 `ListWheelScrollView` 实现的有界滚轮（默认不循环），
-/// 小时取 00~23，分钟只取 00 / 30。滚动控制器在这里创建与释放，
-/// 而不是在 `_showHourHalfPicker` 里用 whenComplete 释放 —— dialog 的
-/// 关闭动画期间控制器若被提前销毁会抛异常。
-class _HourHalfPicker extends StatefulWidget {
-  const _HourHalfPicker({required this.initial, required this.onChanged});
-
-  /// 已吸附到整点/半点的初始时间。
-  final TimeOfDay initial;
-
-  /// 选中值变化时回调，供 dialog 的「确定」按钮取最终结果。
-  final ValueChanged<TimeOfDay> onChanged;
-
-  @override
-  State<_HourHalfPicker> createState() => _HourHalfPickerState();
-}
-
-class _HourHalfPickerState extends State<_HourHalfPicker> {
-  /// 两列滚轮的行高。两边必须一致，选中带才能与它们等高对齐。
-  static const double _itemExtent = 40;
-
-  /// 内容区高度，正好 4 行，既容得下滚轮上下两行透视，又不会留下大片空白。
-  static const double _contentHeight = 160;
-
-  late int _hour;
-  late int _minute;
-  late final FixedExtentScrollController _hourController;
-
-  /// 分钟滚轮控制器。与小时列一样在这里创建 / 释放，
-  /// 避免 dialog 关闭动画期间被提前销毁。
-  late final FixedExtentScrollController _minuteController;
-
-  @override
-  void initState() {
-    super.initState();
-    _hour = widget.initial.hour;
-    _minute = widget.initial.minute == 30 ? 30 : 0;
-    _hourController = FixedExtentScrollController(initialItem: _hour);
-    _minuteController =
-        FixedExtentScrollController(initialItem: _minute ~/ 30);
-  }
-
-  @override
-  void dispose() {
-    _hourController.dispose();
-    _minuteController.dispose();
-    super.dispose();
-  }
-
-  /// 把当前选中的整点/半点回传给外层 dialog。
-  void _notify() {
-    widget.onChanged(TimeOfDay(hour: _hour, minute: _minute));
-  }
-
-  /// 选中带样式：圆角 + 半透明主色。这里用于外层那条贯穿两列的横条，
-  /// 颜色跟随主题、自动适配深浅色。
-  static BoxDecoration _bandDecoration(Color primary, double alpha) {
-    return BoxDecoration(
-      color: primary.withValues(alpha: alpha),
-      borderRadius: BorderRadius.circular(10),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
-    final textColor = theme.textTheme.bodyLarge?.color;
-
-    // 选中带：一条贯穿左右两列的居中横条，模拟 iOS 的选中效果。
-    final selectionBand = IgnorePointer(
-      child: Container(
-        height: _itemExtent,
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        decoration: _bandDecoration(primary, 0.12),
-      ),
-    );
-
-    return SizedBox(
-      width: 240,
-      height: _contentHeight,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          selectionBand,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // 小时列：整点滚轮，选中行停在正中间。
-              SizedBox(
-                width: 88,
-                child: ListWheelScrollView.useDelegate(
-                  controller: _hourController,
-                  itemExtent: _itemExtent,
-                  physics: const FixedExtentScrollPhysics(),
-                  onSelectedItemChanged: (index) {
-                    setState(() => _hour = index);
-                    _notify();
-                  },
-                  childDelegate: ListWheelChildBuilderDelegate(
-                    childCount: 24,
-                    builder: (context, index) {
-                      final selected = index == _hour;
-                      return Center(
-                        child: Text(
-                          index.toString().padLeft(2, "0"),
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: selected ? primary : textColor,
-                            fontWeight: selected
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              // 分钟列：与小时列同款的不循环滚轮。
-              _buildMinuteWheel(theme, primary, textColor),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 分钟列：与小时列同款的不循环滚轮，只有 00 / 30 两个选项。
-  ///
-  /// 列宽取 88 与小时列一致，保证两列左右对称；列内不画高亮带，
-  /// 选中效果由外层那条贯穿横条负责。
-  Widget _buildMinuteWheel(
-    ThemeData theme,
-    Color primary,
-    Color? textColor,
-  ) {
-    return SizedBox(
-      width: 88,
-      child: ListWheelScrollView.useDelegate(
-        controller: _minuteController,
-        itemExtent: _itemExtent,
-        physics: const FixedExtentScrollPhysics(),
-        onSelectedItemChanged: (index) {
-          setState(() => _minute = index * 30);
-          _notify();
-        },
-        childDelegate: ListWheelChildBuilderDelegate(
-          childCount: 2,
-          builder: (context, index) {
-            final selected = index * 30 == _minute;
-            return Center(
-              child: Text(
-                (index * 30).toString().padLeft(2, "0"),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: selected ? primary : textColor,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-                ),
-              ),
-            );
-          },
         ),
       ),
     );

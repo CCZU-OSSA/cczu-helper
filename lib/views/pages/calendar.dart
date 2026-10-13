@@ -755,6 +755,13 @@ class CurriculumPageState extends State<CurriculumPage>
     //（库的标尺列与表头占位也各自跟随这个开关消失）。
     final bool showRuler = configs.calendarShowTimeRule.getOr(true);
 
+    // 用户手动添加的时间刻度（配置里按 HHMM 存，这里转成分钟数）
+    final List<int> userTicks = configs.calendarTimeSetUser
+        .getOr(<dynamic>[])
+        .map((e) => (e as int))
+        .map((hhmm) => (hhmm ~/ 100) * 60 + (hhmm % 100))
+        .toList();
+
     final calendarWithRuler = Stack(
       fit: StackFit.passthrough,
       children: [
@@ -791,7 +798,13 @@ class CurriculumPageState extends State<CurriculumPage>
                     Widget? child) {
                   return CustomPaint(
                     painter: _TimeSetRulerPainter(
-                      timeSets: _timeSets.values.toList(),
+                      timeSets: <TimeSet>[
+                        ..._timeSets.values,
+                        // 用户手动添加的刻度：只有「时间点」，没有起止，
+                        // 所以 endOnlyTicks 传空 —— 它们不做那 1px 偏移，按纯时间点画。
+                        if (userTicks.isNotEmpty)
+                          TimeSet.fromStartsAndEnds(userTicks, const <int>[]),
+                      ],
                       startMinutes: start.hour * 60 + start.minute,
                       endMinutes: end.hour * 60 + end.minute,
                       rulerWidth:

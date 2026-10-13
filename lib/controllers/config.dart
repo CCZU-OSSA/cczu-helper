@@ -178,6 +178,10 @@ class ApplicationConfigs extends AppConfigsBase {
           return value.hour * 100 + value.minute;
         },
       );
+
+  /// 用户手动添加的时间刻度，元素是 HHMM 整数（如 845 表示 8:45）。
+  ConfigEntry<List<dynamic>> get calendarTimeSetUser =>
+      generator("calendar_time_set_user");
   ConfigEntryConverter<List<dynamic>, List<SubscribeElectricBillRoom>>
       get subscribeElectricBillRooms => ConfigEntryConverter(
             generator("subscribe_electric_bill_rooms"),
