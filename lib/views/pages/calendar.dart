@@ -687,21 +687,21 @@ class CurriculumPageState extends State<CurriculumPage>
         configs.calendarTimeStart.getOr(const TimeOfDay(hour: 8, minute: 0)));
     final end = snapToHalfHour(
         configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0)));
-    final start =
-        configs.calendarTimeStart.getOr(const TimeOfDay(hour: 8, minute: 0));
-    final end =
-        configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0));
     final intervalMinutes = configs.calendarTimeIntervalMinutes.getOr(30);
     final startMinutes = start.hour * 60 + start.minute;
     final endMinutes = end.hour * 60 + end.minute;
     // Syncfusion adjusts intervals when the range is not evenly divisible.
     // Trim the visible range instead so the configured interval is preserved.
+    //
+    // 注意：上面的 snapToHalfHour 已把起止吸附到整点/半点，所以这里的 ceil
+    // 对当前方案算出来等于 endMinutes 本身，是无副作用的兜底；保留它是为了
+    // 与上游实现保持一致（万一将来放开起止粒度，这里也不会退化）。
     final visibleEndMinutes = intervalMinutes > 0 && endMinutes > startMinutes
-    ? startMinutes +
-        ((endMinutes - startMinutes + intervalMinutes - 1) ~/
-            intervalMinutes) *
-            intervalMinutes
-    : endMinutes;
+        ? startMinutes +
+            ((endMinutes - startMinutes + intervalMinutes - 1) ~/
+                intervalMinutes) *
+                intervalMinutes
+        : endMinutes;
     final GlobalKey<CalendarViewHeaderState> calendarViewHeaderKey =
         GlobalKey();
 
