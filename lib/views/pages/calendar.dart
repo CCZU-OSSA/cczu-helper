@@ -682,10 +682,26 @@ class CurriculumPageState extends State<CurriculumPage>
     if (view == CalendarView.workWeek) {
       view = CalendarView.week;
     }
+
     final start = snapToHalfHour(
         configs.calendarTimeStart.getOr(const TimeOfDay(hour: 8, minute: 0)));
     final end = snapToHalfHour(
         configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0)));
+    final start =
+        configs.calendarTimeStart.getOr(const TimeOfDay(hour: 8, minute: 0));
+    final end =
+        configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0));
+    final intervalMinutes = configs.calendarTimeIntervalMinutes.getOr(30);
+    final startMinutes = start.hour * 60 + start.minute;
+    final endMinutes = end.hour * 60 + end.minute;
+    // Syncfusion adjusts intervals when the range is not evenly divisible.
+    // Trim the visible range instead so the configured interval is preserved.
+    final visibleEndMinutes = intervalMinutes > 0 && endMinutes > startMinutes
+    ? startMinutes +
+        ((endMinutes - startMinutes + intervalMinutes - 1) ~/
+            intervalMinutes) *
+            intervalMinutes
+    : endMinutes;
     final GlobalKey<CalendarViewHeaderState> calendarViewHeaderKey =
         GlobalKey();
 
@@ -721,8 +737,10 @@ class CurriculumPageState extends State<CurriculumPage>
         timeRulerSize: configs.calendarShowTimeRule.getOr(true) ? 50 : 0,
         timeIntervalHeight: 40,
         startHour: start.hour + start.minute / 60,
-        endHour: end.hour + end.minute / 60,
-        timeInterval: const Duration(minutes: 30),
+        endHour: visibleEndMinutes ~/ 60 + (visibleEndMinutes % 60) / 60,
+        timeInterval: Duration(
+          minutes: intervalMinutes,
+        ),
       ),
       // 去掉库自带的 30 分钟密线；横线改由 TimeSet 驱动（第 6 阶段自绘）。
       // 注意：天分隔竖线共用这个颜色，会一并消失，第 6 阶段由自绘层补回。
