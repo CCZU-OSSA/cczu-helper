@@ -574,6 +574,15 @@ class CurriculumPageState extends State<CurriculumPage>
   DateTime? _firstCurriculumDate;
   Map<String, TimeSet> _timeSets = {};
 
+  /// SfCalendar 最近一次上报的可见日期，由 `SfCalendar.onViewChanged` 写入，
+  /// 供 [_allDayPanelHeight] 判断「当前可见范围内有没有全天日程」。
+  ///
+  /// 注意：syncfusion 的 `CalendarController` 并不暴露可见日期
+  /// （它只有 selectedDate / displayDate / view 三个状态），
+  /// 所以只能在视图变化回调里自己存一份。首帧 / 回调尚未触发时为 null，
+  /// 此时 [_allDayPanelHeight] 退回「不做日期过滤」。
+  List<DateTime>? _visibleDates;
+
   /// 日历时间槽的垂直滚动偏移。
   ///
   /// 用 ValueNotifier 而不是 setState：滚动时每帧都会变，
@@ -638,6 +647,69 @@ class CurriculumPageState extends State<CurriculumPage>
       }
     });
   }
+
+  /// 全天日程面板的实际高度（像素）。
+  ///
+  /// SfCalendar 内部是 `_allDayPanelHeight = maxPosition * kAllDayAppointmentHeight`
+  /// （见 sfcalendar.dart），其中 maxPosition 是「当前可见范围内、同一天里并排的
+  /// 全天日程条数」的最大值。没有全天日程时面板高度为 0 —— 所以不能只看开关，
+  /// 否则翻到没有全天日程的那一周（或导入根本没有全天日程的 ics）时，线会整体偏 20px。
+  ///
+  /// 注意两点：
+  ///  1. 取「同一天最多几条」，不是总数 —— 跨天的全天日程并不并排。
+  ///  2. 只统计「当前可见的日期」；首帧拿不到可见日期时退回「不做日期过滤」。
+  double _allDayPanelHeight() {
+    final dataSource = _datasource;
+    if (dataSource == null ||
+        !configs.calendarShowAlldayAppionments.getOr(false)) {
+      return 0;
+    }
+    final appointments = dataSource.appointments;
+    if (appointments == null) {
+      return 0;
+    }
+    // 可见日期先做成 Set，避免在内层循环里反复比较日期
+    final visible = _visibleDates;
+    final Set<String>? visibleKeys = visible?.map(_dayKey).toSet();
+
+    final Map<String, int> countByDay = <String, int>{};
+    for (int i = 0; i < appointments.length; i++) {
+      if (!dataSource.isAllDay(i)) {
+        continue;
+      }
+      final start = dataSource.getStartTime(i);
+      final end = dataSource.getEndTime(i);
+      // 全天日程可能跨多天，而 SfCalendar 是按它「覆盖到的每一列」去算并排层数的，
+      // 所以这里也把它计入覆盖到的每一天（例如一条覆盖整个学期的全天日程，
+      // 在它范围内的每一周都应该让面板有高度）。
+      var day = DateTime(start.year, start.month, start.day);
+      final DateTime endDay = DateTime(end.year, end.month, end.day);
+      // 防御异常数据（end 早于 start 时至少算 start 那天）
+      final DateTime lastDay = endDay.isBefore(day) ? day : endDay;
+      var guard = 0;
+      while (!day.isAfter(lastDay) && guard < 366) {
+        // guard 上限是防御异常数据，避免超长循环
+        final key = _dayKey(day);
+        if (visibleKeys == null || visibleKeys.contains(key)) {
+          countByDay[key] = (countByDay[key] ?? 0) + 1;
+        }
+        day = day.add(const Duration(days: 1));
+        guard++;
+      }
+    }
+
+    int maxPerDay = 0;
+    for (final count in countByDay.values) {
+      if (count > maxPerDay) {
+        maxPerDay = count;
+      }
+    }
+    return maxPerDay * _kAllDayAppointmentHeight;
+  }
+
+  /// 把日期压成 `年-月-日` 的字符串，用于按天分组。
+  static String _dayKey(DateTime date) =>
+      "${date.year}-${date.month}-${date.day}";
 
   @override
   void dispose() {
@@ -753,6 +825,23 @@ class CurriculumPageState extends State<CurriculumPage>
             MonthHeaderSettings(backgroundColor: theme.colorScheme.primary),
       ),
       onViewChanged: (viewChangedDetails) {
+        // 存下可见日期：[_allDayPanelHeight] 要据此判断全天日程面板的实际高度。
+        // 必须让页面重建才能把新的 headerOffset 传给自绘层 —— 翻到没有全天日程的
+        // 那一周时，面板高度会从 20 变成 0。
+        _visibleDates = viewChangedDetails.visibleDates;
+        // SfCalendar 有时会在 build 阶段同步抛这个回调（例如程序化翻页时走
+        // CalendarView.didUpdateWidget），此时直接 setState 会触发
+        // "setState() called during build"。照搬本文件 CalendarViewHeaderState
+        // 的做法：先试同步重建，抛异常则退到下一帧再重建一次。
+        try {
+          setState(() {});
+        } catch (_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {});
+            }
+          });
+        }
         if (calendarController.view == CalendarView.week) {
           calendarViewHeaderKey.currentState
               ?.updateWithViewChangedDetails(viewChangedDetails);
@@ -829,10 +918,7 @@ class CurriculumPageState extends State<CurriculumPage>
                           configs.calendarShowTimeRule.getOr(true) ? 50 : 0,
                       lineColor: theme.colorScheme.outlineVariant,
                       // 全天日程面板展开时会把下面的时间槽整体下推，线要跟着下移。
-                      headerOffset:
-                          configs.calendarShowAlldayAppionments.getOr(false)
-                              ? _kAllDayPanelHeight
-                              : 0,
+                      headerOffset: _allDayPanelHeight(),
                       dayCount: view == CalendarView.week ? 7 : 1,
                       textStyle: theme.textTheme.bodySmall!.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
@@ -1148,13 +1234,12 @@ class ICalendarParser {
   return (starts: starts, ends: ends);
 }
 
-/// 全天日程面板展开时占掉的高度（像素）。
+/// 每一条全天日程占的高度（像素）。
 ///
-/// 来源：SfCalendar 内部 `_allDayPanelHeight = maxPosition * kAllDayAppointmentHeight`
-/// （见 sfcalendar.dart），其中 kAllDayAppointmentHeight 固定为 20。
-/// 当前数据下并排层数为 1，故为 20。
-/// 若以后同一天有多条**并排**的全天日程，这里要相应调成 40 / 60（库的上限是 60）。
-const double _kAllDayPanelHeight = 20;
+/// 来源：SfCalendar 的常量 `kAllDayAppointmentHeight`（见 sfcalendar.dart）。
+/// 全天面板的总高度 = 「同一天里并排的全天日程条数」× 这个值，由
+/// [_allDayPanelHeight] 计算 —— 不要再把它当成"面板总高度"直接用。
+const double _kAllDayAppointmentHeight = 20;
 
 /// 由 TimeSet 驱动的标尺横线绘制层。
 ///
@@ -1191,7 +1276,7 @@ class _TimeSetRulerPainter extends CustomPainter {
   static const double _minuteHeight = 40 / 30;
 
   /// 自绘层的纵向偏移（像素），由调用方按「全天日程面板是否展开」决定。
-  /// 正数 = 所有线整体往下移。取值见 [_kAllDayPanelHeight]。
+  /// 正数 = 所有线整体往下移。取值见 [_allDayPanelHeight]。
   final double headerOffset;
 
   /// 时间网格要切成几列（周 = 7，日 = 1），用于画天与天之间的竖线。
