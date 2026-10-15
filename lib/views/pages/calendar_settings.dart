@@ -5,8 +5,10 @@ import 'package:arche/extensions/io.dart';
 import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/snackbar.dart';
+import 'package:cczu_helper/views/pages/calendar_time_scale.dart';
 import 'package:cczu_helper/views/pages/settings.dart';
 import 'package:cczu_helper/views/widgets/scrollable.dart';
+import 'package:cczu_helper/views/widgets/time_wheel_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:image_picker/image_picker.dart';
@@ -45,6 +47,44 @@ class _CalendarSettingsState extends State<CalendarSettings> {
     return null;
   }
 
+  /// 检查所选时间范围是否切掉了某些课程时刻，若有则弹窗告知。
+  ///
+  /// 采取「发现即提示」：只要有一个非全天事件的起止时刻落在范围外，
+  /// 就立刻弹窗并返回，不再统计具体数量。
+  void _checkOutOfRange(TimeOfDay start, TimeOfDay end) {
+    // 该方法在 picker 的 .then() 里被调用，跨过了 async gap，
+    // 所以进来先确认 State 还在，避免在已卸载的 State 上取 context 弹窗。
+    if (!mounted) {
+      return;
+    }
+    final parsers = icalendarParsersData.value;
+    if (parsers == null) {
+      return;
+    }
+    final lower = start.hour * 60 + start.minute;
+    final upper = end.hour * 60 + end.minute;
+    for (final parser in parsers) {
+      for (final e in parser.data) {
+        if (e.isAllday) {
+          continue;
+        }
+        for (final t in [e.start.toDateTime(), e.end.toDateTime()]) {
+          if (t == null) {
+            continue;
+          }
+          final minutes = t.hour * 60 + t.minute;
+          if (minutes < lower || minutes > upper) {
+            ComplexDialog.instance.text(
+              context: context,
+              content: const Text("有课程时间点超出当前时间范围，将不会完整显示"),
+            );
+            return;
+          }
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ApplicationConfigs configs = ArcheBus().of();
@@ -66,6 +106,16 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                   builder: (BuildContext context) =>
                       const CalendarsManagerPage(),
                 ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.timeline),
+                title: const Text("时间刻度设置"),
+                subtitle: const Text("Time Scale"),
+                trailing: const Icon(Icons.arrow_right_rounded),
+                onTap: () => pushMaterialRoute(
+                  builder: (BuildContext context) =>
+                      const CalendarTimeScalePage(),
+                ),
               )
             ]),
             SettingGroup(name: "外观", children: [
@@ -73,20 +123,35 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 leading: const Icon(Icons.sunny),
                 title: const Text("日历开始时间"),
                 subtitle: const Text("Calendar Start"),
-                trailing: Text(configs.calendarTimeStart
-                    .getOr(const TimeOfDay(hour: 8, minute: 0))
+                trailing: Text(snapToHalfHour(configs.calendarTimeStart
+                        .getOr(const TimeOfDay(hour: 8, minute: 0)))
                     .format(context)),
                 onTap: () {
-                  showTimePicker(
-                          context: context,
-                          initialTime: configs.calendarTimeStart
-                              .getOr(const TimeOfDay(hour: 8, minute: 0)))
-                      .then((time) {
-                    if (time != null) {
-                      setState(() {
-                        configs.calendarTimeStart.write(time);
-                      });
+                  showTimeWheelPicker(
+                    context: context,
+                    initial: snapToHalfHour(configs.calendarTimeStart
+                        .getOr(const TimeOfDay(hour: 8, minute: 0))),
+                    minuteStep: 30,
+                  ).then((time) {
+                    if (time == null) {
+                      return;
                     }
+                    final end = configs.calendarTimeEnd
+                        .getOr(const TimeOfDay(hour: 21, minute: 0));
+                    if (time.hour * 60 + time.minute >=
+                        end.hour * 60 + end.minute) {
+                      if (mounted) {
+                        ComplexDialog.instance.text(
+                          context: this.context,
+                          content: const Text("开始时间必须早于结束时间"),
+                        );
+                      }
+                      return;
+                    }
+                    setState(() {
+                      configs.calendarTimeStart.write(time);
+                    });
+                    _checkOutOfRange(time, end);
                   });
                 },
               ),
@@ -94,21 +159,35 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 leading: const Icon(Icons.nightlife),
                 title: const Text("日历结束时间"),
                 subtitle: const Text("Calendar End"),
-                trailing: Text(configs.calendarTimeEnd
-                    .getOr(const TimeOfDay(hour: 21, minute: 0))
+                trailing: Text(snapToHalfHour(configs.calendarTimeEnd
+                        .getOr(const TimeOfDay(hour: 21, minute: 0)))
                     .format(context)),
                 onTap: () {
-                  showTimePicker(
-                          context: context,
-                          initialTime: configs.calendarTimeEnd
-                              .getOr(const TimeOfDay(hour: 21, minute: 0)))
-                      .then((time) {
-                    if (time != null) {
-                      debugPrint(time.toString());
-                      setState(() {
-                        configs.calendarTimeEnd.write(time);
-                      });
+                  showTimeWheelPicker(
+                    context: context,
+                    initial: snapToHalfHour(configs.calendarTimeEnd
+                        .getOr(const TimeOfDay(hour: 21, minute: 0))),
+                    minuteStep: 30,
+                  ).then((time) {
+                    if (time == null) {
+                      return;
                     }
+                    final start = configs.calendarTimeStart
+                        .getOr(const TimeOfDay(hour: 8, minute: 0));
+                    if (time.hour * 60 + time.minute <=
+                        start.hour * 60 + start.minute) {
+                      if (mounted) {
+                        ComplexDialog.instance.text(
+                          context: this.context,
+                          content: const Text("结束时间必须晚于开始时间"),
+                        );
+                      }
+                      return;
+                    }
+                    setState(() {
+                      configs.calendarTimeEnd.write(time);
+                    });
+                    _checkOutOfRange(start, time);
                   });
                 },
               ),
@@ -120,17 +199,6 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 onChanged: (value) {
                   setState(() {
                     configs.calendarColorful.write(value);
-                  });
-                },
-              ),
-              SwitchListTile(
-                secondary: const Icon(Icons.visibility),
-                title: const Text("显示分割线"),
-                subtitle: const Text("Interval Line"),
-                value: configs.calendarIntervalLine.getOr(true),
-                onChanged: (value) {
-                  setState(() {
-                    configs.calendarIntervalLine.write(value);
                   });
                 },
               ),
@@ -175,29 +243,6 @@ class _CalendarSettingsState extends State<CalendarSettings> {
                 onChanged: (value) {
                   setState(() {
                     configs.calendarShowAlldayAppionments.write(value);
-                  });
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.access_time_filled),
-                title: const Text("时间间隔"),
-                subtitle: const Text("Time Interval"),
-                trailing:
-                    Text("${configs.calendarTimeIntervalMinutes.getOr(30)}min"),
-                onTap: () {
-                  showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay(
-                              hour: 0,
-                              minute: configs.calendarTimeIntervalMinutes
-                                  .getOr(30)))
-                      .then((data) {
-                    if (data != null) {
-                      setState(() {
-                        configs.calendarTimeIntervalMinutes
-                            .write(data.hour * 60 + data.minute);
-                      });
-                    }
                   });
                 },
               ),

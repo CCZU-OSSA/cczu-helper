@@ -7,14 +7,19 @@ import 'package:cczu_helper/controllers/config.dart';
 import 'package:cczu_helper/controllers/navigator.dart';
 import 'package:cczu_helper/controllers/platform.dart';
 import 'package:cczu_helper/models/fields.dart';
+import 'package:cczu_helper/models/time_set.dart';
 import 'package:cczu_helper/models/translators.dart';
 import 'package:cczu_helper/views/pages/account.dart';
 import 'package:cczu_helper/views/pages/tutorial.dart';
 import 'package:cczu_helper/views/services/common/icalendar.dart';
+// material_ui 没有转出 listEquals，这里按需补最小范围导入。
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:icalendar_parser/icalendar_parser.dart';
-import 'package:intl/intl.dart';
+// intl 也导出了一个同名的 TextDirection（只有 LTR/RTL），会遮蔽 dart:ui 的
+// TextDirection.ltr，导致 TextPainter 拿不到正确枚举，这里显式隐藏掉。
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -567,6 +572,22 @@ class CurriculumPageState extends State<CurriculumPage>
 
   CurriculumDataSource? _datasource;
   DateTime? _firstCurriculumDate;
+  Map<String, TimeSet> _timeSets = {};
+
+  /// SfCalendar 最近一次上报的可见日期，由 `SfCalendar.onViewChanged` 写入，
+  /// 供 [_allDayPanelHeight] 判断「当前可见范围内有没有全天日程」。
+  ///
+  /// 注意：syncfusion 的 `CalendarController` 并不暴露可见日期
+  /// （它只有 selectedDate / displayDate / view 三个状态），
+  /// 所以只能在视图变化回调里自己存一份。首帧 / 回调尚未触发时为 null，
+  /// 此时 [_allDayPanelHeight] 退回「不做日期过滤」。
+  List<DateTime>? _visibleDates;
+
+  /// 日历时间槽的垂直滚动偏移。
+  ///
+  /// 用 ValueNotifier 而不是 setState：滚动时每帧都会变，
+  /// setState 会把整个课表页重建，代价太大；这里只让自绘层那一小块重建。
+  final ValueNotifier<double> _calendarScrollOffset = ValueNotifier<double>(0);
   @override
   void initState() {
     configs = ArcheBus().of<ApplicationConfigs>();
@@ -616,11 +637,83 @@ class CurriculumPageState extends State<CurriculumPage>
         }
         return b;
       });
+      _timeSets = {};
+      if (icalendarData != null) {
+        for (final parser in icalendarData) {
+          final spans = _extractTicks(parser.data);
+          _timeSets[parser.fileName] =
+              TimeSet.fromStartsAndEnds(spans.starts, spans.ends);
+        }
+      }
     });
   }
 
+  /// 全天日程面板的实际高度（像素）。
+  ///
+  /// SfCalendar 内部是 `_allDayPanelHeight = maxPosition * kAllDayAppointmentHeight`
+  /// （见 sfcalendar.dart），其中 maxPosition 是「当前可见范围内、同一天里并排的
+  /// 全天日程条数」的最大值。没有全天日程时面板高度为 0 —— 所以不能只看开关，
+  /// 否则翻到没有全天日程的那一周（或导入根本没有全天日程的 ics）时，线会整体偏 20px。
+  ///
+  /// 注意两点：
+  ///  1. 取「同一天最多几条」，不是总数 —— 跨天的全天日程并不并排。
+  ///  2. 只统计「当前可见的日期」；首帧拿不到可见日期时退回「不做日期过滤」。
+  double _allDayPanelHeight() {
+    final dataSource = _datasource;
+    if (dataSource == null ||
+        !configs.calendarShowAlldayAppionments.getOr(false)) {
+      return 0;
+    }
+    final appointments = dataSource.appointments;
+    if (appointments == null) {
+      return 0;
+    }
+    // 可见日期先做成 Set，避免在内层循环里反复比较日期
+    final visible = _visibleDates;
+    final Set<String>? visibleKeys = visible?.map(_dayKey).toSet();
+
+    final Map<String, int> countByDay = <String, int>{};
+    for (int i = 0; i < appointments.length; i++) {
+      if (!dataSource.isAllDay(i)) {
+        continue;
+      }
+      final start = dataSource.getStartTime(i);
+      final end = dataSource.getEndTime(i);
+      // 全天日程可能跨多天，而 SfCalendar 是按它「覆盖到的每一列」去算并排层数的，
+      // 所以这里也把它计入覆盖到的每一天（例如一条覆盖整个学期的全天日程，
+      // 在它范围内的每一周都应该让面板有高度）。
+      var day = DateTime(start.year, start.month, start.day);
+      final DateTime endDay = DateTime(end.year, end.month, end.day);
+      // 防御异常数据（end 早于 start 时至少算 start 那天）
+      final DateTime lastDay = endDay.isBefore(day) ? day : endDay;
+      var guard = 0;
+      while (!day.isAfter(lastDay) && guard < 366) {
+        // guard 上限是防御异常数据，避免超长循环
+        final key = _dayKey(day);
+        if (visibleKeys == null || visibleKeys.contains(key)) {
+          countByDay[key] = (countByDay[key] ?? 0) + 1;
+        }
+        day = day.add(const Duration(days: 1));
+        guard++;
+      }
+    }
+
+    int maxPerDay = 0;
+    for (final count in countByDay.values) {
+      if (count > maxPerDay) {
+        maxPerDay = count;
+      }
+    }
+    return maxPerDay * _kAllDayAppointmentHeight;
+  }
+
+  /// 把日期压成 `年-月-日` 的字符串，用于按天分组。
+  static String _dayKey(DateTime date) =>
+      "${date.year}-${date.month}-${date.day}";
+
   @override
   void dispose() {
+    _calendarScrollOffset.dispose();
     calendarController.dispose();
     super.dispose();
   }
@@ -661,21 +754,26 @@ class CurriculumPageState extends State<CurriculumPage>
     if (view == CalendarView.workWeek) {
       view = CalendarView.week;
     }
-    final start =
-        configs.calendarTimeStart.getOr(const TimeOfDay(hour: 8, minute: 0));
-    final end =
-        configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0));
+
+    final start = snapToHalfHour(
+        configs.calendarTimeStart.getOr(const TimeOfDay(hour: 8, minute: 0)));
+    final end = snapToHalfHour(
+        configs.calendarTimeEnd.getOr(const TimeOfDay(hour: 21, minute: 0)));
     final intervalMinutes = configs.calendarTimeIntervalMinutes.getOr(30);
     final startMinutes = start.hour * 60 + start.minute;
     final endMinutes = end.hour * 60 + end.minute;
     // Syncfusion adjusts intervals when the range is not evenly divisible.
     // Trim the visible range instead so the configured interval is preserved.
+    //
+    // 注意：上面的 snapToHalfHour 已把起止吸附到整点/半点，所以这里的 ceil
+    // 对当前方案算出来等于 endMinutes 本身，是无副作用的兜底；保留它是为了
+    // 与上游实现保持一致（万一将来放开起止粒度，这里也不会退化）。
     final visibleEndMinutes = intervalMinutes > 0 && endMinutes > startMinutes
-    ? startMinutes +
-        ((endMinutes - startMinutes + intervalMinutes - 1) ~/
-            intervalMinutes) *
-            intervalMinutes
-    : endMinutes;
+        ? startMinutes +
+            ((endMinutes - startMinutes + intervalMinutes - 1) ~/
+                intervalMinutes) *
+                intervalMinutes
+        : endMinutes;
     final GlobalKey<CalendarViewHeaderState> calendarViewHeaderKey =
         GlobalKey();
 
@@ -704,7 +802,11 @@ class CurriculumPageState extends State<CurriculumPage>
       headerHeight: 0,
       timeSlotViewSettings: TimeSlotViewSettings(
         timeFormat: "H:mm",
-        timeRulerSize: configs.calendarShowTimeRule.getOr(true) ? -1 : 0,
+        // 隐藏库自带的标尺文字，但保留 50px 的标尺列（自绘层要用这个宽度）。
+        // 不能用 timeRulerSize: 0 代替 —— 那会让整列消失、日列左移，
+        // 自绘的标尺会压住周一那一列。
+        timeTextStyle: const TextStyle(color: Colors.transparent),
+        timeRulerSize: configs.calendarShowTimeRule.getOr(true) ? 50 : 0,
         timeIntervalHeight: 40,
         startHour: start.hour + start.minute / 60,
         endHour: visibleEndMinutes ~/ 60 + (visibleEndMinutes % 60) / 60,
@@ -712,9 +814,9 @@ class CurriculumPageState extends State<CurriculumPage>
           minutes: intervalMinutes,
         ),
       ),
-      cellBorderColor: configs.calendarIntervalLine.getOr(true)
-          ? theme.colorScheme.surfaceContainerHighest
-          : Colors.transparent,
+      // 去掉库自带的 30 分钟密线；横线改由 TimeSet 驱动（第 6 阶段自绘）。
+      // 注意：天分隔竖线共用这个颜色，会一并消失，第 6 阶段由自绘层补回。
+      cellBorderColor: Colors.transparent,
       cellEndPadding: 0,
       selectionDecoration: BoxDecoration(),
       scheduleViewSettings: ScheduleViewSettings(
@@ -723,6 +825,23 @@ class CurriculumPageState extends State<CurriculumPage>
             MonthHeaderSettings(backgroundColor: theme.colorScheme.primary),
       ),
       onViewChanged: (viewChangedDetails) {
+        // 存下可见日期：[_allDayPanelHeight] 要据此判断全天日程面板的实际高度。
+        // 必须让页面重建才能把新的 headerOffset 传给自绘层 —— 翻到没有全天日程的
+        // 那一周时，面板高度会从 20 变成 0。
+        _visibleDates = viewChangedDetails.visibleDates;
+        // SfCalendar 有时会在 build 阶段同步抛这个回调（例如程序化翻页时走
+        // CalendarView.didUpdateWidget），此时直接 setState 会触发
+        // "setState() called during build"。照搬本文件 CalendarViewHeaderState
+        // 的做法：先试同步重建，抛异常则退到下一帧再重建一次。
+        try {
+          setState(() {});
+        } catch (_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {});
+            }
+          });
+        }
         if (calendarController.view == CalendarView.week) {
           calendarViewHeaderKey.currentState
               ?.updateWithViewChangedDetails(viewChangedDetails);
@@ -731,10 +850,92 @@ class CurriculumPageState extends State<CurriculumPage>
       appointmentBuilder: _appointmentBuilderFn,
       dataSource: _datasource,
     );
+    // 在 SfCalendar 之上叠一层自绘标尺。
+    // 用 StackFit.passthrough：让 calendar 拿到的约束与之前完全一样，
+    // 不改变它原有的尺寸行为。
+    // 只有时间槽类视图（周 / 日）才有时间网格，日程（schedule）是列表视图，
+    // 叠上去只会把横线画到列表上。workWeek 在上面已经被映射成 week 了。
+    final showsTimeGrid =
+        view == CalendarView.week || view == CalendarView.day;
+
+    // 「显示时间标尺」是总开关：关掉时整个自绘层都不叠加
+    //（库的标尺列与表头占位也各自跟随这个开关消失）。
+    final bool showRuler = configs.calendarShowTimeRule.getOr(true);
+
+    // 用户手动添加的时间刻度（配置里按 HHMM 存，这里转成分钟数）
+    final List<int> userTicks = configs.calendarTimeSetUser
+        .getOr(<dynamic>[])
+        .map((e) => (e as int))
+        .map((hhmm) => (hhmm ~/ 100) * 60 + (hhmm % 100))
+        .toList();
+
+    final calendarWithRuler = Stack(
+      fit: StackFit.passthrough,
+      children: [
+        // 用通知捕获库内部的垂直滚动偏移（库没暴露滚动控制器）。
+        // 外层处理"窗口尺寸变化/转屏"导致的 metrics 变化，内层处理实际滚动。
+        NotificationListener<ScrollMetricsNotification>(
+          onNotification: (ScrollMetricsNotification notification) {
+            if (notification.metrics.axis == Axis.vertical) {
+              _calendarScrollOffset.value = notification.metrics.pixels;
+            }
+            return false;
+          },
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (ScrollNotification notification) {
+              // 库内部还有"水平翻周"的滚动，必须按轴过滤，否则会被带偏。
+              if (notification.metrics.axis != Axis.vertical) {
+                return false;
+              }
+              _calendarScrollOffset.value = notification.metrics.pixels;
+              // 返回 false：不要吞掉通知，否则可能影响库自己的滚动逻辑。
+              return false;
+            },
+            child: calendar,
+          ),
+        ),
+        if (showsTimeGrid && showRuler)
+          Positioned.fill(
+            // IgnorePointer 不能省：自绘层铺满整个课表，
+            // 否则会把点击和滚动手势全部吃掉。
+            child: IgnorePointer(
+              child: ValueListenableBuilder<double>(
+                valueListenable: _calendarScrollOffset,
+                builder: (BuildContext context, double scrollOffset,
+                    Widget? child) {
+                  return CustomPaint(
+                    painter: _TimeSetRulerPainter(
+                      timeSets: <TimeSet>[
+                        ..._timeSets.values,
+                        // 用户手动添加的刻度：只有「时间点」，没有起止，
+                        // 所以 endOnlyTicks 传空 —— 它们不做那 1px 偏移，按纯时间点画。
+                        if (userTicks.isNotEmpty)
+                          TimeSet.fromStartsAndEnds(userTicks, const <int>[]),
+                      ],
+                      startMinutes: start.hour * 60 + start.minute,
+                      endMinutes: end.hour * 60 + end.minute,
+                      rulerWidth:
+                          configs.calendarShowTimeRule.getOr(true) ? 50 : 0,
+                      lineColor: theme.colorScheme.outlineVariant,
+                      // 全天日程面板展开时会把下面的时间槽整体下推，线要跟着下移。
+                      headerOffset: _allDayPanelHeight(),
+                      dayCount: view == CalendarView.week ? 7 : 1,
+                      textStyle: theme.textTheme.bodySmall!.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      scrollOffset: scrollOffset,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+      ],
+    );
     var child = buildHeader(
       calendarController,
       viewHeader,
-      calendar,
+      calendarWithRuler,
     );
     final isGif =
         configs.calendarBackgroundImage.tryGet()?.endsWith(".gif") ?? false;
@@ -971,7 +1172,8 @@ class CalendarData {
 class ICalendarParser {
   final ICalendar calendar;
   final CalendarSource source;
-  ICalendarParser(String raw, this.source)
+  final String fileName;
+  ICalendarParser(String raw, this.source, this.fileName)
       : calendar = ICalendarParser.parse(raw);
 
   static ICalendar parse(String source) {
@@ -1004,5 +1206,198 @@ class ICalendarParser {
         source: source,
       );
     }).toList();
+  }
+}
+
+/// 提取一组事件的起止时刻（从 0:00 起算的分钟数），分「开始」「结束」两组返回。
+///
+/// 之所以不合并成一组：调用方需要知道某个时刻是纯结束还是同时是开始，
+/// 纯结束的线要做像素级微调（见 [TimeSet.endOnlyTicks]）。
+///
+/// 全天事件没有具体时刻，直接跳过；不受 `calendarShowAlldayAppionments` 影响。
+({List<int> starts, List<int> ends}) _extractTicks(List<CalendarData> events) {
+  final starts = <int>[];
+  final ends = <int>[];
+  for (final e in events) {
+    if (e.isAllday) {
+      continue;
+    }
+    final start = e.start.toDateTime();
+    final end = e.end.toDateTime();
+    if (start != null) {
+      starts.add(start.hour * 60 + start.minute);
+    }
+    if (end != null) {
+      ends.add(end.hour * 60 + end.minute);
+    }
+  }
+  return (starts: starts, ends: ends);
+}
+
+/// 每一条全天日程占的高度（像素）。
+///
+/// 来源：SfCalendar 的常量 `kAllDayAppointmentHeight`（见 sfcalendar.dart）。
+/// 全天面板的总高度 = 「同一天里并排的全天日程条数」× 这个值，由
+/// [_allDayPanelHeight] 计算 —— 不要再把它当成"面板总高度"直接用。
+const double _kAllDayAppointmentHeight = 20;
+
+/// 由 TimeSet 驱动的标尺横线绘制层。
+///
+/// 坐标换算必须与 SfCalendar 内部保持一致：
+///   minuteHeight = timeIntervalHeight / intervalMinutes = 40 / 30
+///   y = (分钟数 − startMinutes) × minuteHeight
+/// 只要这个比例和库一致，画出来的线就会精确落在课块的上下边界上。
+class _TimeSetRulerPainter extends CustomPainter {
+  const _TimeSetRulerPainter({
+    required this.timeSets,
+    required this.startMinutes,
+    required this.endMinutes,
+    required this.rulerWidth,
+    required this.lineColor,
+    required this.headerOffset,
+    required this.dayCount,
+    required this.textStyle,
+    required this.scrollOffset,
+  });
+
+  /// 每份日历一份刻度（列表间不去重，重合的线会叠着画）。
+  final List<TimeSet> timeSets;
+
+  /// 可见时间窗口，单位是「从 0:00 起算的分钟数」。
+  final int startMinutes;
+  final int endMinutes;
+
+  /// 标尺列宽度：线从这里开始向右画到屏幕最右。
+  final double rulerWidth;
+
+  final Color lineColor;
+
+  /// 每像素对应多少分钟高度。40 / 30，与 SfCalendar 的换算完全一致。
+  static const double _minuteHeight = 40 / 30;
+
+  /// 自绘层的纵向偏移（像素），由调用方按「全天日程面板是否展开」决定。
+  /// 正数 = 所有线整体往下移。取值见 [_allDayPanelHeight]。
+  final double headerOffset;
+
+  /// 时间网格要切成几列（周 = 7，日 = 1），用于画天与天之间的竖线。
+  final int dayCount;
+
+  /// 标尺时间文字的样式，由调用方从 Theme 取。
+  final TextStyle textStyle;
+
+  /// 日历时间槽的垂直滚动偏移（像素）。自绘内容要跟着它整体上移。
+  final double scrollOffset;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = lineColor
+      ..strokeWidth = 1.2
+      ..style = PaintingStyle.stroke;
+
+    // 自绘层铺满整个 SfCalendar，但只应画在「时间槽区域」内：
+    // 顶部 headerOffset 以上是表头 / 全天日程面板，画进去就会在滚动时
+    // 看到横线跑到表头上面。裁掉之后，滚出顶部的线和文字会自然消失。
+    final double rulerTop = headerOffset;
+    canvas.save();
+    canvas.clipRect(
+      Rect.fromLTWH(0, rulerTop, size.width, size.height - rulerTop),
+    );
+
+    for (final timeSet in timeSets) {
+      for (final tick in timeSet.ticks) {
+        // 窗口外的时刻不画
+        if (tick < startMinutes || tick > endMinutes) {
+          continue;
+        }
+        // 纯结束时刻的线往上移 1px：SfCalendar 会把课块高度减 1 像素
+        // （appointment_layout.dart 里 `height > 1 ? height - 1 : 0`），
+        // 所以课块下沿比真实时间位置高 1px，线跟着上移才能贴齐下沿。
+        // 开始时刻不能移 —— 它要贴的是下一个课块的上沿。
+        final y = (tick - startMinutes) * _minuteHeight +
+            headerOffset -
+            scrollOffset -
+            (timeSet.endOnlyTicks.contains(tick) ? 1 : 0);
+        canvas.drawLine(
+          Offset(rulerWidth, y),
+          Offset(size.width, y),
+          paint,
+        );
+      }
+    }
+
+    // 天与天之间的竖线。日视图 dayCount = 1，循环不执行，自然没有竖线。
+    final double cellWidth = (size.width - rulerWidth) / dayCount;
+    for (int i = 1; i < dayCount; i++) {
+      final double x = rulerWidth + cellWidth * i;
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        paint,
+      );
+    }
+
+    // 标尺时间文字：右对齐到标尺列，与对应时刻的横线垂直居中。
+    // rulerWidth 为 0（总开关关掉）时不画，避免文字跑到画面外。
+    if (rulerWidth > 0) {
+      // 多个日历可能有相同时刻，文字只画一遍即可（横线那边仍按"重合着画"处理）
+      final List<int> labels = <int>{
+        for (final timeSet in timeSets) ...timeSet.ticks,
+      }.toList()
+        ..sort();
+
+      final TextPainter textPainter = TextPainter(
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.right,
+      );
+
+      for (final int tick in labels) {
+        // 窗口外的时刻不画
+        if (tick < startMinutes || tick > endMinutes) {
+          continue;
+        }
+        // 文字标的是「时间点」，所以用不加那 1px 修正的纯位置
+        final double lineY = (tick - startMinutes) * _minuteHeight +
+            headerOffset -
+            scrollOffset;
+        textPainter.text = TextSpan(
+          text: "${tick ~/ 60}:${(tick % 60).toString().padLeft(2, "0")}",
+          style: textStyle,
+        );
+        textPainter.layout();
+        // 线本身已经滚出可见区 → 这条标签也不画。
+        // （不能只靠 clamp：那样滚出顶部的标签会被"粘"在边缘，
+        //   和后面滚上来的标签叠在一起。）
+        if (lineY < rulerTop || lineY > size.height) {
+          continue;
+        }
+        // 仍在可见区内的标签，夹一下让它完整显示（避免顶部那条只剩半个字）
+        final double dy = (lineY - textPainter.height / 2).clamp(
+          rulerTop,
+          (size.height - textPainter.height) < rulerTop
+              ? rulerTop
+              : size.height - textPainter.height,
+        );
+        textPainter.paint(
+          canvas,
+          Offset(rulerWidth - 4 - textPainter.width, dy),
+        );
+      }
+    }
+
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_TimeSetRulerPainter oldDelegate) {
+    return !listEquals(oldDelegate.timeSets, timeSets) ||
+        oldDelegate.startMinutes != startMinutes ||
+        oldDelegate.endMinutes != endMinutes ||
+        oldDelegate.rulerWidth != rulerWidth ||
+        oldDelegate.lineColor != lineColor ||
+        oldDelegate.headerOffset != headerOffset ||
+        oldDelegate.dayCount != dayCount ||
+        oldDelegate.textStyle != textStyle ||
+        oldDelegate.scrollOffset != scrollOffset;
   }
 }

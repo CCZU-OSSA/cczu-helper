@@ -52,9 +52,21 @@ FutureLazyDynamicCan<List<ICalendarParser>?> icalendarParsersData =
         calendar.readAsStringSync(),
         basename(item.path) == "calendar_curriculum.ics"
             ? CalendarSource.curriculum
-            : CalendarSource.other);
+            : CalendarSource.other,
+        basename(item.path));
   }).toList();
 });
+
+/// 把时间吸附到最近的整点或半点。
+///
+/// 因为 SfCalendar 的时间轴要求「结束 − 开始」的分钟数能被时间间隔整除，
+/// 否则库会自行改动间隔导致标尺错乱，所以这里统一把起止时间吸附到 30 的倍数。
+/// 上限截到 23:30，避免 23:45 这类值四舍五入后回绕到次日 0:00。
+TimeOfDay snapToHalfHour(TimeOfDay time) {
+  final minutes = time.hour * 60 + time.minute;
+  final snapped = (((minutes + 15) ~/ 30) * 30).clamp(0, 23 * 60 + 30);
+  return TimeOfDay(hour: snapped ~/ 60, minute: snapped % 60);
+}
 
 Future<void> ensurePlatDirectoryValue() async {
   await platDirectory.reload();
@@ -123,9 +135,6 @@ class ApplicationConfigs extends AppConfigsBase {
         forward: (value) => Color(value),
       );
 
-  ConfigEntry<bool> get calendarIntervalLine =>
-      generator("calendar_intervalline");
-
   ConfigEntry<String> get calendarBackgroundImage =>
       generator("calendar_background_image");
 
@@ -169,6 +178,10 @@ class ApplicationConfigs extends AppConfigsBase {
           return value.hour * 100 + value.minute;
         },
       );
+
+  /// 用户手动添加的时间刻度，元素是 HHMM 整数（如 845 表示 8:45）。
+  ConfigEntry<List<dynamic>> get calendarTimeSetUser =>
+      generator("calendar_time_set_user");
   ConfigEntryConverter<List<dynamic>, List<SubscribeElectricBillRoom>>
       get subscribeElectricBillRooms => ConfigEntryConverter(
             generator("subscribe_electric_bill_rooms"),
